@@ -1,6 +1,6 @@
 # Weather Plus
 
-Lovingly crafted in NYC by [Victor Quinn](https://github.com/victorquinn) at [Texture](https://www.texturehq.com)
+An awesome TypeScript weather client for fetching weather data from various weather providers.
 
 ## What makes it "plus"?
 
@@ -12,3 +12,4 @@ Lovingly crafted in NYC by [Victor Quinn](https://github.com/victorquinn) at [Te
 * Baked in support for caching with [Redis](https://redis.io/)
 * Built with TypeScript so it includes a type-safe API out of the box
 
+Lovingly crafted in NYC by [Victor Quinn](https://github.com/victorquinn) at [Texture](https://www.texturehq.com)

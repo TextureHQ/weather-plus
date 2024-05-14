@@ -11,7 +11,10 @@
     "@types/node": "^20.12.12",
     "@types/redis": "^4.0.11",
     "axios": "^1.6.8",
-    "geohash": "^0.0.1",
+    "ngeohash": "^0.6.3",
     "redis": "^4.6.13"
+  },
+  "devDependencies": {
+    "@types/ngeohash": "^0.6.8"
   }
 }
