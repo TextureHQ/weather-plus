@@ -1,0 +1,17 @@
+{
+  "name": "weather-plus",
+  "version": "0.0.1",
+  "description": "Weather Plus is a powerful wrapper around various Weather APIs that simplifies adding weather data to your application",
+  "main": "./dist",
+  "repository": "git@github.com:TextureHQ/weather-plus.git",
+  "author": "Victor Quinn <mail@victorquinn.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "@types/node": "^20.12.12",
+    "@types/redis": "^4.0.11",
+    "axios": "^1.6.8",
+    "geohash": "^0.0.1",
+    "redis": "^4.6.13"
+  }
+}
