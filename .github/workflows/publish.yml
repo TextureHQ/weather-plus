@@ -1,0 +1,49 @@
+name: Publish to npm
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test
+
+    - name: Get current version
+      id: get_version
+      run: echo "::set-output name=version::$(node -p -e \"require('./package.json').version\")"
+
+    - name: Check if version is bumped
+      id: version_check
+      run: |
+        git fetch --tags
+        if [ "$(git tag --list "v${{ steps.get_version.outputs.version }}")" ]; then
+          echo "Version ${{ steps.get_version.outputs.version }} is already published."
+          exit 1
+        else
+          echo "Version ${{ steps.get_version.outputs.version }} is new and will be published."
+        fi
+
+    - name: Publish to npm
+      if: ${{ success() && steps.version_check.outputs.version != '' }}
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: |
+        npm publish
+        git tag "v${{ steps.get_version.outputs.version }}"
+        git push origin "v${{ steps.get_version.outputs.version }}"
