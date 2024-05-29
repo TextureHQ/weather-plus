@@ -16,7 +16,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '16' # Ensure this matches your Node.js version
+        node-version: '20'
 
     - name: Install dependencies
       run: npm install
@@ -41,10 +41,11 @@ jobs:
           exit 1
         else
           echo "Version $CURRENT_VERSION is new and will be published."
+          echo "new_version=true" >> $GITHUB_ENV
         fi
 
     - name: Publish to npm
-      if: ${{ success() && steps.version_check.outputs.version != '' }}
+      if: env.new_version == 'true'
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
