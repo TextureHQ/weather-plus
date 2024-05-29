@@ -1,21 +1,27 @@
 import { WeatherService } from './weatherService';
-import { createClient } from 'redis';
+import { RedisClientType, createClient } from 'redis';
 
-const redisClient = createClient();
-redisClient.connect().catch(console.error);
-
-enum ProviderEnum {
-  NWS = 'nws',
-  TOMORROW_IO = 'tomorrow.io',
-  WEATHERKIT = 'weatherkit'
+interface WeatherPlusOptions {
+  provider?: 'nws' | 'tomorrow.io' | 'weatherkit';
+  apiKey?: string;
+  redisClient?: RedisClientType;
 }
 
-const weatherService = new WeatherService({
-  redisClient,
-  provider: ProviderEnum: ProviderEnum.NWS // or 'tomorrow.io', 'weatherkit'
-});
+export class WeatherPlus {
+  private weatherService: WeatherService;
 
-(async () => {
-  const weather = await weatherService.getWeather(40.7128, -74.0060); // Example coordinates for NYC
-  console.log(weather);
-})();
+  constructor(options: WeatherPlusOptions = {}) {
+    const redisClient = options.redisClient || createClient();
+    this.weatherService = new WeatherService({
+      redisClient,
+      provider: options.provider || 'nws',
+      apiKey: options.apiKey
+    });
+  }
+
+  async getWeather(lat: number, lng: number) {
+    return this.weatherService.getWeather(lat, lng);
+  }
+}
+
+export default WeatherPlus;

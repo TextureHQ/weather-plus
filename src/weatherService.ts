@@ -6,33 +6,34 @@ import { Cache } from './cache';
 interface WeatherServiceOptions {
   redisClient?: RedisClientType;
   provider: 'nws' | 'tomorrow.io' | 'weatherkit';
+  apiKey?: string;
 }
 
 export class WeatherService {
   private cache: Cache;
   private provider: string;
+  private apiKey?: string;
 
   constructor(options: WeatherServiceOptions) {
     this.cache = new Cache(options.redisClient);
     this.provider = options.provider;
+    this.apiKey = options.apiKey;
   }
 
   private async fetchWeatherFromProvider(lat: number, lng: number) {
-    // Placeholder for actual provider implementation
     const url = this.getProviderUrl(lat, lng);
     const response = await axios.get(url);
     return response.data;
   }
 
   private getProviderUrl(lat: number, lng: number) {
-    // Return the appropriate URL based on the provider
     switch (this.provider) {
       case 'nws':
         return `https://api.weather.gov/points/${lat},${lng}`;
       case 'tomorrow.io':
-        return `https://api.tomorrow.io/v4/timelines?location=${lat},${lng}&apikey=YOUR_API_KEY`;
+        return `https://api.tomorrow.io/v4/timelines?location=${lat},${lng}&apikey=${this.apiKey}`;
       case 'weatherkit':
-        return `https://api.weatherkit.apple.com/v1/weather/${lat},${lng}`;
+        return `https://api.weatherkit.apple.com/v1/weather/${lat},${lng}?key=${this.apiKey}`;
       default:
         throw new Error('Unsupported provider');
     }
