@@ -1,5 +1,7 @@
 # Weather Plus
 
+DO NOT USE YET -- WIP STILL NOT FUNCTIONAL YET
+
 An awesome TypeScript weather client for fetching weather data from various weather providers.
 
 ## What makes it "plus"?
