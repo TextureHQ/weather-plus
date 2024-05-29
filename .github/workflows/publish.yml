@@ -40,7 +40,7 @@ jobs:
         CURRENT_VERSION=$(jq -r .version package.json)
         if echo "$PUBLISHED_VERSIONS" | jq -e ". | index(\"$CURRENT_VERSION\")" > /dev/null; then
           echo "Version $CURRENT_VERSION is already published."
-          exit 1
+          exit 0
         else
           echo "Version $CURRENT_VERSION is new and will be published."
           echo "new_version=true" >> $GITHUB_ENV
@@ -54,17 +54,3 @@ jobs:
       if: env.new_version == 'true'
       run: |
         npm publish
-
-    - name: Configure Git for authentication
-      if: env.new_version == 'true'
-      run: |
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git config --global user.name "github-actions[bot]"
-
-    - name: Push tags to repository
-      if: env.new_version == 'true'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git tag v${{ env.version }}
-        git push origin --tags
