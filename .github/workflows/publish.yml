@@ -44,10 +44,12 @@ jobs:
           echo "new_version=true" >> $GITHUB_ENV
         fi
 
+    - name: Configure npm for authentication
+      if: env.new_version == 'true'
+      run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
     - name: Publish to npm
       if: env.new_version == 'true'
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       run: |
         npm publish
         git tag v${{ env.version }}
