@@ -42,6 +42,7 @@ jobs:
         else
           echo "Version $CURRENT_VERSION is new and will be published."
           echo "new_version=true" >> $GITHUB_ENV
+        fi
 
     - name: Configure npm for authentication
       if: env.new_version == 'true'
