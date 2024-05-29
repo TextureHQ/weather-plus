@@ -62,6 +62,8 @@ jobs:
 
     - name: Push tags to repository
       if: env.new_version == 'true'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PAT }}
       run: |
         git tag v${{ env.version }}
         git push origin --tags
