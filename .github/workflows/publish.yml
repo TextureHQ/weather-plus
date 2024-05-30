@@ -29,6 +29,9 @@ jobs:
     - name: Run tests
       run: npm test
 
+    - name: Build it
+      run: npm run build
+
     - name: Get current version
       id: get_version
       run: echo "version=$(jq -r .version package.json)" >> $GITHUB_ENV
@@ -52,5 +55,4 @@ jobs:
 
     - name: Publish to npm
       if: env.new_version == 'true'
-      run: |
-        npm publish
+      run: npm publish
