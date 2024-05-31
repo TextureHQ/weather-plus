@@ -1,6 +1,6 @@
 import axios from 'axios';
 import debug from 'debug';
-import { IWeatherData } from '../../types';
+import { IWeatherData } from '../../interfaces';
 import { IGridpointsStations, IPointsLatLngResponse, IObservationsLatest } from './interfaces';
 
 

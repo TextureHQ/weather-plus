@@ -23,5 +23,6 @@ class WeatherPlus {
   }
 }
 
+export * from './interfaces';
 export { WeatherPlus };
 export default WeatherPlus;
