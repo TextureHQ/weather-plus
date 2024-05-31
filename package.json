@@ -1,6 +1,6 @@
 {
   "name": "weather-plus",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Weather Plus is a powerful wrapper around various Weather APIs that simplifies adding weather data to your application",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
