@@ -41,13 +41,17 @@ export async function fetchLatestObservation(stationId: string): Promise<IObserv
 export function convertToWeatherData(observation: any): IWeatherData {
     const properties = observation.properties;
     return {
-        temperature: {
-            value: properties.temperature.value,
-            unit: properties.temperature.unitCode === "wmoUnit:degC" ? "C" : "F",
+        dewPoint: {
+            value: properties.dewPoint.value,
+            unit: properties.dewPoint.unitCode === "wmoUnit:degC" ? "C" : "F",
         },
         humidity: {
             value: properties.relativeHumidity.value,
             unit: "percent",
+        },
+        temperature: {
+            value: properties.temperature.value,
+            unit: properties.temperature.unitCode === "wmoUnit:degC" ? "C" : "F",
         },
     };
 }

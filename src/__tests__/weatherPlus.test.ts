@@ -73,7 +73,7 @@ describe('WeatherPlus Library', () => {
         },
         {
             properties: {
-                temperature: {
+                dewPoint: {
                     value: 20,
                     unitCode: "wmoUnit:degC",
                     qualityControl: "V",
@@ -81,6 +81,11 @@ describe('WeatherPlus Library', () => {
                 relativeHumidity: {
                     value: 50,
                     unitCode: "wmoUnit:percent",
+                    qualityControl: "V",
+                },
+                temperature: {
+                    value: 20,
+                    unitCode: "wmoUnit:degC",
                     qualityControl: "V",
                 },
             }
@@ -95,13 +100,17 @@ describe('WeatherPlus Library', () => {
     const weatherPlus = new WeatherPlus();
     const response = await weatherPlus.getWeather(lat, lng);
     const expectedResponse: IWeatherData = {
-        temperature: {
+        dewPoint: {
             value: 20,
             unit: 'C',
         },
         humidity: {
             value: 50,
             unit: 'percent',
+        },
+        temperature: {
+            value: 20,
+            unit: 'C',
         },
     }
     expect(response).toEqual(expectedResponse);

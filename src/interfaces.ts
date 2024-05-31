@@ -1,6 +1,7 @@
 export interface IWeatherData {
-    temperature: ITemperature;
+    dewPoint: IDewPoint;
     humidity: IRelativeHumidity;
+    temperature: ITemperature;
 }
 
 export interface ITemperature {
@@ -11,4 +12,9 @@ export interface ITemperature {
 export interface IRelativeHumidity {
     value: number;
     unit: 'percent';
+}
+
+export interface IDewPoint {
+    value: number;
+    unit: 'C' | 'F';
 }
