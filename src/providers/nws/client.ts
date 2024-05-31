@@ -18,25 +18,27 @@ export async function fetchObservationStationUrl(lat: number, lng: number): Prom
 }
 
 export async function getWeather(lat: number, lng: number) {
-    // First fetch the stations
-    // @todo create interface objects for the return values
-
     const observationStations = await fetchObservationStationUrl(lat, lng);
+    const stationId = await fetchNearbyStations(observationStations);
+    const observation = await fetchLatestObservation(stationId);
+    return convertToWeatherData(observation);
+}
 
-    // Next fetch the stations nearby
+export async function fetchNearbyStations(observationStations: string): Promise<string> {
     const stationResponse = await axios.get(observationStations);
     const stationData = await stationResponse.data;
-    const stationId = stationData.features[0].id;
+    return stationData.features[0].id;
+}
 
-    // Next fetch the latest observation for the closest station
+export async function fetchLatestObservation(stationId: string): Promise<any> {
     const closestStation = `${stationId}/observations/latest`;
     const observationResponse = await axios.get(closestStation);
-    const observation = observationResponse.data;
+    return observationResponse.data;
+}
 
-    // Then put it into our standardized WeatherData format
-    const weatherData: WeatherData = {
+export function convertToWeatherData(observation: any): WeatherData {
+    return {
         temperature: observation.properties.temperature.value,
         humidity: observation.properties.relativeHumidity.value,
-    }
-    return weatherData;
+    };
 }
