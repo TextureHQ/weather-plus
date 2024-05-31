@@ -10,18 +10,18 @@ interface IStationResponse {
   properties: IProperties;
 }
 
-export async function fetchObservationStationUrl(lat: number, lng: number): Promise<string> {
-  const url = `https://api.weather.gov/points/${lat},${lng}`;
-  log(`URL: ${url}`);
-  const response = await axios.get<IStationResponse>(url);
-  return response.data.properties.observationStations;
-}
-
 export async function getWeather(lat: number, lng: number) {
     const observationStations = await fetchObservationStationUrl(lat, lng);
     const stationId = await fetchNearbyStations(observationStations);
     const observation = await fetchLatestObservation(stationId);
     return convertToWeatherData(observation);
+}
+
+export async function fetchObservationStationUrl(lat: number, lng: number): Promise<string> {
+  const url = `https://api.weather.gov/points/${lat},${lng}`;
+  log(`URL: ${url}`);
+  const response = await axios.get<IStationResponse>(url);
+  return response.data.properties.observationStations;
 }
 
 export async function fetchNearbyStations(observationStations: string): Promise<string> {
