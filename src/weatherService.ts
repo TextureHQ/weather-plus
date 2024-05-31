@@ -4,6 +4,7 @@ import { getGeohash } from './geohash';
 import { Cache } from './cache';
 import * as nws from './providers/nws/client';
 import debug from 'debug';
+import { z } from 'zod';
 
 const log = debug('weather-plus');
 
@@ -36,28 +37,19 @@ export class WeatherService {
     this.apiKey = options.apiKey;
   }
 
-  private async fetchWeatherFromProvider(lat: number, lng: number) {
-    const url = this.getProviderUrl(lat, lng);
-    const response = await axios.get(url);
-    return response.data;
-  }
-
-  private getProviderUrl(lat: number, lng: number) {
-    switch (this.provider) {
-      case 'nws':
-        return `https://api.weather.gov/points/${lat},${lng}`;
-      default:
-        throw new Error('Unsupported provider');
-    }
-  }
-
   public async getWeather(lat: number, lng: number) {
-    log(`Getting weather for (${ lat }, ${ lng }`);
+    const schema = z.object({
+      lat: z.number().min(-90).max(90),
+      lng: z.number().min(-180).max(180),
+    });
+
+    const validation = schema.safeParse({ lat, lng });
+    if (!validation.success) {
+      throw new Error('Invalid latitude or longitude');
+    }
+
+    log(`Getting weather for (${ lat }, ${ lng })`);
     const geohash = getGeohash(lat, lng, 6);
-    // const cachedWeather = await this.cache.get(geohash);
-    // if (cachedWeather) {
-    //   return JSON.parse(cachedWeather);
-    // }
 
     const weather = await this.providers[this.provider].getWeather(lat, lng);
     await this.cache.set(geohash, JSON.stringify(weather), 300); // Cache for 5 mins
