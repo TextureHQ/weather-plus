@@ -1,14 +1,10 @@
 import axios from 'axios';
 import debug from 'debug';
 import { WeatherData } from '../../types';
-import { IWeatherData, IGeoJsonContext, IProperties } from './interfaces';
+import { IGridpointsStations, IPointsLatLngResponse, IObservationsLatest } from './interfaces';
 
 
 const log = debug('weather-plus:nws:client');
-
-interface IStationResponse {
-  properties: IProperties;
-}
 
 export async function getWeather(lat: number, lng: number) {
     const observationStations = await fetchObservationStationUrl(lat, lng);
@@ -17,22 +13,28 @@ export async function getWeather(lat: number, lng: number) {
     return convertToWeatherData(observation);
 }
 
+// Fetch the observation station URL from the Weather.gov API
+// https://api.weather.gov/points/40.7128,-74.0060
 export async function fetchObservationStationUrl(lat: number, lng: number): Promise<string> {
   const url = `https://api.weather.gov/points/${lat},${lng}`;
   log(`URL: ${url}`);
-  const response = await axios.get<IStationResponse>(url);
+  const response = await axios.get<IPointsLatLngResponse>(url);
   return response.data.properties.observationStations;
 }
 
+// Fetch the nearby stations from the Weather.gov API
+// https://api.weather.gov/gridpoints/OKX/33,35/stations
 export async function fetchNearbyStations(observationStations: string): Promise<string> {
-    const stationResponse = await axios.get(observationStations);
-    const stationData = await stationResponse.data;
-    return stationData.features[0].id;
+    const stationResponse = await axios.get<IGridpointsStations>(observationStations);
+    const stationUrl = stationResponse.data.features[0].id;
+    return stationUrl;
 }
 
+// Fetch the latest observation from the Weather.gov API
+// https://api.weather.gov/stations/KNYC/observations/latest
 export async function fetchLatestObservation(stationId: string): Promise<any> {
     const closestStation = `${stationId}/observations/latest`;
-    const observationResponse = await axios.get(closestStation);
+    const observationResponse = await axios.get<IObservationsLatest>(closestStation);
     return observationResponse.data;
 }
 
