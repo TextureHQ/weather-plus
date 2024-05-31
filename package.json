@@ -1,6 +1,6 @@
 {
   "name": "weather-plus",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Weather Plus is a powerful wrapper around various Weather APIs that simplifies adding weather data to your application",
   "main": "./dist/index.js",
   "repository": "git@github.com:TextureHQ/weather-plus.git",
