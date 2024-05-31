@@ -84,15 +84,28 @@ describe('fetchLatestObservation', () => {
 describe('convertToWeatherData', () => {
   it('should convert observation to WeatherData', () => {
     const observation = {
+      "@context": "https://example.com/observation-context",
+      id: "observation123",
+      type: "Observation",
+      geometry: {
+        type: "Point",
+        coordinates: [40.7128, -74.0060],
+      },
       properties: {
-        temperature: { value: 20 },
-        relativeHumidity: { value: 50 },
+        temperature: { value: 20, unitCode: "wmoUnit:degC" },
+        relativeHumidity: { value: 50, unitCode: "wmoUnit:percent" },
       },
     };
 
     const expectedWeatherData = {
-      temperature: 20,
-      humidity: 50,
+      temperature: {
+        value: 20,
+        unit: 'C',
+      },
+      humidity: {
+        value: 50,
+        unit: 'percent',
+      },
     };
 
     const result = convertToWeatherData(observation);

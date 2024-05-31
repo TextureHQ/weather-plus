@@ -1,6 +1,6 @@
 import axios from 'axios';
 import debug from 'debug';
-import { WeatherData } from '../../types';
+import { IWeatherData } from '../../types';
 import { IGridpointsStations, IPointsLatLngResponse, IObservationsLatest } from './interfaces';
 
 
@@ -32,15 +32,22 @@ export async function fetchNearbyStations(observationStations: string): Promise<
 
 // Fetch the latest observation from the Weather.gov API
 // https://api.weather.gov/stations/KNYC/observations/latest
-export async function fetchLatestObservation(stationId: string): Promise<any> {
+export async function fetchLatestObservation(stationId: string): Promise<IObservationsLatest> {
     const closestStation = `${stationId}/observations/latest`;
     const observationResponse = await axios.get<IObservationsLatest>(closestStation);
     return observationResponse.data;
 }
 
-export function convertToWeatherData(observation: any): WeatherData {
+export function convertToWeatherData(observation: any): IWeatherData {
+    const properties = observation.properties;
     return {
-        temperature: observation.properties.temperature.value,
-        humidity: observation.properties.relativeHumidity.value,
+        temperature: {
+            value: properties.temperature.value,
+            unit: properties.temperature.unitCode === "wmoUnit:degC" ? "C" : "F",
+        },
+        humidity: {
+            value: properties.relativeHumidity.value,
+            unit: "percent",
+        },
     };
 }

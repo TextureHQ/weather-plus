@@ -1,7 +1,7 @@
 import WeatherPlus from '../index';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { WeatherData } from '../types';
+import { IWeatherData } from '../types';
 
 jest.mock('redis', () => {
   const mGet = jest.fn();
@@ -94,9 +94,15 @@ describe('WeatherPlus Library', () => {
 
     const weatherPlus = new WeatherPlus();
     const response = await weatherPlus.getWeather(lat, lng);
-    const expectedResponse: WeatherData = {
-        temperature: 20,
-        humidity: 50,
+    const expectedResponse: IWeatherData = {
+        temperature: {
+            value: 20,
+            unit: 'C',
+        },
+        humidity: {
+            value: 50,
+            unit: 'percent',
+        },
     }
     expect(response).toEqual(expectedResponse);
   });
