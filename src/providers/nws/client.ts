@@ -1,16 +1,27 @@
 import axios from 'axios';
 import debug from 'debug';
 import { WeatherData } from '../../types';
+import { IWeatherData, IGeoJsonContext, IProperties } from './interfaces';
+
 
 const log = debug('weather-plus:nws:client');
+
+interface IStationResponse {
+  properties: IProperties;
+}
+
+export async function fetchObservationStationUrl(lat: number, lng: number): Promise<string> {
+  const url = `https://api.weather.gov/points/${lat},${lng}`;
+  log(`URL: ${url}`);
+  const response = await axios.get<IStationResponse>(url);
+  return response.data.properties.observationStations;
+}
 
 export async function getWeather(lat: number, lng: number) {
     // First fetch the stations
     // @todo create interface objects for the return values
-    const url = `https://api.weather.gov/points/${lat},${lng}`
-    log(`URL: ${url}`);
-    const stationsResponse = await axios.get(url)
-    const observationStations = stationsResponse.data.properties.observationStations;
+
+    const observationStations = await fetchObservationStationUrl(lat, lng);
 
     // Next fetch the stations nearby
     const stationResponse = await axios.get(observationStations);
