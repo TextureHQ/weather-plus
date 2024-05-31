@@ -1,0 +1,23 @@
+### Get stations for a given lat/lng
+GET https://api.weather.gov/points/40.7128,-74.0060
+Content-Type: application/json
+
+### Get forecast for a given station
+GET https://api.weather.gov/gridpoints/OKX/33,37/forecast
+Content-Type: application/json
+
+### Get current observation for a given station
+GET https://api.weather.gov/stations/KNYC/observations/latest
+Content-Type: application/json
+
+### Get stations for a gridpoint
+GET https://api.weather.gov/gridpoints/OKX/33,35/stations
+Content-Type: application/json
+
+### Get observation for a given station
+GET https://api.weather.gov/stations/KNYC
+Content-Type: application/json
+
+### Get forecast for station
+GET https://api.weather.gov/zones/forecast/NYZ072
+Content-Type: application/json

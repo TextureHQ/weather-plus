@@ -11,9 +11,8 @@ export class WeatherPlus {
   private weatherService: WeatherService;
 
   constructor(options: WeatherPlusOptions = {}) {
-    const redisClient = options.redisClient || createClient();
     this.weatherService = new WeatherService({
-      redisClient,
+      redisClient: options.redisClient,
       provider: options.provider || 'nws',
       apiKey: options.apiKey
     });

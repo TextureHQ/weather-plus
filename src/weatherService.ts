@@ -2,6 +2,10 @@ import axios from 'axios';
 import { RedisClientType } from 'redis';
 import { getGeohash } from './geohash';
 import { Cache } from './cache';
+import * as nws from './providers/nws/client';
+import debug from 'debug';
+
+const log = debug('weather-plus');
 
 interface WeatherServiceOptions {
   redisClient?: RedisClientType;
@@ -13,9 +17,21 @@ export class WeatherService {
   private cache: Cache;
   private provider: string;
   private apiKey?: string;
+  private providers: { [key: string]: any } = {
+    nws: {
+      getWeather: nws.getWeather,
+    },
+  };
 
   constructor(options: WeatherServiceOptions) {
+    log('Initializing WeatherService with options:', options);
     this.cache = new Cache(options.redisClient);
+    if (options.provider === 'tomorrow.io') {
+      throw new Error('Tomorrow.io is not supported yet');
+    }
+    if (options.provider === 'weatherkit') {
+      throw new Error('WeatherKit is not supported yet');
+    }
     this.provider = options.provider;
     this.apiKey = options.apiKey;
   }
@@ -30,23 +46,20 @@ export class WeatherService {
     switch (this.provider) {
       case 'nws':
         return `https://api.weather.gov/points/${lat},${lng}`;
-      case 'tomorrow.io':
-        return `https://api.tomorrow.io/v4/timelines?location=${lat},${lng}&apikey=${this.apiKey}`;
-      case 'weatherkit':
-        return `https://api.weatherkit.apple.com/v1/weather/${lat},${lng}?key=${this.apiKey}`;
       default:
         throw new Error('Unsupported provider');
     }
   }
 
   public async getWeather(lat: number, lng: number) {
+    log(`Getting weather for (${ lat }, ${ lng }`);
     const geohash = getGeohash(lat, lng, 6);
-    const cachedWeather = await this.cache.get(geohash);
-    if (cachedWeather) {
-      return JSON.parse(cachedWeather);
-    }
+    // const cachedWeather = await this.cache.get(geohash);
+    // if (cachedWeather) {
+    //   return JSON.parse(cachedWeather);
+    // }
 
-    const weather = await this.fetchWeatherFromProvider(lat, lng);
+    const weather = await this.providers[this.provider].getWeather(lat, lng);
     await this.cache.set(geohash, JSON.stringify(weather), 300); // Cache for 5 mins
     return weather;
   }
