@@ -148,64 +148,68 @@ export interface IElevation {
   value: number;
 }
 
+// A note on Quality Control:
+// V = Validated (This indicates that the data has been quality-checked and validated. It means the data is considered reliable and has passed through the National Weather Service's quality control processes.)
+// Z = Unvalidated (This indicates that the data has not been quality-checked and validated. It means the data is considered unreliable and has not passed through the National Weather Service's quality control processes.)
+
 export interface ITemperature {
   unitCode: string;
   value: number;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface IDewpoint {
   unitCode: string;
   value: number;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface IWindDirection {
   unitCode: string;
   value: number | null;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface IWindSpeed {
   unitCode: string;
   value: number;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface IWindGust {
   unitCode: string;
   value: number | null;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface IBarometricPressure {
   unitCode: string;
   value: number;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface ISeaLevelPressure {
   unitCode: string;
   value: number;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface IVisibility {
   unitCode: string;
   value: number;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface IRelativeHumidity {
   unitCode: string;
   value: number;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface IHeatIndex {
   unitCode: string;
   value: number;
-  qualityControl: string;
+  qualityControl: 'V' | 'Z';
 }
 
 export interface ICloudLayerBase {
