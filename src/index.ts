@@ -1,5 +1,5 @@
 import { WeatherService } from './weatherService';
-import { RedisClientType, createClient } from 'redis';
+import { RedisClientType } from 'redis';
 
 interface WeatherPlusOptions {
   provider?: 'nws' | 'tomorrow.io' | 'weatherkit';
@@ -7,7 +7,7 @@ interface WeatherPlusOptions {
   redisClient?: RedisClientType;
 }
 
-export class WeatherPlus {
+class WeatherPlus {
   private weatherService: WeatherService;
 
   constructor(options: WeatherPlusOptions = {}) {
@@ -23,4 +23,5 @@ export class WeatherPlus {
   }
 }
 
+export { WeatherPlus };
 export default WeatherPlus;
