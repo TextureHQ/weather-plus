@@ -21,16 +21,16 @@ jobs:
         node-version: '20'
 
     - name: Install dependencies
-      run: npm install
+      run: yarn install
 
     - name: Install jq
       run: sudo apt-get install -y jq
 
     - name: Run tests
-      run: npm test
+      run: yarn test
 
     - name: Build it
-      run: npm run build
+      run: yarn build
 
     - name: Get current version
       id: get_version
@@ -39,7 +39,7 @@ jobs:
     - name: Check if version is published
       id: version_check
       run: |
-        PUBLISHED_VERSIONS=$(npm view . versions --json)
+        PUBLISHED_VERSIONS=$(yarn info . versions --json | jq -r '.data')
         CURRENT_VERSION=$(jq -r .version package.json)
         if echo "$PUBLISHED_VERSIONS" | jq -e ". | index(\"$CURRENT_VERSION\")" > /dev/null; then
           echo "Version $CURRENT_VERSION is already published."
@@ -55,4 +55,4 @@ jobs:
 
     - name: Publish to npm
       if: env.new_version == 'true'
-      run: npm publish
+      run: yarn publish

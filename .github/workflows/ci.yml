@@ -20,10 +20,10 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '20' # Ensure this matches your Node.js version
+        node-version: '20'
 
     - name: Install dependencies
-      run: npm install
+      run: yarn install
 
     - name: Run tests
-      run: npm test
+      run: yarn test
