@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { RedisClientType } from 'redis';
 import { getGeohash } from './geohash';
 import { Cache } from './cache';
@@ -13,6 +12,11 @@ interface WeatherServiceOptions {
   provider: 'nws' | 'tomorrow.io' | 'weatherkit';
   apiKey?: string;
 }
+
+const CoordinatesSchema = z.object({
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+});
 
 export class WeatherService {
   private cache: Cache;
@@ -38,17 +42,12 @@ export class WeatherService {
   }
 
   public async getWeather(lat: number, lng: number) {
-    const schema = z.object({
-      lat: z.number().min(-90).max(90),
-      lng: z.number().min(-180).max(180),
-    });
-
-    const validation = schema.safeParse({ lat, lng });
+    const validation = CoordinatesSchema.safeParse({ lat, lng });
     if (!validation.success) {
       throw new Error('Invalid latitude or longitude');
     }
 
-    log(`Getting weather for (${ lat }, ${ lng })`);
+    log(`Getting weather for (${lat}, ${lng})`);
     const geohash = getGeohash(lat, lng, 6);
 
     const weather = await this.providers[this.provider].getWeather(lat, lng);

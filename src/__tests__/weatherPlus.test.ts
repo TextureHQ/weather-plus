@@ -53,43 +53,43 @@ describe('WeatherPlus Library', () => {
     const lat = 40.7128;
     const lng = -74.0060;
     const mockResponses = [
-        {
-            properties: {
-                forecast: "https://api.weather.gov/gridpoints/OKX/33,37/forecast",
-                observationStations: "https://api.weather.gov/gridpoints/OKX/33,35/stations",
-            }
-        },
-        {
-            features: [{
-                id:  "https://api.weather.gov/stations/KNYC",
-                properties: {
-                    "@id": "https://api.weather.gov/stations/KNYC",
-                    stationIdentifier: "NYC",
-                    name: "New York City, Central Park",
-                    state: "NY",
-                    stationId: "NYC",
-                }
-            }]
-        },
-        {
-            properties: {
-                dewPoint: {
-                    value: 20,
-                    unitCode: "wmoUnit:degC",
-                    qualityControl: "V",
-                },
-                relativeHumidity: {
-                    value: 50,
-                    unitCode: "wmoUnit:percent",
-                    qualityControl: "V",
-                },
-                temperature: {
-                    value: 20,
-                    unitCode: "wmoUnit:degC",
-                    qualityControl: "V",
-                },
-            }
-        },
+      {
+        properties: {
+          forecast: "https://api.weather.gov/gridpoints/OKX/33,37/forecast",
+          observationStations: "https://api.weather.gov/gridpoints/OKX/33,35/stations",
+        }
+      },
+      {
+        features: [{
+          id: "https://api.weather.gov/stations/KNYC",
+          properties: {
+            "@id": "https://api.weather.gov/stations/KNYC",
+            stationIdentifier: "NYC",
+            name: "New York City, Central Park",
+            state: "NY",
+            stationId: "NYC",
+          }
+        }]
+      },
+      {
+        properties: {
+          dewpoint: {
+            value: 20,
+            unitCode: "wmoUnit:degC",
+            qualityControl: "V",
+          },
+          relativeHumidity: {
+            value: 50,
+            unitCode: "wmoUnit:percent",
+            qualityControl: "V",
+          },
+          temperature: {
+            value: 20,
+            unitCode: "wmoUnit:degC",
+            qualityControl: "V",
+          },
+        }
+      },
     ]
     mock.onGet(`https://api.weather.gov/points/${lat},${lng}`).reply(200, mockResponses[0]);
     mock.onGet(`https://api.weather.gov/gridpoints/OKX/33,35/stations`).reply(200, mockResponses[1]);
@@ -100,18 +100,18 @@ describe('WeatherPlus Library', () => {
     const weatherPlus = new WeatherPlus();
     const response = await weatherPlus.getWeather(lat, lng);
     const expectedResponse: IWeatherData = {
-        dewPoint: {
-            value: 20,
-            unit: 'C',
-        },
-        humidity: {
-            value: 50,
-            unit: 'percent',
-        },
-        temperature: {
-            value: 20,
-            unit: 'C',
-        },
+      dewPoint: {
+        value: 20,
+        unit: 'C',
+      },
+      humidity: {
+        value: 50,
+        unit: 'percent',
+      },
+      temperature: {
+        value: 20,
+        unit: 'C',
+      },
     }
     expect(response).toEqual(expectedResponse);
   });
