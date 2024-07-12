@@ -92,7 +92,7 @@ describe('convertToWeatherData', () => {
         coordinates: [40.7128, -74.0060],
       },
       properties: {
-        dewPoint: { value: 20, unitCode: "wmoUnit:degC" },
+        dewpoint: { value: 20, unitCode: "wmoUnit:degC" },
         temperature: { value: 20, unitCode: "wmoUnit:degC" },
         relativeHumidity: { value: 50, unitCode: "wmoUnit:percent" },
       },
