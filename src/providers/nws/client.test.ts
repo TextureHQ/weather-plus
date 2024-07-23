@@ -95,6 +95,7 @@ describe('convertToWeatherData', () => {
         dewpoint: { value: 20, unitCode: "wmoUnit:degC" },
         temperature: { value: 20, unitCode: "wmoUnit:degC" },
         relativeHumidity: { value: 50, unitCode: "wmoUnit:percent" },
+        textDescription: "Sunny",
       },
     };
 
@@ -110,6 +111,10 @@ describe('convertToWeatherData', () => {
       temperature: {
         value: 20,
         unit: 'C',
+      },
+      conditions: {
+        value: 'Sunny',
+        unit: 'string',
       },
     };
 

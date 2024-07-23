@@ -88,6 +88,7 @@ describe('WeatherPlus Library', () => {
             unitCode: "wmoUnit:degC",
             qualityControl: "V",
           },
+          textDescription: "Sunny",
         }
       },
     ]
@@ -112,6 +113,10 @@ describe('WeatherPlus Library', () => {
         value: 20,
         unit: 'C',
       },
+      conditions: {
+        value: 'Sunny',
+        unit: 'string',
+      }
     }
     expect(response).toEqual(expectedResponse);
   });

@@ -67,5 +67,9 @@ export function convertToWeatherData(observation: any): IWeatherData {
       value: properties.temperature.value,
       unit: properties.temperature.unitCode === 'wmoUnit:degC' ? 'C' : 'F',
     },
+    conditions: {
+      value: properties.textDescription,
+      unit: 'string',
+    }
   };
 }
