@@ -1,19 +1,55 @@
 import axios from 'axios';
 import debug from 'debug';
-import { IWeatherData } from '../../interfaces';
+import { IWeatherData, IWeatherKey, IWeatherUnits } from '../../interfaces';
 import {
   IGridpointsStations,
   IPointsLatLngResponse,
   IObservationsLatest,
+  IFeature,
 } from './interfaces';
 
 const log = debug('weather-plus:nws:client');
 
+export const WEATHER_KEYS = Object.values(IWeatherKey);
+
 export async function getWeather(lat: number, lng: number) {
+  const data: Partial<IWeatherData> = {};
+  const weatherData: IWeatherData[] = [];
+
   const observationStations = await fetchObservationStationUrl(lat, lng);
-  const stationId = await fetchNearbyStations(observationStations);
-  const observation = await fetchLatestObservation(stationId);
-  return convertToWeatherData(observation);
+  const stations = await fetchNearbyStations(observationStations);
+
+  if (!stations.length) {
+    throw new Error('No stations found');
+  }
+
+  do {
+    try {
+      const stationId = stations.pop()?.id;
+
+      if (!stationId) {
+        break;
+      }
+
+      const observation = await fetchLatestObservation(stationId);
+      const weather = convertToWeatherData(observation);
+
+      weatherData.push(weather);
+    } catch (error) {
+      break;
+    }
+  }
+  while (!WEATHER_KEYS.reduce((acc, key) => acc && weatherData.some((data) => data[key]), true) || stations.length > 0);
+
+  for (const key of WEATHER_KEYS) {
+    const value = weatherData.find((data) => data[key]);
+
+    if (value && value[key]?.value) {
+      data[key] = value[key] as never;
+    }
+  }
+
+  return data;
 }
 
 // Fetch the observation station URL from the Weather.gov API
@@ -32,12 +68,12 @@ export async function fetchObservationStationUrl(
 // https://api.weather.gov/gridpoints/OKX/33,35/stations
 export async function fetchNearbyStations(
   observationStations: string
-): Promise<string> {
-  const stationResponse = await axios.get<IGridpointsStations>(
+): Promise<IFeature[]> {
+  const { data: { features } } = await axios.get<IGridpointsStations>(
     observationStations
   );
-  const stationUrl = stationResponse.data.features[0].id;
-  return stationUrl;
+
+  return features;
 }
 
 // Fetch the latest observation from the Weather.gov API
@@ -57,19 +93,19 @@ export function convertToWeatherData(observation: any): IWeatherData {
   return {
     dewPoint: {
       value: properties.dewpoint.value,
-      unit: properties.dewpoint.unitCode === 'wmoUnit:degC' ? 'C' : 'F',
+      unit: properties.dewpoint.unitCode === 'wmoUnit:degC' ? IWeatherUnits.C : IWeatherUnits.F,
     },
     humidity: {
       value: properties.relativeHumidity.value,
-      unit: 'percent',
+      unit: IWeatherUnits.percent,
     },
     temperature: {
       value: properties.temperature.value,
-      unit: properties.temperature.unitCode === 'wmoUnit:degC' ? 'C' : 'F',
+      unit: properties.temperature.unitCode === 'wmoUnit:degC' ? IWeatherUnits.C : IWeatherUnits.F,
     },
     conditions: {
       value: properties.textDescription,
-      unit: 'string',
+      unit: IWeatherUnits.string,
     }
   };
 }

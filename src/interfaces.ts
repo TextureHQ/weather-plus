@@ -1,26 +1,29 @@
+export enum IWeatherUnits {
+    C = 'C',
+    F = 'F',
+    percent = 'percent',
+    string = 'string',
+}
+
+export enum IWeatherKey {
+    dewPoint = 'dewPoint',
+    humidity = 'humidity',
+    temperature = 'temperature',
+    conditions = 'conditions',
+}
+
 export interface IWeatherData {
-    dewPoint: IDewPoint;
-    humidity: IRelativeHumidity;
-    temperature: ITemperature;
-    conditions: IConditions;
+    [IWeatherKey.dewPoint]: IDewPoint;
+    [IWeatherKey.humidity]: IRelativeHumidity;
+    [IWeatherKey.temperature]: ITemperature;
+    [IWeatherKey.conditions]: IConditions;
+}
+export type IBaseWeatherProperty<T, U extends IWeatherUnits> = {
+    value: T;
+    unit: U | keyof typeof IWeatherUnits;
 }
 
-export interface ITemperature {
-    value: number;
-    unit: 'C' | 'F';
-}
-
-export interface IRelativeHumidity {
-    value: number;
-    unit: 'percent';
-}
-
-export interface IDewPoint {
-    value: number;
-    unit: 'C' | 'F';
-}
-
-export interface IConditions {
-    value: string;
-    unit: 'string';
-}
+export type IRelativeHumidity = IBaseWeatherProperty<number, IWeatherUnits.percent>;
+export type IDewPoint = IBaseWeatherProperty<number, IWeatherUnits.C | IWeatherUnits.F>;
+export type IConditions = IBaseWeatherProperty<string, IWeatherUnits.string>;
+export type ITemperature = IBaseWeatherProperty<number, IWeatherUnits.C | IWeatherUnits.F>;

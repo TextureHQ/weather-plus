@@ -49,7 +49,7 @@ describe('fetchNearbyStations', () => {
     mock.onGet(observationStations).reply(200, mockResponse);
 
     const result = await fetchNearbyStations(observationStations);
-    expect(result).toBe(mockResponse.features[0].id);
+    expect(result).toEqual(mockResponse.features);
   });
 });
 
