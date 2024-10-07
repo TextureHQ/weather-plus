@@ -40,10 +40,13 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
-          ./cc-test-reporter format-coverage coverage/lcov.info --input-type lcov --output coverage/codeclimate.$$$.json
+          ./cc-test-reporter format-coverage coverage/lcov.info \
+            --input-type lcov \
+            --output coverage/codeclimate.$$$.json
 
       - name: Upload coverage to Code Climate
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
-          ./cc-test-reporter upload-coverage --input coverage/codeclimate.$$$.json --exit-code ${{ job.status == 'success' && 0 || 1 }}
+          ./cc-test-reporter upload-coverage \
+            --input coverage/codeclimate.$$$.json
