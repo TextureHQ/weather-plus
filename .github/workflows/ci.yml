@@ -9,26 +9,40 @@ on:
       - '**'
 
 jobs:
-  test-and-coverage:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: Install dependencies
-      run: yarn install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Run tests with coverage
-      run: yarn test --coverage
+      - name: Run Code Climate Test Reporter before-build
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
 
-    - name: Upload coverage artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: coverage
+      - name: Run tests with coverage
+        run: npm run coverage
+
+      - name: Format coverage report for Code Climate
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        run: |
+          ./cc-test-reporter format-coverage --input-type lcov --coverage-path coverage/lcov.info --output coverage/codeclimate.$$$.json
+
+      - name: Upload coverage to Code Climate
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        run: |
+          ./cc-test-reporter upload-coverage --input coverage/codeclimate.$$$.json --exit-code ${{ job.status == 'success' && 0 || 1 }}
