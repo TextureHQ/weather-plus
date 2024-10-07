@@ -50,8 +50,13 @@ export class WeatherService {
     log(`Getting weather for (${lat}, ${lng})`);
     const geohash = getGeohash(lat, lng, 6);
 
-    const weather = await this.providers[this.provider].getWeather(lat, lng);
-    await this.cache.set(geohash, JSON.stringify(weather), 300); // Cache for 5 mins
-    return weather;
+    const cachedWeather = await this.cache.get(geohash);
+    if (cachedWeather) {
+      return JSON.parse(cachedWeather);
+    } else {
+      const weather = await this.providers[this.provider].getWeather(lat, lng);
+      await this.cache.set(geohash, JSON.stringify(weather), 300); // Cache for 5 mins
+      return weather;
+    }
   }
 }
