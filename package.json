@@ -15,7 +15,8 @@
     "dev": "tsc-watch --onSuccess 'node dist/index.js'",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prebuild": "rimraf ./dist"
+    "prebuild": "rimraf ./dist",
+    "coverage": "jest --coverage"
   },
   "files": [
     "dist"
