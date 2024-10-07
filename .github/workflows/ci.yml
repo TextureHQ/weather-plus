@@ -5,9 +5,10 @@ on:
     branches:
       - '**'
     types:
-      - opened
-      - synchronize
-      - reopened
+      - [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
 
 jobs:
   build-and-test:
