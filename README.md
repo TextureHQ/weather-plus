@@ -21,7 +21,7 @@ import { WeatherPlus } from 'weather-plus';
 
 or with CommonJS:
 ```
-const WeatherPlus = require('weather-plus');
+const { WeatherPlus } = require('weather-plus');
 ```
 
 and then instantiate it
