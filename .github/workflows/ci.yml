@@ -40,7 +40,7 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         run: |
-          ./cc-test-reporter format-coverage --input-type lcov --coverage-path coverage/lcov.info --output coverage/codeclimate.$$$.json
+          ./cc-test-reporter format-coverage coverage/lcov.info --input-type lcov --output coverage/codeclimate.$$$.json
 
       - name: Upload coverage to Code Climate
         env:
