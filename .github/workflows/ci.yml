@@ -1,12 +1,13 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - '**'
   pull_request:
     branches:
       - '**'
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   build-and-test:
