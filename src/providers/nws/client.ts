@@ -16,6 +16,8 @@ const log = debug('weather-plus:nws:client');
 export const WEATHER_KEYS = Object.values(IWeatherKey);
 
 export class NWSProvider implements IWeatherProvider {
+  name = 'nws';
+
   public async getWeather(lat: number, lng: number): Promise<IWeatherData> {
     // Check if the location is within the US
     if (!isLocationInUS(lat, lng)) {

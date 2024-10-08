@@ -5,7 +5,8 @@ import debug from 'debug';
 import { z } from 'zod';
 import { IWeatherProvider } from './providers/IWeatherProvider';
 import { ProviderFactory } from './providers/providerFactory';
-import { InvalidProviderLocationError } from './errors'; // Import the error class
+import { InvalidProviderLocationError } from './errors';
+import { isLocationInUS } from './utils/locationUtils';
 
 const log = debug('weather-plus');
 
@@ -34,6 +35,9 @@ export class WeatherService {
     const validation = CoordinatesSchema.safeParse({ lat, lng });
     if (!validation.success) {
       throw new Error('Invalid latitude or longitude');
+    }
+    if (!isLocationInUS(lat, lng) && this.provider.name === 'nws') {
+      throw new InvalidProviderLocationError('NWS provider only supports locations in the United States');
     }
 
     log(`Getting weather for (${lat}, ${lng}) using provider ${this.provider.constructor.name}`);

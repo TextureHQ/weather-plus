@@ -8,6 +8,7 @@ const log = debug('weather-plus:openweather:client');
 
 export class OpenWeatherProvider implements IWeatherProvider {
   private apiKey: string;
+  name = 'openweather';
 
   constructor(apiKey: string) {
     if (!apiKey) {

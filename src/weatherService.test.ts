@@ -15,16 +15,24 @@ jest.mock('./cache', () => {
 
 jest.mock('./providers/nws/client', () => {
   const originalModule = jest.requireActual('./providers/nws/client');
+  const { InvalidProviderLocationError } = require('./errors');
+
+  class MockNWSProvider extends originalModule.NWSProvider {
+    async getWeather(lat: number, lng: number) {
+      const isInUS = lat >= 24.7433195 && lat <= 49.3457868 && lng >= -124.7844079 && lng <= -66.9513812;
+      if (!isInUS) {
+        throw new InvalidProviderLocationError(
+          'The NWS provider only supports locations within the United States.'
+        );
+      }
+      return { lat, lng, weather: 'sunny' };
+    }
+  }
+
   return {
     __esModule: true,
     ...originalModule,
-    NWSProvider: jest.fn().mockImplementation(() => {
-      return {
-        getWeather: jest.fn().mockImplementation(async (lat: number, lng: number) => {
-          return { lat, lng, weather: 'sunny' };
-        }),
-      };
-    }),
+    NWSProvider: MockNWSProvider,
   };
 });
 
