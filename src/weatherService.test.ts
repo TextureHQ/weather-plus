@@ -1,6 +1,6 @@
-import { WeatherService, InvalidProviderLocationError } from './weatherService';
-import * as nwsClient from './providers/nws/client';
-import geohash from 'ngeohash';
+import { WeatherService } from './weatherService';
+import { InvalidProviderLocationError } from './errors';
+import { NWSProvider } from './providers/nws/client';
 
 jest.mock('./cache', () => {
   return {
@@ -14,20 +14,27 @@ jest.mock('./cache', () => {
 });
 
 jest.mock('./providers/nws/client', () => {
-  return {
-    getWeather: jest.fn().mockImplementation(async (lat: number, lng: number) => {
+  const originalModule = jest.requireActual('./providers/nws/client');
+  const { InvalidProviderLocationError } = require('./errors');
+
+  class MockNWSProvider extends originalModule.NWSProvider {
+    async getWeather(lat: number, lng: number) {
+      const isInUS = lat >= 24.7433195 && lat <= 49.3457868 && lng >= -124.7844079 && lng <= -66.9513812;
+      if (!isInUS) {
+        throw new InvalidProviderLocationError(
+          'The NWS provider only supports locations within the United States.'
+        );
+      }
       return { lat, lng, weather: 'sunny' };
-    }),
+    }
+  }
+
+  return {
+    __esModule: true,
+    ...originalModule,
+    NWSProvider: MockNWSProvider,
   };
 });
-
-jest.mock('ngeohash', () => ({
-  encode: jest.fn().mockReturnValue('dqcjq'), // mock geohash string
-  decode: jest.fn().mockReturnValue({
-    latitude: 38.8977,
-    longitude: -77.0365,
-  }),
-}));
 
 describe('WeatherService', () => {
   let weatherService: WeatherService;
@@ -47,16 +54,17 @@ describe('WeatherService', () => {
   });
 
   it('should throw InvalidProviderLocationError for a location outside the United States', async () => {
+    const service = new WeatherService({ provider: 'nws' });
     const lat = 51.5074; // London, UK
     const lng = -0.1278;
 
-    await expect(weatherService.getWeather(lat, lng)).rejects.toThrow(
+    await expect(service.getWeather(lat, lng)).rejects.toThrow(
       InvalidProviderLocationError
     );
   });
 
   it('should not call NWS API for a location outside the United States', async () => {
-    const getWeatherSpy = jest.spyOn(nwsClient, 'getWeather');
+    const getWeatherSpy = jest.spyOn(NWSProvider.prototype, 'getWeather');
     const lat = -33.8688; // Sydney, Australia
     const lng = 151.2093;
 

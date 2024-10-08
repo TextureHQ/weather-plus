@@ -7,6 +7,7 @@ An awesome TypeScript weather client for fetching weather data from various weat
 
 * Support for various weather providers:
     * [National Weather Service](https://weather-gov.github.io/api/)
+    * [OpenWeather](https://openweathermap.org/api)
     * [Tomorrow](https://www.tomorrow.io/) (coming soon!)
     * [WeatherKit](https://developer.apple.com/weatherkit/) (coming soon!)
 * A clean and standardized API for fetching weather data regardless of the weather provider
