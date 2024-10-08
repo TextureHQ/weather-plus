@@ -1,7 +1,7 @@
-import WeatherPlus from '../index';
+import WeatherPlus from './index';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { IWeatherData } from '../interfaces';
+import { IWeatherData } from './interfaces';
 
 jest.mock('redis', () => {
   const mGet = jest.fn();
