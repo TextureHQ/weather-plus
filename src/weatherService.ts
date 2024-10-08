@@ -9,12 +9,13 @@ import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { feature } from 'topojson-client';
 import usAtlasData from 'us-atlas/states-10m.json';
 import { Polygon, MultiPolygon } from 'geojson';
+import * as openweather from './providers/openweather/client';
 
 const log = debug('weather-plus');
 
 interface WeatherServiceOptions {
   redisClient?: RedisClientType;
-  provider: 'nws' | 'tomorrow.io' | 'weatherkit';
+  provider: 'nws' | 'openweather' | 'tomorrow.io' | 'weatherkit';
   apiKey?: string;
 }
 
@@ -45,6 +46,9 @@ export class WeatherService {
   private providers: { [key: string]: any } = {
     nws: {
       getWeather: nws.getWeather,
+    },
+    openweather: {
+      getWeather: openweather.getWeather,
     },
   };
 
@@ -102,7 +106,7 @@ export class WeatherService {
       }
     }
 
-    log(`Getting weather for (${lat}, ${lng})`);
+    log(`Getting weather for (${lat}, ${lng}) using provider ${this.provider}`);
     const precision = 5; // or desired precision
     const locationGeohash = geohash.encode(lat, lng, precision);
 
@@ -110,7 +114,10 @@ export class WeatherService {
     if (cachedWeather) {
       return JSON.parse(cachedWeather);
     } else {
-      const weather = await this.providers[this.provider].getWeather(lat, lng);
+      if (this.provider === 'openweather' && !this.apiKey) {
+        throw new Error('OpenWeather provider requires an API key.');
+      }
+      const weather = await this.providers[this.provider].getWeather(lat, lng, this.apiKey);
       await this.cache.set(locationGeohash, JSON.stringify(weather), 300); // Cache for 5 mins
       return weather;
     }

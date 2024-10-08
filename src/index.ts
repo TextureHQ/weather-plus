@@ -2,7 +2,7 @@ import { WeatherService, InvalidProviderLocationError } from './weatherService';
 import { RedisClientType } from 'redis';
 
 interface WeatherPlusOptions {
-  provider?: 'nws' | 'tomorrow.io' | 'weatherkit';
+  provider?: 'nws' | 'openweather' | 'tomorrow.io' | 'weatherkit';
   apiKey?: string;
   redisClient?: RedisClientType;
 }
