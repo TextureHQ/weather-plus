@@ -1,4 +1,5 @@
-import { WeatherService, InvalidProviderLocationError } from './weatherService';
+import { WeatherService } from './weatherService';
+import { InvalidProviderLocationError } from './errors';
 import { RedisClientType } from 'redis';
 
 interface WeatherPlusOptions {
@@ -23,6 +24,6 @@ class WeatherPlus {
   }
 }
 
-export { WeatherPlus, InvalidProviderLocationError };
+export { WeatherService, InvalidProviderLocationError };
 export * from './interfaces';
 export default WeatherPlus;

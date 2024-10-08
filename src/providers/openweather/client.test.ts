@@ -1,15 +1,17 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { getWeather } from './client';
+import { OpenWeatherProvider } from './client';
 
-describe('OpenWeather Client', () => {
-  const lat = 51.5074; // Example latitude
-  const lng = -0.1278; // Example longitude
+describe('OpenWeatherProvider', () => {
+  const lat = 51.5074; // Example latitude (London)
+  const lng = -0.1278; // Example longitude (London)
   const apiKey = 'test-api-key'; // Example API key
   let mock: MockAdapter;
+  let provider: OpenWeatherProvider;
 
   beforeEach(() => {
     mock = new MockAdapter(axios);
+    provider = new OpenWeatherProvider(apiKey);
   });
 
   afterEach(() => {
@@ -31,24 +33,17 @@ describe('OpenWeather Client', () => {
     };
 
     mock
-      .onGet('https://api.openweathermap.org/data/3.0/onecall')
-      .reply((config) => {
-        const params = config.params;
+      .onGet('https://api.openweathermap.org/data/3.0/onecall', {
+        params: {
+          lat: lat.toString(),
+          lon: lng.toString(),
+          appid: apiKey,
+          units: 'metric',
+        },
+      })
+      .reply(200, mockResponse);
 
-        if (
-          params &&
-          params.lat === lat.toString() &&
-          params.lon === lng.toString() &&
-          params.appid === apiKey &&
-          params.units === 'metric'
-        ) {
-          return [200, mockResponse];
-        } else {
-          return [404];
-        }
-      });
-
-    const weatherData = await getWeather(lat, lng, apiKey);
+    const weatherData = await provider.getWeather(lat, lng);
 
     expect(weatherData).toEqual({
       dewPoint: { value: 10, unit: 'C' },

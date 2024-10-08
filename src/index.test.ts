@@ -39,14 +39,14 @@ describe('WeatherPlus Library', () => {
     const initTomorrowIO = () => {
       new WeatherPlus({ provider: 'tomorrow.io' });
     };
-    expect(initTomorrowIO).toThrow('Tomorrow.io is not supported yet');
+    expect(initTomorrowIO).toThrow('Provider tomorrow.io is not supported yet');
   });
 
   it('should throw an error if the provider is WeatherKit', () => {
     const initWeatherKit = () => {
       new WeatherPlus({ provider: 'weatherkit' });
     };
-    expect(initWeatherKit).toThrow('WeatherKit is not supported yet');
+    expect(initWeatherKit).toThrow('Provider weatherkit is not supported yet');
   });
 
   it('should follow up the call with the forecast', async () => {

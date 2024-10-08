@@ -118,15 +118,13 @@ export interface IPagination {
 }
 
 export interface IPointsLatLngResponse {
-  properties: IProperties;
+  properties: {
+    observationStations: string;
+  };
 }
 
 export interface IGridpointsStations {
-  "@context": (string | IGeoJsonContext)[];
-  type: string;
   features: IFeature[];
-  observationStations: string[];
-  pagination: IPagination;
 }
 
 export interface IValue {
@@ -252,9 +250,19 @@ export interface IProperties {
 }
 
 export interface IObservationsLatest {
-  "@context": (string | IGeoJsonContext)[];
-  id: string;
-  type: string;
-  geometry: IGeometry;
-  properties: IProperties;
+  properties: {
+    dewpoint: {
+      value: number | null;
+      unitCode: string;
+    };
+    relativeHumidity: {
+      value: number | null;
+    };
+    temperature: {
+      value: number | null;
+      unitCode: string;
+    };
+    textDescription: string;
+    // Include other fields as necessary
+  };
 }
