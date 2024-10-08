@@ -1,6 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { fetchObservationStationUrl, fetchNearbyStations, fetchLatestObservation, convertToWeatherData } from './client';
+import { fetchObservationStationUrl, fetchNearbyStations, fetchLatestObservation, convertToWeatherData, getWeather } from './client';
 
 describe('fetchObservationStationUrl', () => {
   let mock: MockAdapter;
@@ -120,5 +120,90 @@ describe('convertToWeatherData', () => {
 
     const result = convertToWeatherData(observation);
     expect(result).toEqual(expectedWeatherData);
+  });
+});
+
+describe('getWeather', () => {
+  let mock: MockAdapter;
+
+  const lat = 38.8977;
+  const lng = -77.0365;
+
+  beforeEach(() => {
+    mock = new MockAdapter(axios);
+  });
+
+  afterEach(() => {
+    mock.restore();
+  });
+
+  test('should return weather data successfully', async () => {
+    // Mock fetchObservationStationUrl
+    mock.onGet(`https://api.weather.gov/points/${lat},${lng}`).reply(200, {
+      properties: {
+        observationStations: 'https://api.weather.gov/gridpoints/XYZ/123,456/stations',
+      },
+    });
+
+    // Mock fetchNearbyStations
+    mock.onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations').reply(200, {
+      features: [{ id: 'station123' }],
+    });
+
+    // Mock fetchLatestObservation
+    mock.onGet('station123/observations/latest').reply(200, {
+      properties: {
+        temperature: { value: 20, unitCode: 'wmoUnit:degC' },
+        dewpoint: { value: 10, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50, unitCode: 'wmoUnit:percent' },
+        textDescription: 'Clear',
+      },
+    });
+
+    const result = await getWeather(lat, lng);
+
+    expect(result).toEqual({
+      temperature: { value: 20, unit: 'C' },
+      dewPoint: { value: 10, unit: 'C' },
+      humidity: { value: 50, unit: 'percent' },
+      conditions: { value: 'Clear', unit: 'string' },
+    });
+  });
+
+  test('should throw an error when the response is not OK', async () => {
+    // Mocking the first axios request to return 404
+    mock.onGet(`https://api.weather.gov/points/${lat},${lng}`).reply(404);
+
+    await expect(getWeather(lat, lng)).rejects.toThrow('Failed to fetch observation station URL');
+  });
+
+  test('should throw an error when axios request fails', async () => {
+    // Simulate network error
+    mock.onGet(`https://api.weather.gov/points/${lat},${lng}`).networkError();
+
+    await expect(getWeather(lat, lng)).rejects.toThrow('Failed to fetch observation station URL');
+  });
+
+  test('should throw an error when response is not valid JSON', async () => {
+    // Mocking the first axios request with invalid JSON
+    mock.onGet(`https://api.weather.gov/points/${lat},${lng}`).reply(200, "Invalid JSON");
+
+    await expect(getWeather(lat, lng)).rejects.toThrow('Failed to fetch observation station URL');
+  });
+
+  test('should throw an error when no stations are found', async () => {
+    // Mock fetchObservationStationUrl
+    mock.onGet(`https://api.weather.gov/points/${lat},${lng}`).reply(200, {
+      properties: {
+        observationStations: 'https://api.weather.gov/gridpoints/XYZ/123,456/stations',
+      },
+    });
+
+    // Mock fetchNearbyStations to return no stations
+    mock.onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations').reply(200, {
+      features: [],
+    });
+
+    await expect(getWeather(lat, lng)).rejects.toThrow('No stations found');
   });
 });

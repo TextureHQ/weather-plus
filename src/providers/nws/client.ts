@@ -16,76 +16,122 @@ export async function getWeather(lat: number, lng: number) {
   const data: Partial<IWeatherData> = {};
   const weatherData: IWeatherData[] = [];
 
-  const observationStations = await fetchObservationStationUrl(lat, lng);
-  const stations = await fetchNearbyStations(observationStations);
+  try {
+    const observationStations = await fetchObservationStationUrl(lat, lng);
+    const stations = await fetchNearbyStations(observationStations);
 
-  if (!stations.length) {
-    throw new Error('No stations found');
-  }
+    if (!stations.length) {
+      throw new Error('No stations found');
+    }
 
-  do {
-    try {
-      const stationId = stations.pop()?.id;
+    do {
+      try {
+        const stationId = stations.pop()?.id;
 
-      if (!stationId) {
-        break;
+        if (!stationId) {
+          break;
+        }
+
+        const observation = await fetchLatestObservation(stationId);
+        const weather = convertToWeatherData(observation);
+
+        weatherData.push(weather);
+      } catch (error) {
+        log('Error fetching data from station:', error);
+        // Skip to the next station
       }
+    } while (
+      !WEATHER_KEYS.reduce(
+        (acc, key) => acc && weatherData.some((data) => data[key]),
+        true
+      ) || stations.length > 0
+    );
 
-      const observation = await fetchLatestObservation(stationId);
-      const weather = convertToWeatherData(observation);
+    for (const key of WEATHER_KEYS) {
+      const value = weatherData.find((data) => data[key]);
 
-      weatherData.push(weather);
-    } catch (error) {
-      break;
+      if (value && value[key]?.value) {
+        data[key] = value[key] as never;
+      }
     }
+
+    return data;
+  } catch (error) {
+    log('Error in getWeather:', error);
+    throw error;
   }
-  while (!WEATHER_KEYS.reduce((acc, key) => acc && weatherData.some((data) => data[key]), true) || stations.length > 0);
-
-  for (const key of WEATHER_KEYS) {
-    const value = weatherData.find((data) => data[key]);
-
-    if (value && value[key]?.value) {
-      data[key] = value[key] as never;
-    }
-  }
-
-  return data;
 }
 
-// Fetch the observation station URL from the Weather.gov API
-// https://api.weather.gov/points/40.7128,-74.0060
+// Updated function with error handling
 export async function fetchObservationStationUrl(
   lat: number,
   lng: number
 ): Promise<string> {
   const url = `https://api.weather.gov/points/${lat},${lng}`;
   log(`URL: ${url}`);
-  const response = await axios.get<IPointsLatLngResponse>(url);
-  return response.data.properties.observationStations;
+
+  try {
+    const response = await axios.get<IPointsLatLngResponse>(url);
+
+    // Check if response.data is an object and has the expected properties
+    if (
+      typeof response.data === 'object' &&
+      response.data.properties &&
+      response.data.properties.observationStations
+    ) {
+      return response.data.properties.observationStations;
+    } else {
+      throw new Error('Invalid response data');
+    }
+  } catch (error) {
+    log('Error in fetchObservationStationUrl:', error);
+    throw new Error('Failed to fetch observation station URL');
+  }
 }
 
-// Fetch the nearby stations from the Weather.gov API
-// https://api.weather.gov/gridpoints/OKX/33,35/stations
+// Updated function with error handling
 export async function fetchNearbyStations(
   observationStations: string
 ): Promise<IFeature[]> {
-  const { data: { features } } = await axios.get<IGridpointsStations>(
-    observationStations
-  );
+  try {
+    const response = await axios.get<IGridpointsStations>(observationStations);
 
-  return features;
+    if (
+      typeof response.data === 'object' &&
+      response.data.features &&
+      Array.isArray(response.data.features)
+    ) {
+      return response.data.features;
+    } else {
+      throw new Error('Invalid response data');
+    }
+  } catch (error) {
+    log('Error in fetchNearbyStations:', error);
+    throw new Error('Failed to fetch nearby stations');
+  }
 }
 
-// Fetch the latest observation from the Weather.gov API
-// https://api.weather.gov/stations/KNYC/observations/latest
+// Updated function with error handling
 export async function fetchLatestObservation(
   stationId: string
 ): Promise<IObservationsLatest> {
-  const closestStation = `${stationId}/observations/latest`;
-  const observationResponse = await axios.get<IObservationsLatest>(
-    closestStation
-  );
-  return observationResponse.data;
+  const url = `${stationId}/observations/latest`;
+
+  try {
+    const response = await axios.get<IObservationsLatest>(url);
+
+    if (
+      typeof response.data === 'object' &&
+      response.data.properties
+    ) {
+      return response.data;
+    } else {
+      throw new Error('Invalid observation data');
+    }
+  } catch (error) {
+    log('Error in fetchLatestObservation:', error);
+    throw new Error('Failed to fetch latest observation');
+  }
 }
 
 export function convertToWeatherData(observation: any): IWeatherData {
