@@ -1,5 +1,6 @@
 import { WeatherService, InvalidProviderLocationError } from './weatherService';
 import * as nwsClient from './providers/nws/client';
+import geohash from 'ngeohash';
 
 jest.mock('./cache', () => {
   return {
@@ -19,6 +20,14 @@ jest.mock('./providers/nws/client', () => {
     }),
   };
 });
+
+jest.mock('ngeohash', () => ({
+  encode: jest.fn().mockReturnValue('dqcjq'), // mock geohash string
+  decode: jest.fn().mockReturnValue({
+    latitude: 38.8977,
+    longitude: -77.0365,
+  }),
+}));
 
 describe('WeatherService', () => {
   let weatherService: WeatherService;

@@ -1,5 +1,5 @@
 import { RedisClientType } from 'redis';
-import { getGeohash } from './geohash';
+import geohash from 'ngeohash';
 import { Cache } from './cache';
 import * as nws from './providers/nws/client';
 import debug from 'debug';
@@ -7,7 +7,6 @@ import { z } from 'zod';
 import { Feature, Geometry, Point, GeoJsonProperties } from 'geojson';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { feature } from 'topojson-client';
-import { Topology } from 'topojson-specification';
 import usAtlasData from 'us-atlas/states-10m.json';
 import { Polygon, MultiPolygon } from 'geojson';
 
@@ -104,14 +103,15 @@ export class WeatherService {
     }
 
     log(`Getting weather for (${lat}, ${lng})`);
-    const geohash = getGeohash(lat, lng, 6);
+    const precision = 5; // or desired precision
+    const locationGeohash = geohash.encode(lat, lng, precision);
 
-    const cachedWeather = await this.cache.get(geohash);
+    const cachedWeather = await this.cache.get(locationGeohash);
     if (cachedWeather) {
       return JSON.parse(cachedWeather);
     } else {
       const weather = await this.providers[this.provider].getWeather(lat, lng);
-      await this.cache.set(geohash, JSON.stringify(weather), 300); // Cache for 5 mins
+      await this.cache.set(locationGeohash, JSON.stringify(weather), 300); // Cache for 5 mins
       return weather;
     }
   }
