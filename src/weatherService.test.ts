@@ -133,4 +133,20 @@ describe('WeatherService', () => {
       new WeatherService({ provider: 'nws', geohashPrecision: 21 });
     }).toThrow(invalidGeohashPrecisionErrorMessage);
   });
+
+  it('should create WeatherService with a valid geohashPrecision', () => {
+    expect(() => {
+      new WeatherService({ provider: 'nws', geohashPrecision: 7 });
+    }).not.toThrow();
+
+    expect(() => {
+      new WeatherService({ provider: 'nws', geohashPrecision: 9 });
+    }).not.toThrow();
+  });
+
+  it('should create WeatherService without specifying geohashPrecision', () => {
+    expect(() => {
+      new WeatherService({ provider: 'nws' });
+    }).not.toThrow();
+  });
 });
