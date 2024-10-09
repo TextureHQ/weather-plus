@@ -6,6 +6,7 @@ interface WeatherPlusOptions {
   provider?: 'nws' | 'openweather' | 'tomorrow.io' | 'weatherkit';
   apiKey?: string;
   redisClient?: RedisClientType;
+  geohashPrecision?: number;
 }
 
 class WeatherPlus {
@@ -14,6 +15,7 @@ class WeatherPlus {
   constructor(options: WeatherPlusOptions = {}) {
     this.weatherService = new WeatherService({
       redisClient: options.redisClient,
+      geohashPrecision: options.geohashPrecision,
       provider: options.provider || 'nws',
       apiKey: options.apiKey
     });

@@ -113,4 +113,22 @@ describe('WeatherService', () => {
 
     await expect(weatherService.getWeather(lat, lng)).rejects.toThrow('Generic provider error');
   });
+
+  it('should throw an error when geohashPrecision is zero', () => {
+    expect(() => {
+      new WeatherService({ provider: 'nws', geohashPrecision: 0 });
+    }).toThrow('Invalid geohashPrecision. It must be an integer greater than 0 and less than 20.');
+  });
+
+  it('should throw an error when geohashPrecision is negative', () => {
+    expect(() => {
+      new WeatherService({ provider: 'nws', geohashPrecision: -1 });
+    }).toThrow('Invalid geohashPrecision. It must be an integer greater than 0 and less than 20.');
+  });
+
+  it('should throw an error when geohashPrecision is greater than or equal to 20', () => {
+    expect(() => {
+      new WeatherService({ provider: 'nws', geohashPrecision: 21 });
+    }).toThrow('Invalid geohashPrecision. It must be an integer greater than 0 and less than 20.');
+  });
 });
