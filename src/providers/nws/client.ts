@@ -60,12 +60,20 @@ export class NWSProvider implements IWeatherProvider {
         ) && stations.length > 0
       );
 
+      if (weatherData.length === 0) {
+        throw new Error('Invalid observation data');
+      }
+
       for (const key of WEATHER_KEYS) {
         const value = weatherData.find((data) => data[key]);
 
         if (value && value[key]?.value) {
           data[key] = value[key] as never;
         }
+      }
+
+      if (Object.keys(data).length === 0) {
+        throw new Error('Invalid observation data');
       }
 
       return data as IWeatherData;

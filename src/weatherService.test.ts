@@ -101,4 +101,16 @@ describe('WeatherService', () => {
     expect(cacheGetMock).toHaveBeenCalled();
     expect(cacheSetMock).not.toHaveBeenCalled();
   });
+
+  // Add this test case
+  it('should rethrow generic errors from provider.getWeather', async () => {
+    const genericError = new Error('Generic provider error');
+    // Mock the provider's getWeather to throw a generic error
+    jest.spyOn(weatherService['provider'], 'getWeather').mockRejectedValue(genericError);
+
+    const lat = 38.8977; // Valid US location
+    const lng = -77.0365;
+
+    await expect(weatherService.getWeather(lat, lng)).rejects.toThrow('Generic provider error');
+  });
 });

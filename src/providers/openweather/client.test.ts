@@ -52,4 +52,20 @@ describe('OpenWeatherProvider', () => {
       conditions: { value: 'clear sky', unit: 'string' },
     });
   });
+
+  // Add this test case
+  it('should throw an error if no API key is provided', () => {
+    expect(() => {
+      new OpenWeatherProvider('');
+    }).toThrow('OpenWeather provider requires an API key.');
+  });
+
+  // Add this test case
+  it('should handle errors from the OpenWeather API', async () => {
+    mock
+      .onGet('https://api.openweathermap.org/data/3.0/onecall')
+      .reply(500);
+
+    await expect(provider.getWeather(lat, lng)).rejects.toThrow();
+  });
 });

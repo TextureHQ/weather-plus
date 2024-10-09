@@ -2,6 +2,7 @@ import WeatherPlus from './index';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { IWeatherData } from './interfaces';
+import { InvalidProviderLocationError } from './errors';
 
 jest.mock('redis', () => {
   const mGet = jest.fn();
@@ -119,5 +120,13 @@ describe('WeatherPlus Library', () => {
       }
     }
     expect(response).toEqual(expectedResponse);
+  });
+
+  // Add this test case
+  it('should export InvalidProviderLocationError', () => {
+    expect(InvalidProviderLocationError).toBeDefined();
+    const error = new InvalidProviderLocationError('Test error');
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toBe('Test error');
   });
 });
