@@ -22,8 +22,7 @@ describe('NWSProvider', () => {
     mock.restore();
   });
 
-  it('should fetch and convert weather data from NWS API', async () => {
-    // Mock fetchObservationStationUrl
+  const mockObservationStationUrl = () => {
     mock
       .onGet(`https://api.weather.gov/points/${latInUS},${lngInUS}`)
       .reply(200, {
@@ -31,6 +30,10 @@ describe('NWSProvider', () => {
           observationStations: 'https://api.weather.gov/gridpoints/XYZ/123,456/stations',
         },
       });
+  };
+
+  it('should fetch and convert weather data from NWS API', async () => {
+    mockObservationStationUrl();
 
     // Mock fetchNearbyStations
     mock
@@ -69,14 +72,7 @@ describe('NWSProvider', () => {
 
   // Add this test case
   it('should throw an error if no observation stations are found', async () => {
-    // Mock fetchObservationStationUrl
-    mock
-      .onGet(`https://api.weather.gov/points/${latInUS},${lngInUS}`)
-      .reply(200, {
-        properties: {
-          observationStations: 'https://api.weather.gov/gridpoints/XYZ/123,456/stations',
-        },
-      });
+    mockObservationStationUrl();
 
     // Mock fetchNearbyStations with empty features array
     mock
@@ -90,14 +86,7 @@ describe('NWSProvider', () => {
 
   // Add this test case
   it('should throw an error on invalid observation data', async () => {
-    // Mock fetchObservationStationUrl
-    mock
-      .onGet(`https://api.weather.gov/points/${latInUS},${lngInUS}`)
-      .reply(200, {
-        properties: {
-          observationStations: 'https://api.weather.gov/gridpoints/XYZ/123,456/stations',
-        },
-      });
+    mockObservationStationUrl();
 
     // Mock fetchNearbyStations
     mock
@@ -114,14 +103,7 @@ describe('NWSProvider', () => {
 
   // Add this test case
   it('should skip stations if fetching data from a station fails', async () => {
-    // Mock fetchObservationStationUrl
-    mock
-      .onGet(`https://api.weather.gov/points/${latInUS},${lngInUS}`)
-      .reply(200, {
-        properties: {
-          observationStations: 'https://api.weather.gov/gridpoints/XYZ/123,456/stations',
-        },
-      });
+    mockObservationStationUrl();
 
     // Mock fetchNearbyStations with multiple stations
     mock
