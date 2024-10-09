@@ -15,6 +15,7 @@ interface WeatherServiceOptions {
   provider: 'nws' | 'openweather' | 'tomorrow.io' | 'weatherkit';
   apiKey?: string;
   geohashPrecision?: number;
+  cacheTTL?: number;
 }
 
 const CoordinatesSchema = z.object({
@@ -29,7 +30,7 @@ export class WeatherService {
 
   constructor(options: WeatherServiceOptions) {
     log('Initializing WeatherService with options:', options);
-    this.cache = new Cache(options.redisClient);
+    this.cache = new Cache(options.redisClient, options.cacheTTL);
     this.provider = ProviderFactory.createProvider(options.provider, options.apiKey);
 
     if (options.geohashPrecision !== undefined) {
@@ -60,7 +61,7 @@ export class WeatherService {
     } else {
       try {
         const weather = await this.provider.getWeather(lat, lng);
-        await this.cache.set(locationGeohash, JSON.stringify(weather), 300); // Cache for 5 mins
+        await this.cache.set(locationGeohash, JSON.stringify(weather));
         return weather;
       } catch (error) {
         if (error instanceof InvalidProviderLocationError) {

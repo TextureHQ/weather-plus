@@ -84,5 +84,48 @@ describe('Cache', () => {
     });
 
     // Since memory cache doesn't throw errors, we don't need error handling tests here
+
+    it('should use default TTL of 300 seconds when none is provided (Memory Cache)', async () => {
+      jest.useFakeTimers();
+
+      const key = 'default-ttl-key';
+      const value = 'default-ttl-value';
+
+      await cache.set(key, value);
+
+      // Advance time by 299 seconds
+      jest.advanceTimersByTime(299 * 1000);
+      let result = await cache.get(key);
+      expect(result).toEqual(value);
+
+      // Advance time by 2 more seconds (total 301 seconds)
+      jest.advanceTimersByTime(2 * 1000);
+      result = await cache.get(key);
+      expect(result).toBeNull();
+
+      jest.useRealTimers();
+    });
+
+    it('should use the provided TTL when one is given (Memory Cache)', async () => {
+      jest.useFakeTimers();
+
+      const key = 'custom-ttl-key';
+      const value = 'custom-ttl-value';
+      const ttl = 600; // 10 minutes
+
+      await cache.set(key, value, ttl);
+
+      // Advance time by 599 seconds
+      jest.advanceTimersByTime(599 * 1000);
+      let result = await cache.get(key);
+      expect(result).toEqual(value);
+
+      // Advance time by 2 more seconds (total 601 seconds)
+      jest.advanceTimersByTime(2 * 1000);
+      result = await cache.get(key);
+      expect(result).toBeNull();
+
+      jest.useRealTimers();
+    });
   });
 });

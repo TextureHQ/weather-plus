@@ -7,6 +7,7 @@ interface WeatherPlusOptions {
   apiKey?: string;
   redisClient?: RedisClientType;
   geohashPrecision?: number;
+  cacheTTL?: number;
 }
 
 class WeatherPlus {
@@ -17,7 +18,8 @@ class WeatherPlus {
       redisClient: options.redisClient,
       geohashPrecision: options.geohashPrecision,
       provider: options.provider || 'nws',
-      apiKey: options.apiKey
+      apiKey: options.apiKey,
+      cacheTTL: options.cacheTTL,
     });
   }
 

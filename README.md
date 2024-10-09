@@ -17,22 +17,26 @@ An awesome TypeScript weather client for fetching weather data from various weat
 
 ## Usage
 First import the library into your project:
-```
+
+```ts
 import { WeatherPlus } from 'weather-plus';
 ```
 
 or with CommonJS:
-```
+
+```ts
 const { WeatherPlus } = require('weather-plus');
 ```
 
 and then instantiate it
-```
+
+```ts
 const weatherPlus = new WeatherPlus();
 ```
 
 and then use it
-```
+
+```ts
 const weather = await weatherPlus.getWeather(40.748020, -73.992400)
 console.log(weather)
 ```
@@ -47,23 +51,38 @@ NWS is used by default because it's free and doesn't require an API key. However
 * It only supports locations in the United States
 * It is rate limited so if you make too many requests (more than 5 per second or 300 per minute) it will rate limit you
 
-To use a different provider, you can pass in a list of providers to the constructor. For example, to use OpenWeather:
-```
+To use a different provider, you can pass in a string key for the provider to the constructor. For example, to use OpenWeather:
+
+```ts
 const weatherPlus = new WeatherPlus({
-    providers: "openweather",
+    provider: "openweather",
     apiKey: "your-openweather-api-key",
 });
 ```
+
+The following providers are available:
+* `nws` - National Weather Service
+* `openweather` - OpenWeather
+* `tomorrow` - Tomorrow.io (coming soon!)
+* `weatherkit` - Apple WeatherKit (coming soon!)
 
 ## Built-in caching
 
 There are multiple ways to use caching with this library.
 
-Out of the box, if no redis client is provided, it will use an in-memory cache. This cache is not persisted across sessions and is not recommended for production use and because it is in-memory, it will not help across containers or nodes since the cache is scoped to the instance of the application. However, it will help reduce the volume of API requests which helps with cost and rate limiting.
+Out of the box, if no redis client is provided, it will use an in-memory cache.
+
+```ts
+// No redis client, uses in-memory cache
+const weatherPlus = new WeatherPlus();
+```
+
+This cache is not persisted across sessions and is not recommended for production use and because it is in-memory, it will not help across containers or nodes since the cache is scoped to the instance of the application. However, it will help reduce the volume of API requests which helps with cost and rate limiting.
 
 If you want to use a shared Redis cache across instances of your application, you can pass in a redis client instance which `weather-plus` will use to store and retrieve weather data.
 
-```
+```ts
+// With a redis client
 const redisClient = redis.createClient();
 const weatherPlus = new WeatherPlus({
     redisClient,
@@ -82,11 +101,47 @@ Given that weather data doesn't change much on the scale of a few kilometers, th
 
 Geohashes are on always but you can alter the precision. If you would like to functionally "opt out" of them you can provide a precision like `geohashPrecision: 12` in the options. This will generate a geohash with a precision of 12 which means that the area covered by a geohash is roughly a 37.2mm x 18.6mm rectangle (1.46 inches x 0.73 inches) which is so specific as to not be useful for caching weather data across requests for near locations.
 
+```ts
+// No geohash precision, defaults to 5
+const weatherPlus = new WeatherPlus();
+
+// Geohash precision of 7
+const weatherPlus = new WeatherPlus({
+    geohashPrecision: 7,
+});
+
+// Geohash precision of 12, effectively "opting out" of geohashing by choosing a precision that is so small it doesn't help with caching
+const weatherPlus = new WeatherPlus({
+    geohashPrecision: 12,
+});
+```
+
 Note if you "opt out" of geohashing by providing a precision of 12 or more, the library will not be able to cache weather data across requests for near locations so your API request rate limits will be higher.
 
 You can also opt to broaden caching by providing a `geohashPrecision` of less than 5. This will cause the library to cache weather data for a larger area which can help reduce the number of API requests but will cause less specific caching. For example, a `geohashPrecision` of 3 will cache weather data for an area roughly 156km x 156km (97 miles x 97 miles) which is a decent sized area but probably good enough for caching temperature within some degree of accuracy in some use cases. 
 
 We have this option for those who want to broaden or narrow the caching area.
+
+## Cache TTL
+
+You can also set a custom TTL for the cache. This is the amount of time in seconds that the cache will store the weather data. If no TTL is provided, the cache will store the weather data for 5 minutes.
+
+```ts
+// No cache TTL, uses default of 300 seconds
+const weatherPlus = new WeatherPlus();
+
+// Cache TTL of 3600 seconds (1 hour)
+const weatherPlus = new WeatherPlus({
+    redisClient,
+    cacheTTL: 3600, // 1 hour
+});
+```
+
+Note the ttl works both for the in-memory cache and for the redis cache.
+
+## Types
+
+This library is built with TypeScript and includes type-safe interfaces for the weather data and errors.
 
 ## License
 
