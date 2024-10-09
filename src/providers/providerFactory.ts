@@ -13,7 +13,6 @@ export class ProviderFactory {
         return new NWSProvider();
       case 'openweather':
         return new OpenWeatherProvider(apiKey!);
-      // ... handle other providers ...
       default:
         throw new ProviderNotSupportedError(
           `Provider ${providerName} is not supported yet`
