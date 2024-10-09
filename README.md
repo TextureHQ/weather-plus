@@ -1,6 +1,6 @@
 # Weather Plus
 
-![npm](https://img.shields.io/npm/v/weather-plus) | ![Codecov](https://img.shields.io/codecov/c/github/texturehq/weather-plus)
+[![npm](https://img.shields.io/npm/v/weather-plus)](https://www.npmjs.com/package/weather-plus) [![Codecov](https://img.shields.io/codecov/c/github/texturehq/weather-plus)](https://codecov.io/gh/texturehq/weather-plus)
 
 An awesome TypeScript weather client for fetching weather data from various weather providers.
 
