@@ -32,6 +32,19 @@ describe('NWSProvider', () => {
       });
   };
 
+  const mockObservationData = {
+    properties: {
+      dewpoint: { value: 10, unitCode: 'wmoUnit:degC' },
+      relativeHumidity: { value: 80 },
+      temperature: { value: 20, unitCode: 'wmoUnit:degC' },
+      textDescription: 'Clear',
+    },
+  };
+
+  const mockLatestObservation = (stationId: string, data = mockObservationData) => {
+    mock.onGet(`${stationId}/observations/latest`).reply(200, data);
+  };
+
   it('should fetch and convert weather data from NWS API', async () => {
     mockObservationStationUrl();
 
@@ -43,14 +56,7 @@ describe('NWSProvider', () => {
       });
 
     // Mock fetchLatestObservation
-    mock.onGet('station123/observations/latest').reply(200, {
-      properties: {
-        dewpoint: { value: 10, unitCode: 'wmoUnit:degC' },
-        relativeHumidity: { value: 80 },
-        temperature: { value: 20, unitCode: 'wmoUnit:degC' },
-        textDescription: 'Clear',
-      },
-    });
+    mockLatestObservation('station123');
 
     const weatherData = await provider.getWeather(latInUS, lngInUS);
 
@@ -96,7 +102,9 @@ describe('NWSProvider', () => {
       });
 
     // Mock fetchLatestObservation with invalid data
-    mock.onGet('station123/observations/latest').reply(200, {});
+    mock.onGet('station123/observations/latest').reply(200, {
+      properties: {} // Empty properties object to simulate invalid data
+    });
 
     await expect(provider.getWeather(latInUS, lngInUS)).rejects.toThrow('Invalid observation data');
   });
@@ -115,14 +123,7 @@ describe('NWSProvider', () => {
     // Mock fetchLatestObservation to fail for the first station
     mock.onGet('station123/observations/latest').reply(500);
     // Mock fetchLatestObservation to succeed for the second station
-    mock.onGet('station456/observations/latest').reply(200, {
-      properties: {
-        dewpoint: { value: 10, unitCode: 'wmoUnit:degC' },
-        relativeHumidity: { value: 80 },
-        temperature: { value: 20, unitCode: 'wmoUnit:degC' },
-        textDescription: 'Clear',
-      },
-    });
+    mockLatestObservation('station456');
 
     const weatherData = await provider.getWeather(latInUS, lngInUS);
 
