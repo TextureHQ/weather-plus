@@ -14,6 +14,8 @@ interface WeatherServiceOptions {
   redisClient?: RedisClientType;
   provider: 'nws' | 'openweather' | 'tomorrow.io' | 'weatherkit';
   apiKey?: string;
+  geohashPrecision?: number;
+  cacheTTL?: number;
 }
 
 const CoordinatesSchema = z.object({
@@ -24,11 +26,21 @@ const CoordinatesSchema = z.object({
 export class WeatherService {
   private cache: Cache;
   private provider: IWeatherProvider;
+  private geohashPrecision: number;
 
   constructor(options: WeatherServiceOptions) {
     log('Initializing WeatherService with options:', options);
-    this.cache = new Cache(options.redisClient);
+    this.cache = new Cache(options.redisClient, options.cacheTTL);
     this.provider = ProviderFactory.createProvider(options.provider, options.apiKey);
+
+    if (options.geohashPrecision !== undefined) {
+      if (!Number.isInteger(options.geohashPrecision) || options.geohashPrecision <= 0 || options.geohashPrecision >= 20) {
+        throw new Error('Invalid geohashPrecision. It must be an integer greater than 0 and less than 20.');
+      }
+      this.geohashPrecision = options.geohashPrecision;
+    } else {
+      this.geohashPrecision = 5;
+    }
   }
 
   public async getWeather(lat: number, lng: number) {
@@ -41,8 +53,7 @@ export class WeatherService {
     }
 
     log(`Getting weather for (${lat}, ${lng}) using provider ${this.provider.constructor.name}`);
-    const precision = 5; // or desired precision
-    const locationGeohash = geohash.encode(lat, lng, precision);
+    const locationGeohash = geohash.encode(lat, lng, this.geohashPrecision);
 
     const cachedWeather = await this.cache.get(locationGeohash);
     if (cachedWeather) {
@@ -50,7 +61,7 @@ export class WeatherService {
     } else {
       try {
         const weather = await this.provider.getWeather(lat, lng);
-        await this.cache.set(locationGeohash, JSON.stringify(weather), 300); // Cache for 5 mins
+        await this.cache.set(locationGeohash, JSON.stringify(weather));
         return weather;
       } catch (error) {
         if (error instanceof InvalidProviderLocationError) {
