@@ -99,16 +99,25 @@ export class WeatherService {
       try {
         log(`Trying provider ${provider.name} for (${lat}, ${lng})`);
 
+        // Convert geohash to lat/lng using ngeohash
+        // This ensures that the lat/lng we are pulling weather from is the center of the geohash
+        // rather than the original lat/lng that was passed in that could be on the edge of the geohash.
+        const {
+          latitude: geohashLat,
+          longitude: geohashLng
+        } = geohash.decode(locationGeohash);
+        log(`Using geohash center point: (${geohashLat}, ${geohashLng})`);
+
         // Check if provider supports the given location (e.g., NWS only supports US locations)
-        if (provider.name === 'nws' && !isLocationInUS(lat, lng)) {
-          log(`Provider ${provider.name} does not support location (${lat}, ${lng})`);
+        if (provider.name === 'nws' && !isLocationInUS(geohashLat, geohashLng)) {
+          log(`Provider ${provider.name} does not support location (${geohashLat}, ${geohashLng})`);
           throw new InvalidProviderLocationError(
             `${provider.name} provider does not support the provided location.`
           );
         }
 
         // Attempt to get weather data from the provider
-        const weather = await provider.getWeather(lat, lng);
+        const weather = await provider.getWeather(geohashLat, geohashLng);
 
         // Store the retrieved weather data in cache
         await this.cache.set(locationGeohash, JSON.stringify(weather));

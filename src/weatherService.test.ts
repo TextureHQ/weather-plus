@@ -2,6 +2,7 @@ import { WeatherService, GetWeatherOptions } from './weatherService';
 import { InvalidProviderLocationError } from './errors';
 import { IWeatherUnits, IWeatherData } from './interfaces';
 import { IWeatherProvider } from './providers/IWeatherProvider';
+import geohash from 'ngeohash';
 
 jest.mock('./cache', () => {
   return {
@@ -242,7 +243,6 @@ describe('WeatherService', () => {
   });
 
   it('should verify that the provider name is included in the weather data', async () => {
-    // Arrange
     const lat = 37.7749; // San Francisco
     const lng = -122.4194;
 
@@ -271,7 +271,8 @@ describe('WeatherService', () => {
     const result = await weatherService.getWeather(lat, lng);
 
     // Assert
-    expect(mockProvider.getWeather).toHaveBeenCalledWith(lat, lng);
+    const { latitude, longitude } = geohash.decode(geohash.encode(lat, lng, 5));
+    expect(mockProvider.getWeather).toHaveBeenCalledWith(latitude, longitude);
     expect(result).toEqual(mockWeatherData);
     expect(result.provider).toBe('openweather'); // Verify provider name
   });
@@ -304,8 +305,9 @@ describe('WeatherService', () => {
     // Expect cache.get not to be called
     expect(mockCache.get).not.toHaveBeenCalled();
 
+    const { latitude, longitude } = geohash.decode(geohash.encode(0, 0, 5));
     // Expect provider.getWeather to be called
-    expect(mockProvider.getWeather).toHaveBeenCalledWith(0, 0);
+    expect(mockProvider.getWeather).toHaveBeenCalledWith(latitude, longitude);
 
     // Expect cache.set to be called with new data
     expect(mockCache.set).toHaveBeenCalledWith(expect.any(String), JSON.stringify(result));

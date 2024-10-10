@@ -177,6 +177,8 @@ You can bypass the cache and force a fresh request to the provider by setting th
 const weather = await weatherPlus.getWeather(51.5074, -0.1278, { bypassCache: true });
 ```
 
+This will not entirely bypass the cache, it bypasses it for the read request and then the returned data is cached again for future use.
+
 ### Geohash Precision
 
 The library uses geohashing to cache weather data for nearby locations efficiently. Geohashing converts latitude and longitude into a short alphanumeric string, representing an area on the Earth’s surface.
