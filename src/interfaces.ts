@@ -17,7 +17,9 @@ export interface IWeatherData {
     [IWeatherKey.humidity]: IRelativeHumidity;
     [IWeatherKey.temperature]: ITemperature;
     [IWeatherKey.conditions]: IConditions;
+    provider: string;
 }
+
 export type IBaseWeatherProperty<T, U extends IWeatherUnits> = {
     value: T;
     unit: U | keyof typeof IWeatherUnits;

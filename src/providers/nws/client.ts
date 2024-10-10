@@ -75,6 +75,7 @@ export class NWSProvider implements IWeatherProvider {
       if (Object.keys(data).length === 0) {
         throw new Error('Invalid observation data');
       }
+      data.provider = 'nws';
 
       return data as IWeatherData;
     } catch (error) {
@@ -152,6 +153,7 @@ async function fetchLatestObservation(
 function convertToWeatherData(observation: any): IWeatherData {
   const properties = observation.properties;
   return {
+    provider: 'nws',
     dewPoint: {
       value: properties.dewpoint.value,
       unit:

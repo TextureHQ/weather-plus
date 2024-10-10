@@ -1,5 +1,6 @@
 import { Cache } from './cache';
 import { RedisClientType } from 'redis';
+import { IWeatherUnits } from './interfaces';
 
 describe('Cache', () => {
   let cache: Cache;
@@ -198,6 +199,28 @@ describe('Cache', () => {
       expect(result).toBeNull();
 
       jest.useRealTimers();
+    });
+
+    test('Cache stores and retrieves weather data including provider', async () => {
+        // Arrange
+        const cache = new Cache();
+        const key = 'geohash_key';
+        const weatherData = {
+            dewPoint: { value: 8, unit: IWeatherUnits.C },
+            humidity: { value: 65, unit: IWeatherUnits.percent },
+            temperature: { value: 16, unit: IWeatherUnits.C },
+            conditions: { value: 'Rainy', unit: IWeatherUnits.string },
+            provider: 'nws',
+        };
+
+        // Act
+        await cache.set(key, JSON.stringify(weatherData));
+        const cachedData = await cache.get(key);
+
+        // Assert
+        expect(cachedData).not.toBeNull();
+        expect(JSON.parse(cachedData!)).toEqual(weatherData);
+        expect(JSON.parse(cachedData!).provider).toBe('nws'); // Verify provider name
     });
   });
 });

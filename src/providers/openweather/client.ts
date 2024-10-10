@@ -41,6 +41,7 @@ export class OpenWeatherProvider implements IWeatherProvider {
 
 function convertToWeatherData(data: IOpenWeatherResponse): IWeatherData {
   return {
+    provider: 'openweather',
     dewPoint: {
       value: data.current.dew_point,
       unit: IWeatherUnits.C,
