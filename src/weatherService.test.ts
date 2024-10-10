@@ -1,4 +1,4 @@
-import { WeatherService } from './weatherService';
+import { WeatherService, GetWeatherOptions } from './weatherService';
 import { InvalidProviderLocationError } from './errors';
 import { IWeatherUnits, IWeatherData } from './interfaces';
 import { IWeatherProvider } from './providers/IWeatherProvider';
@@ -274,5 +274,43 @@ describe('WeatherService', () => {
     expect(mockProvider.getWeather).toHaveBeenCalledWith(lat, lng);
     expect(result).toEqual(mockWeatherData);
     expect(result.provider).toBe('openweather'); // Verify provider name
+  });
+
+  it('should bypass cache when bypassCache option is true', async () => {
+    const mockCache = {
+      get: jest.fn(),
+      set: jest.fn(),
+    };
+
+    const mockProvider: IWeatherProvider = {
+      name: 'mockProvider',
+      getWeather: jest.fn().mockResolvedValue({ temperature: 25 }),
+    };
+
+    const weatherService = new WeatherService({
+      providers: ['nws'],
+      apiKeys: {},
+      redisClient: undefined,
+    });
+
+    // Inject mock cache and provider
+    (weatherService as any).cache = mockCache;
+    (weatherService as any).providers = [mockProvider];
+
+    // Call getWeather with bypassCache option
+    const options: GetWeatherOptions = { bypassCache: true };
+    const result = await weatherService.getWeather(0, 0, options);
+
+    // Expect cache.get not to be called
+    expect(mockCache.get).not.toHaveBeenCalled();
+
+    // Expect provider.getWeather to be called
+    expect(mockProvider.getWeather).toHaveBeenCalledWith(0, 0);
+
+    // Expect cache.set to be called with new data
+    expect(mockCache.set).toHaveBeenCalledWith(expect.any(String), JSON.stringify(result));
+
+    // Verify the result
+    expect(result).toEqual({ temperature: 25 });
   });
 });

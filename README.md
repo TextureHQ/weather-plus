@@ -159,7 +159,7 @@ const weatherPlus = new WeatherPlus({
 });
 ```
 
-### Cache Time-to-Live (TTL)
+#### Cache Time-to-Live (TTL)
 
 You can customize the cache TTL (time-to-live) in seconds. The default TTL is 300 seconds (5 minutes).
 
@@ -167,6 +167,14 @@ You can customize the cache TTL (time-to-live) in seconds. The default TTL is 30
 const weatherPlus = new WeatherPlus({
   cacheTTL: 600, // Cache data for 10 minutes
 });
+```
+
+#### Bypassing Cache
+
+You can bypass the cache and force a fresh request to the provider by setting the bypassCache option to true.
+
+```ts
+const weather = await weatherPlus.getWeather(51.5074, -0.1278, { bypassCache: true });
 ```
 
 ### Geohash Precision
@@ -229,6 +237,7 @@ This library is built with TypeScript and includes type-safe interfaces for weat
 
 ```ts
 interface IWeatherData {
+  provider: string;
   temperature: {
     value: number;
     unit: string;
@@ -247,6 +256,8 @@ interface IWeatherData {
   };
 }
 ```
+
+Note today the response is fairly basic, but we're working on adding more data all of the time.
 
 ### Complete Example
 

@@ -25,6 +25,11 @@ const CoordinatesSchema = z.object({
   lng: z.number().min(-180).max(180),
 });
 
+// Export the GetWeatherOptions interface
+export interface GetWeatherOptions {
+  bypassCache?: boolean;
+}
+
 export class WeatherService {
   private cache: Cache;
   private providers: IWeatherProvider[];
@@ -65,7 +70,7 @@ export class WeatherService {
   }
 
   // Public method to get weather data for a given latitude and longitude
-  public async getWeather(lat: number, lng: number) {
+  public async getWeather(lat: number, lng: number, options?: GetWeatherOptions) {
     // Validate coordinates
     const validation = CoordinatesSchema.safeParse({ lat, lng });
     if (!validation.success) {
@@ -75,45 +80,49 @@ export class WeatherService {
     // Generate geohash for caching purposes
     const locationGeohash = geohash.encode(lat, lng, this.geohashPrecision);
 
-    // Attempt to retrieve weather data from cache
-    const cachedWeather = await this.cache.get(locationGeohash);
-    if (cachedWeather) {
-      log('Cache hit for geohash:', locationGeohash);
-      return JSON.parse(cachedWeather);
-    } else {
-      log('Cache miss for geohash:', locationGeohash);
-      let lastError: Error | null = null;
+    let cachedWeather: string | null = null;
 
-      // Iterate through providers in order of preference
-      for (const provider of this.providers) {
-        try {
-          log(`Trying provider ${provider.name} for (${lat}, ${lng})`);
-
-          // Check if provider supports the given location (e.g., NWS only supports US locations)
-          if (provider.name === 'nws' && !isLocationInUS(lat, lng)) {
-            log(`Provider ${provider.name} does not support location (${lat}, ${lng})`);
-            throw new InvalidProviderLocationError(
-              `${provider.name} provider does not support the provided location.`
-            );
-          }
-
-          // Attempt to get weather data from the provider
-          const weather = await provider.getWeather(lat, lng);
-
-          // Store the retrieved weather data in cache
-          await this.cache.set(locationGeohash, JSON.stringify(weather));
-
-          // Return the weather data
-          return weather;
-        } catch (error) {
-          log(`Error with provider ${provider.name}:`, error);
-          lastError = error as Error;
-          // Continue to the next provider in case of an error
-        }
+    // Attempt to retrieve weather data from cache unless bypassCache is true
+    if (!options?.bypassCache) {
+      cachedWeather = await this.cache.get(locationGeohash);
+      if (cachedWeather) {
+        log('Cache hit for geohash:', locationGeohash);
+        return JSON.parse(cachedWeather);
       }
-
-      // If all providers fail, throw the last encountered error
-      throw lastError || new Error('Unable to retrieve weather data from any provider.');
     }
+
+    log('Cache miss or bypassed for geohash:', locationGeohash);
+    let lastError: Error | null = null;
+
+    // Iterate through providers in order of preference
+    for (const provider of this.providers) {
+      try {
+        log(`Trying provider ${provider.name} for (${lat}, ${lng})`);
+
+        // Check if provider supports the given location (e.g., NWS only supports US locations)
+        if (provider.name === 'nws' && !isLocationInUS(lat, lng)) {
+          log(`Provider ${provider.name} does not support location (${lat}, ${lng})`);
+          throw new InvalidProviderLocationError(
+            `${provider.name} provider does not support the provided location.`
+          );
+        }
+
+        // Attempt to get weather data from the provider
+        const weather = await provider.getWeather(lat, lng);
+
+        // Store the retrieved weather data in cache
+        await this.cache.set(locationGeohash, JSON.stringify(weather));
+
+        // Return the weather data
+        return weather;
+      } catch (error) {
+        log(`Error with provider ${provider.name}:`, error);
+        lastError = error as Error;
+        // Continue to the next provider in case of an error
+      }
+    }
+
+    // If all providers fail, throw the last encountered error
+    throw lastError || new Error('Unable to retrieve weather data from any provider.');
   }
 }
