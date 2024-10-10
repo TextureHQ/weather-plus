@@ -1,5 +1,6 @@
 import WeatherPlus from './index';
 import axios from 'axios';
+import geohash from 'ngeohash';
 import MockAdapter from 'axios-mock-adapter';
 import { IWeatherData } from './interfaces';
 import { InvalidProviderLocationError } from './errors';
@@ -99,8 +100,9 @@ describe('WeatherPlus Library', () => {
       },
     ];
 
+    const { latitude, longitude } = geohash.decode(geohash.encode(lat, lng, 5));
     // Mock NWS API responses
-    mock.onGet(`https://api.weather.gov/points/${lat},${lng}`).reply(200, mockResponses[0]);
+    mock.onGet(`https://api.weather.gov/points/${latitude},${longitude}`).reply(200, mockResponses[0]);
     mock
       .onGet('https://api.weather.gov/gridpoints/OKX/33,35/stations')
       .reply(200, mockResponses[1]);
@@ -194,8 +196,10 @@ describe('WeatherPlus Library', () => {
     const lat = 51.5074; // London, UK
     const lng = -0.1278;
 
+    const { latitude, longitude } = geohash.decode(geohash.encode(lat, lng, 5));
+
     // Mock NWS to throw an error
-    mock.onGet(`https://api.weather.gov/points/${lat},${lng}`).reply(500);
+    mock.onGet(`https://api.weather.gov/points/${latitude},${longitude}`).reply(500);
     // Mock OpenWeather to return 500
     mock
       .onGet('https://api.openweathermap.org/data/3.0/onecall')
@@ -259,8 +263,10 @@ describe('WeatherPlus Library', () => {
       },
     ];
 
+    const { latitude, longitude } = geohash.decode(geohash.encode(lat, lng, 5));
+
     // Mock NWS API responses
-    mock.onGet(`https://api.weather.gov/points/${lat},${lng}`).reply(200, mockResponses[0]);
+    mock.onGet(`https://api.weather.gov/points/${latitude},${longitude}`).reply(200, mockResponses[0]);
     mock
       .onGet('https://api.weather.gov/gridpoints/OKX/33,35/stations')
       .reply(200, mockResponses[1]);
