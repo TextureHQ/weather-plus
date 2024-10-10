@@ -1,7 +1,7 @@
 import { WeatherService } from './weatherService';
 import { InvalidProviderLocationError } from './errors';
-import { NWSProvider } from './providers/nws/client';
-import { OpenWeatherProvider } from './providers/openweather/client';
+import { IWeatherUnits, IWeatherData } from './interfaces';
+import { IWeatherProvider } from './providers/IWeatherProvider';
 
 jest.mock('./cache', () => {
   return {
@@ -30,7 +30,13 @@ jest.mock('./providers/nws/client', () => {
           'The NWS provider only supports locations within the United States.'
         );
       }
-      return { provider: 'nws', lat, lng, weather: 'sunny' };
+      return {
+        dewPoint: { value: 10, unit: IWeatherUnits.C },
+        humidity: { value: 80, unit: IWeatherUnits.percent },
+        temperature: { value: 15, unit: IWeatherUnits.C },
+        conditions: { value: 'Sunny', unit: IWeatherUnits.string },
+        provider: 'nws',
+      } as IWeatherData;
     }
   }
 
@@ -46,7 +52,13 @@ jest.mock('./providers/openweather/client', () => {
 
   class MockOpenWeatherProvider extends originalModule.OpenWeatherProvider {
     async getWeather(lat: number, lng: number) {
-      return { provider: 'openweather', lat, lng, weather: 'cloudy' };
+      return {
+        dewPoint: { value: 12, unit: IWeatherUnits.C },
+        humidity: { value: 70, unit: IWeatherUnits.percent },
+        temperature: { value: 18, unit: IWeatherUnits.C },
+        conditions: { value: 'Cloudy', unit: IWeatherUnits.string },
+        provider: 'openweather',
+      } as IWeatherData;
     }
   }
 
@@ -62,16 +74,26 @@ describe('WeatherService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    weatherService = new WeatherService({ providers: ['nws'] });
+    weatherService = new WeatherService({
+      providers: ['nws'],
+    });
   });
 
   it('should return weather data for a location inside the United States', async () => {
     const lat = 38.8977; // Washington, D.C.
     const lng = -77.0365;
 
+    const expectedWeatherData: IWeatherData = {
+      dewPoint: { value: 10, unit: IWeatherUnits.C },
+      humidity: { value: 80, unit: IWeatherUnits.percent },
+      temperature: { value: 15, unit: IWeatherUnits.C },
+      conditions: { value: 'Sunny', unit: IWeatherUnits.string },
+      provider: 'nws',
+    };
+
     const weather = await weatherService.getWeather(lat, lng);
 
-    expect(weather).toEqual({ provider: 'nws', lat, lng, weather: 'sunny' });
+    expect(weather).toEqual(expectedWeatherData);
   });
 
   it('should fallback to the next provider if the first provider does not support the location', async () => {
@@ -81,18 +103,28 @@ describe('WeatherService', () => {
         openweather: 'your-openweather-api-key',
       },
     });
+
     const lat = 51.5074; // London, UK
     const lng = -0.1278;
 
+    const expectedWeatherData: IWeatherData = {
+      dewPoint: { value: 12, unit: IWeatherUnits.C },
+      humidity: { value: 70, unit: IWeatherUnits.percent },
+      temperature: { value: 18, unit: IWeatherUnits.C },
+      conditions: { value: 'Cloudy', unit: IWeatherUnits.string },
+      provider: 'openweather',
+    };
+
     const weather = await weatherService.getWeather(lat, lng);
 
-    expect(weather).toEqual({ provider: 'openweather', lat, lng, weather: 'cloudy' });
+    expect(weather).toEqual(expectedWeatherData);
   });
 
   it('should throw InvalidProviderLocationError if no provider supports the location', async () => {
     weatherService = new WeatherService({
       providers: ['nws'],
     });
+
     const lat = 51.5074; // London, UK
     const lng = -0.1278;
 
@@ -103,7 +135,7 @@ describe('WeatherService', () => {
 
   it('should handle invalid latitude or longitude', async () => {
     const lat = 100; // Invalid latitude
-    const lng = 200;
+    const lng = 200; // Invalid longitude
 
     await expect(weatherService.getWeather(lat, lng)).rejects.toThrow(
       'Invalid latitude or longitude'
@@ -111,9 +143,17 @@ describe('WeatherService', () => {
   });
 
   it('should use cached weather data if available', async () => {
+    const cachedWeatherData = {
+      dewPoint: { value: 11, unit: IWeatherUnits.C },
+      humidity: { value: 75, unit: IWeatherUnits.percent },
+      temperature: { value: 16, unit: IWeatherUnits.C },
+      conditions: { value: 'Overcast', unit: IWeatherUnits.string },
+      provider: 'nws',
+    };
+
     const cacheGetMock = jest
       .fn()
-      .mockResolvedValue(JSON.stringify({ cached: true }));
+      .mockResolvedValue(JSON.stringify(cachedWeatherData));
     const cacheSetMock = jest.fn();
 
     // Replace cache methods with mocks
@@ -125,13 +165,14 @@ describe('WeatherService', () => {
 
     const weather = await weatherService.getWeather(lat, lng);
 
-    expect(weather).toEqual({ cached: true });
+    expect(weather).toEqual(cachedWeatherData);
     expect(cacheGetMock).toHaveBeenCalled();
     expect(cacheSetMock).not.toHaveBeenCalled();
   });
 
   it('should rethrow generic errors from provider.getWeather', async () => {
     const genericError = new Error('Generic provider error');
+
     // Mock the provider's getWeather to throw a generic error
     jest
       .spyOn(weatherService['providers'][0], 'getWeather')
@@ -189,7 +230,6 @@ describe('WeatherService', () => {
   });
 
   it('should throw an error if an unsupported provider is specified', () => {
-    // Use type assertion to bypass TypeScript error for testing purposes
     expect(() => {
       new WeatherService({ providers: ['unsupportedProvider' as any] });
     }).toThrow('Provider unsupportedProvider is not supported yet');
@@ -199,5 +239,40 @@ describe('WeatherService', () => {
     expect(() => {
       new WeatherService({ providers: ['openweather'] });
     }).toThrow('OpenWeather provider requires an API key.');
+  });
+
+  it('should verify that the provider name is included in the weather data', async () => {
+    // Arrange
+    const lat = 37.7749; // San Francisco
+    const lng = -122.4194;
+
+    const mockWeatherData: IWeatherData = {
+      dewPoint: { value: 12, unit: IWeatherUnits.C },
+      humidity: { value: 70, unit: IWeatherUnits.percent },
+      temperature: { value: 18, unit: IWeatherUnits.C },
+      conditions: { value: 'Partly Cloudy', unit: IWeatherUnits.string },
+      provider: 'openweather',
+    };
+
+    const mockProvider: IWeatherProvider = {
+      name: 'openweather',
+      getWeather: jest.fn().mockResolvedValue(mockWeatherData),
+    };
+
+    const weatherService = new WeatherService({
+      providers: ['openweather'],
+      apiKeys: { openweather: 'test-api-key' },
+    });
+
+    // Inject mock provider
+    (weatherService as any).providers = [mockProvider];
+
+    // Act
+    const result = await weatherService.getWeather(lat, lng);
+
+    // Assert
+    expect(mockProvider.getWeather).toHaveBeenCalledWith(lat, lng);
+    expect(result).toEqual(mockWeatherData);
+    expect(result.provider).toBe('openweather'); // Verify provider name
   });
 });

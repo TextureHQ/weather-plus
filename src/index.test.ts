@@ -111,6 +111,7 @@ describe('WeatherPlus Library', () => {
     const weatherPlus = new WeatherPlus();
     const response = await weatherPlus.getWeather(lat, lng);
     const expectedResponse: IWeatherData = {
+      provider: 'nws',
       dewPoint: {
         value: 20,
         unit: 'C',
