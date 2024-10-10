@@ -113,7 +113,6 @@ describe('WeatherPlus Library', () => {
     const weatherPlus = new WeatherPlus();
     const response = await weatherPlus.getWeather(lat, lng);
     const expectedResponse: IWeatherData = {
-      provider: 'nws',
       dewPoint: {
         value: 20,
         unit: 'C',
@@ -130,6 +129,8 @@ describe('WeatherPlus Library', () => {
         value: 'Sunny',
         unit: 'string',
       },
+      provider: 'nws',
+      cached: false,
     };
     expect(response).toEqual(expectedResponse);
   });
@@ -278,8 +279,15 @@ describe('WeatherPlus Library', () => {
     const response1 = await weatherPlus.getWeather(lat, lng);
     const response2 = await weatherPlus.getWeather(lat, lng);
 
-    expect(response1).toEqual(response2);
-    // The second call should use cached data
+    // The second call should use cached data but otherwise be the same
+    expect(response1.cached).toBe(false);
+    expect(response2.cached).toBe(true);
+    expect(response1.cachedAt).toBeUndefined();
+    expect(response2.cachedAt).toBeDefined();
+    expect(response1.dewPoint).toEqual(response2.dewPoint);
+    expect(response1.humidity).toEqual(response2.humidity);
+    expect(response1.temperature).toEqual(response2.temperature);
+    expect(response1.conditions).toEqual(response2.conditions);
   });
 
   it('should export InvalidProviderLocationError', () => {

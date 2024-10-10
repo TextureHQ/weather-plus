@@ -12,12 +12,17 @@ export enum IWeatherKey {
     conditions = 'conditions',
 }
 
-export interface IWeatherData {
+export interface IWeatherProviderWeatherData {
     [IWeatherKey.dewPoint]: IDewPoint;
     [IWeatherKey.humidity]: IRelativeHumidity;
     [IWeatherKey.temperature]: ITemperature;
     [IWeatherKey.conditions]: IConditions;
+}
+
+export interface IWeatherData extends IWeatherProviderWeatherData {
     provider: string;
+    cached: boolean;
+    cachedAt?: string; // ISO-8601 formatted date string
 }
 
 export type IBaseWeatherProperty<T, U extends IWeatherUnits> = {
