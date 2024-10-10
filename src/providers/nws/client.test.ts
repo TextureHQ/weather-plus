@@ -65,7 +65,6 @@ describe('NWSProvider', () => {
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
       conditions: { value: 'Clear', unit: 'string' },
-      provider: 'nws',
     });
   });
 
@@ -133,7 +132,6 @@ describe('NWSProvider', () => {
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
       conditions: { value: 'Clear', unit: 'string' },
-      provider: 'nws',
     });
   });
 });

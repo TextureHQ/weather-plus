@@ -50,7 +50,6 @@ describe('OpenWeatherProvider', () => {
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
       conditions: { value: 'clear sky', unit: 'string' },
-      provider: 'openweather',
     });
   });
 

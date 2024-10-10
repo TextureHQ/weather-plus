@@ -90,11 +90,15 @@ describe('WeatherService', () => {
       temperature: { value: 15, unit: IWeatherUnits.C },
       conditions: { value: 'Sunny', unit: IWeatherUnits.string },
       provider: 'nws',
+      cached: false,
+      // cachedAt is undefined when data is freshly fetched
     };
 
     const weather = await weatherService.getWeather(lat, lng);
 
     expect(weather).toEqual(expectedWeatherData);
+    expect(weather.cached).toBe(false);
+    expect(weather.cachedAt).toBeUndefined();
   });
 
   it('should fallback to the next provider if the first provider does not support the location', async () => {
@@ -114,6 +118,7 @@ describe('WeatherService', () => {
       temperature: { value: 18, unit: IWeatherUnits.C },
       conditions: { value: 'Cloudy', unit: IWeatherUnits.string },
       provider: 'openweather',
+      cached: false,
     };
 
     const weather = await weatherService.getWeather(lat, lng);
@@ -144,12 +149,14 @@ describe('WeatherService', () => {
   });
 
   it('should use cached weather data if available', async () => {
-    const cachedWeatherData = {
+    const cachedWeatherData: IWeatherData = {
       dewPoint: { value: 11, unit: IWeatherUnits.C },
       humidity: { value: 75, unit: IWeatherUnits.percent },
       temperature: { value: 16, unit: IWeatherUnits.C },
       conditions: { value: 'Overcast', unit: IWeatherUnits.string },
       provider: 'nws',
+      cached: true,
+      cachedAt: '2023-10-15T12:00:00Z',
     };
 
     const cacheGetMock = jest
@@ -167,6 +174,8 @@ describe('WeatherService', () => {
     const weather = await weatherService.getWeather(lat, lng);
 
     expect(weather).toEqual(cachedWeatherData);
+    expect(weather.cached).toBe(true);
+    expect(weather.cachedAt).toBe('2023-10-15T12:00:00Z');
     expect(cacheGetMock).toHaveBeenCalled();
     expect(cacheSetMock).not.toHaveBeenCalled();
   });
@@ -252,6 +261,8 @@ describe('WeatherService', () => {
       temperature: { value: 18, unit: IWeatherUnits.C },
       conditions: { value: 'Partly Cloudy', unit: IWeatherUnits.string },
       provider: 'openweather',
+      cached: false,
+      // cachedAt is undefined when data is freshly fetched
     };
 
     const mockProvider: IWeatherProvider = {
@@ -275,6 +286,8 @@ describe('WeatherService', () => {
     expect(mockProvider.getWeather).toHaveBeenCalledWith(latitude, longitude);
     expect(result).toEqual(mockWeatherData);
     expect(result.provider).toBe('openweather'); // Verify provider name
+    expect(result.cached).toBe(false);
+    expect(result.cachedAt).toBeUndefined();
   });
 
   it('should bypass cache when bypassCache option is true', async () => {
@@ -283,9 +296,19 @@ describe('WeatherService', () => {
       set: jest.fn(),
     };
 
+    const mockWeatherData: IWeatherData = {
+      dewPoint: { value: 15, unit: IWeatherUnits.C },
+      humidity: { value: 60, unit: IWeatherUnits.percent },
+      temperature: { value: 25, unit: IWeatherUnits.C },
+      conditions: { value: 'Clear', unit: IWeatherUnits.string },
+      provider: 'mockProvider',
+      cached: false,
+      // cachedAt is undefined when data is freshly fetched
+    };
+
     const mockProvider: IWeatherProvider = {
       name: 'mockProvider',
-      getWeather: jest.fn().mockResolvedValue({ temperature: 25 }),
+      getWeather: jest.fn().mockResolvedValue(mockWeatherData),
     };
 
     const weatherService = new WeatherService({
@@ -309,10 +332,58 @@ describe('WeatherService', () => {
     // Expect provider.getWeather to be called
     expect(mockProvider.getWeather).toHaveBeenCalledWith(latitude, longitude);
 
-    // Expect cache.set to be called with new data
-    expect(mockCache.set).toHaveBeenCalledWith(expect.any(String), JSON.stringify(result));
+    // Expect cache.set to be called with new data including cached: true and cachedAt
+    expect(mockCache.set).toHaveBeenCalled();
+
+    // Capture the arguments passed to cache.set
+    const [cacheKey, cacheValue] = mockCache.set.mock.calls[0];
+
+    // Verify that the cache key is a string
+    expect(cacheKey).toEqual(expect.any(String));
+
+    // Parse the cached value
+    const cachedData = JSON.parse(cacheValue);
+
+    // Verify the cached data
+    expect(cachedData).toEqual({
+      ...mockWeatherData,
+      cached: true,
+      cachedAt: expect.any(String),
+    });
 
     // Verify the result
-    expect(result).toEqual({ temperature: 25 });
+    expect(result).toEqual(mockWeatherData);
+    expect(result.cached).toBe(false);
+    expect(result.cachedAt).toBeUndefined();
+  });
+
+  // Add a test to verify cachedAt when data is fetched from cache
+  it('should have valid cachedAt when data is retrieved from cache', async () => {
+    const cachedWeatherData: IWeatherData = {
+      dewPoint: { value: 11, unit: IWeatherUnits.C },
+      humidity: { value: 75, unit: IWeatherUnits.percent },
+      temperature: { value: 16, unit: IWeatherUnits.C },
+      conditions: { value: 'Overcast', unit: IWeatherUnits.string },
+      provider: 'nws',
+      cached: true,
+      cachedAt: '2023-10-15T12:00:00Z',
+    };
+
+    const cacheGetMock = jest
+      .fn()
+      .mockResolvedValue(JSON.stringify(cachedWeatherData));
+
+    // Replace cache methods with mocks
+    (weatherService as any).cache.get = cacheGetMock;
+
+    const lat = 38.8977;
+    const lng = -77.0365;
+
+    const weather = await weatherService.getWeather(lat, lng);
+
+    expect(weather).toEqual(cachedWeatherData);
+    expect(weather.cached).toBe(true);
+    expect(weather.cachedAt).toBe('2023-10-15T12:00:00Z');
+    expect(cacheGetMock).toHaveBeenCalled();
   });
 });
