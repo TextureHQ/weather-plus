@@ -10,6 +10,7 @@ import {
 import { IWeatherProvider } from '../IWeatherProvider';
 import { InvalidProviderLocationError } from '../../errors'; // Import the error class
 import { isLocationInUS } from '../../utils/locationUtils';
+import { standardizeCondition } from './condition';
 
 const log = debug('weather-plus:nws:client');
 
@@ -151,6 +152,7 @@ async function fetchLatestObservation(
 
 function convertToWeatherData(observation: any): IWeatherProviderWeatherData {
   const properties = observation.properties;
+  
   return {
     dewPoint: {
       value: properties.dewpoint.value,
@@ -171,8 +173,9 @@ function convertToWeatherData(observation: any): IWeatherProviderWeatherData {
           : IWeatherUnits.F,
     },
     conditions: {
-      value: properties.textDescription,
+      value: standardizeCondition(properties.textDescription),
       unit: IWeatherUnits.string,
+      original: properties.textDescription
     },
   };
 }

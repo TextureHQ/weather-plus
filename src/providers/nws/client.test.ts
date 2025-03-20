@@ -64,7 +64,11 @@ describe('NWSProvider', () => {
       dewPoint: { value: 10, unit: 'C' },
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
-      conditions: { value: 'Clear', unit: 'string' },
+      conditions: { 
+        value: 'Clear', 
+        unit: 'string',
+        original: 'Clear'
+      },
     });
   });
 
@@ -131,7 +135,11 @@ describe('NWSProvider', () => {
       dewPoint: { value: 10, unit: 'C' },
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
-      conditions: { value: 'Clear', unit: 'string' },
+      conditions: { 
+        value: 'Clear', 
+        unit: 'string',
+        original: 'Clear'
+      },
     });
   });
 });

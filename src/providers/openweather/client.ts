@@ -3,6 +3,7 @@ import debug from 'debug';
 import { IWeatherUnits, IWeatherProviderWeatherData } from '../../interfaces';
 import { IOpenWeatherResponse } from './interfaces';
 import { IWeatherProvider } from '../IWeatherProvider';
+import { standardizeCondition} from './condition';
 
 const log = debug('weather-plus:openweather:client');
 
@@ -40,6 +41,8 @@ export class OpenWeatherProvider implements IWeatherProvider {
 }
 
 function convertToWeatherData(data: IOpenWeatherResponse): IWeatherProviderWeatherData {
+  const weatherData = data.current.weather[0];
+  
   return {
     dewPoint: {
       value: data.current.dew_point,
@@ -54,8 +57,9 @@ function convertToWeatherData(data: IOpenWeatherResponse): IWeatherProviderWeath
       unit: IWeatherUnits.C,
     },
     conditions: {
-      value: data.current.weather[0].description,
+      value: standardizeCondition(weatherData.id),
       unit: IWeatherUnits.string,
+      original: weatherData.description,
     },
   };
 }
