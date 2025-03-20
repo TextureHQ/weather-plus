@@ -26,7 +26,10 @@ describe('OpenWeatherProvider', () => {
         temp: 20,
         weather: [
           {
+            id: 800,
+            main: 'Clear',
             description: 'clear sky',
+            icon: '01d',
           },
         ],
       },
@@ -49,7 +52,11 @@ describe('OpenWeatherProvider', () => {
       dewPoint: { value: 10, unit: 'C' },
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
-      conditions: { value: 'clear sky', unit: 'string' },
+      conditions: { 
+        value: 'Clear', 
+        unit: 'string', 
+        original: 'clear sky'
+      },
     });
   });
 

@@ -32,5 +32,7 @@ export type IBaseWeatherProperty<T, U extends IWeatherUnits> = {
 
 export type IRelativeHumidity = IBaseWeatherProperty<number, IWeatherUnits.percent>;
 export type IDewPoint = IBaseWeatherProperty<number, IWeatherUnits.C | IWeatherUnits.F>;
-export type IConditions = IBaseWeatherProperty<string, IWeatherUnits.string>;
+export type IConditions = IBaseWeatherProperty<string, IWeatherUnits.string> & {
+    original?: string;    // Original provider-specific condition value
+}
 export type ITemperature = IBaseWeatherProperty<number, IWeatherUnits.C | IWeatherUnits.F>;

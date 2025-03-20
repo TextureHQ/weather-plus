@@ -126,8 +126,9 @@ describe('WeatherPlus Library', () => {
         unit: 'C',
       },
       conditions: {
-        value: 'Sunny',
+        value: 'Clear',
         unit: 'string',
+        original: 'Sunny'
       },
       provider: 'nws',
       cached: false,
@@ -190,7 +191,11 @@ describe('WeatherPlus Library', () => {
     expect(response).toBeDefined();
     expect(response.temperature).toEqual({ value: 15, unit: 'C' });
     expect(response.humidity).toEqual({ value: 82, unit: 'percent' });
-    expect(response.conditions).toEqual({ value: 'light rain', unit: 'string' });
+    expect(response.conditions).toEqual({ 
+      value: 'Light Rain', 
+      unit: 'string',
+      original: 'light rain' 
+    });
   });
 
   it('should throw an error if all providers fail', async () => {

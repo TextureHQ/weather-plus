@@ -12,6 +12,7 @@ An awesome TypeScript weather client for fetching weather data from various weat
   - [Tomorrow.io](https://www.tomorrow.io/) (coming soon!)
   - [WeatherKit](https://developer.apple.com/weatherkit/) (coming soon!)
 - **Clean and Standardized API**: Fetch weather data using a consistent interface, regardless of the underlying provider.
+  - Standardized weather conditions across providers
 - **Built-in Caching**: Supports in-memory and Redis caching to optimize API usage and reduce latency.
 - **TypeScript Support**: Enjoy a type-safe API out of the box for better development experience.
 
@@ -231,6 +232,71 @@ try {
 }
 ```
 
+### Standardized Weather Conditions
+
+One of the key features of this library is the standardization of weather conditions across different providers. This ensures that your application receives consistent condition values regardless of which provider is used. 
+
+For OpenWeather, the library uses the icon codes provided by the API to derive standardized conditions, which ensures accurate mapping regardless of the description text. For NWS, the library uses the textDescription field for standardization.
+
+#### Available Standardized Conditions
+
+The following standardized condition values are available:
+
+- `Blizzard` - Blizzard conditions
+- `Breezy` - Breezy conditions
+- `Clear` - Clear, sunny conditions
+- `Cloudy` - Cloudy conditions
+- `Cold` - Cold conditions
+- `Drizzle` - Light rain or drizzle
+- `Dust` - Dusty conditions
+- `Fair` - Fair weather
+- `Flurries` - Snow flurries
+- `Fog` - Foggy conditions
+- `FreezingDrizzle` - Freezing drizzle
+- `FreezingRain` - Freezing rain
+- `Hail` - Hail precipitation
+- `Haze` - Hazy conditions
+- `HeavyRain` - Heavy rain
+- `HeavySnow` - Heavy snow
+- `Hot` - Hot conditions
+- `Hurricane` - Hurricane conditions
+- `IsolatedThunderstorms` - Isolated thunderstorms
+- `LightRain` - Light rain
+- `LightSnow` - Light snow
+- `Mist` - Misty conditions
+- `Mixed` - Mixed precipitation (rain and snow)
+- `MostlyClear` - Mostly clear conditions
+- `MostlyCloudy` - Mostly cloudy conditions
+- `Overcast` - Overcast conditions
+- `PartlyCloudy` - Partly cloudy conditions
+- `Rain` - Rain (moderate)
+- `Sandstorm` - Sandstorm conditions
+- `Showers` - Rain showers
+- `Sleet` - Sleet
+- `Smoke` - Smoky conditions
+- `Snow` - Snow (moderate)
+- `Storm` - Stormy conditions
+- `Thunderstorms` - Thunderstorms
+- `Tornado` - Tornado conditions
+- `TropicalStorm` - Tropical storm conditions
+- `Windy` - Windy conditions
+- `Unknown` - Condition that couldn't be mapped to a standard value
+
+#### Accessing Standardized Conditions
+
+The weather data returned includes both the original provider-specific condition text and the standardized condition:
+
+```ts
+const weather = await weatherPlus.getWeather(40.748817, -73.985428);
+
+console.log(weather.conditions.value);     // Standardized value (e.g., "Clear")
+console.log(weather.conditions.original);  // Original provider text (e.g., "clear sky")
+```
+
+For OpenWeather, the standardization is based on the API's icon codes as documented at [OpenWeather Weather Conditions](https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2), which provides more accurate and consistent results compared to using the description text.
+
+This allows you to display either the original detailed condition from the provider or use the standardized value for consistent UI elements or logic across your application.
+
 ### TypeScript Support
 
 This library is built with TypeScript and includes type-safe interfaces for weather data and errors.
@@ -253,8 +319,9 @@ interface IWeatherData {
     unit: string;
   };
   conditions: {
-    value: string;
-    unit: string;
+    value: string;           // Standardized condition across providers
+    unit: string;            // Always "string"
+    original: string;        // Original provider condition text
   };
 }
 ```
