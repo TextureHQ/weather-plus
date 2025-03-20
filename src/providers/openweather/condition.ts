@@ -25,11 +25,11 @@ const openWeatherIdMap: Record<number, StandardWeatherCondition> = {
   301: StandardWeatherCondition.Drizzle, // drizzle
   302: StandardWeatherCondition.Drizzle, // heavy intensity drizzle
   310: StandardWeatherCondition.Drizzle, // light intensity drizzle rain
-  311: StandardWeatherCondition.FreezingDrizzle, // drizzle rain
-  312: StandardWeatherCondition.FreezingDrizzle, // heavy intensity drizzle rain
-  313: StandardWeatherCondition.FreezingDrizzle, // shower rain and drizzle
-  314: StandardWeatherCondition.FreezingDrizzle, // heavy shower rain and drizzle
-  321: StandardWeatherCondition.FreezingDrizzle, // shower drizzle
+  311: StandardWeatherCondition.Drizzle, // drizzle rain
+  312: StandardWeatherCondition.Drizzle, // heavy intensity drizzle rain
+  313: StandardWeatherCondition.Showers, // shower rain and drizzle
+  314: StandardWeatherCondition.Showers, // heavy shower rain and drizzle
+  321: StandardWeatherCondition.Showers, // shower drizzle
   
   // Group 5xx: Rain
   500: StandardWeatherCondition.LightRain, // light rain
@@ -38,10 +38,10 @@ const openWeatherIdMap: Record<number, StandardWeatherCondition> = {
   503: StandardWeatherCondition.HeavyRain, // very heavy rain
   504: StandardWeatherCondition.HeavyRain, // extreme rain
   511: StandardWeatherCondition.FreezingRain, // freezing rain
-  520: StandardWeatherCondition.LightRain, // light intensity shower rain
+  520: StandardWeatherCondition.Showers, // light intensity shower rain
   521: StandardWeatherCondition.Showers, // shower rain
-  522: StandardWeatherCondition.HeavyRain, // heavy intensity shower rain
-  531: StandardWeatherCondition.HeavyRain, // ragged shower rain
+  522: StandardWeatherCondition.Showers, // heavy intensity shower rain
+  531: StandardWeatherCondition.Showers, // ragged shower rain
   
   // Group 6xx: Snow
   600: StandardWeatherCondition.LightSnow, // light snow
@@ -65,7 +65,7 @@ const openWeatherIdMap: Record<number, StandardWeatherCondition> = {
   751: StandardWeatherCondition.Dust, // sand
   761: StandardWeatherCondition.Dust, // dust
   762: StandardWeatherCondition.Smoke, // volcanic ash
-  771: StandardWeatherCondition.Windy, // squalls
+  771: StandardWeatherCondition.Windy, // squalls (severe wind increases)
   781: StandardWeatherCondition.Tornado, // tornado
   
   // Group 800: Clear
@@ -73,8 +73,8 @@ const openWeatherIdMap: Record<number, StandardWeatherCondition> = {
   
   // Group 80x: Clouds
   801: StandardWeatherCondition.PartlyCloudy, // few clouds: 11-25%
-  802: StandardWeatherCondition.MostlyCloudy, // scattered clouds: 25-50%
-  803: StandardWeatherCondition.Overcast, // broken clouds: 51-84%
+  802: StandardWeatherCondition.Cloudy, // scattered clouds: 25-50%
+  803: StandardWeatherCondition.MostlyCloudy, // broken clouds: 51-84%
   804: StandardWeatherCondition.Overcast, // overcast clouds: 85-100%
 };
 
