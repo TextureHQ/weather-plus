@@ -234,9 +234,11 @@ try {
 
 ### Standardized Weather Conditions
 
-One of the key features of this library is the standardization of weather conditions across different providers. This ensures that your application receives consistent condition values regardless of which provider is used. 
+One of the key features of this library is the standardization of weather conditions across different providers. 
+This ensures that your application receives consistent condition values regardless of which provider is used. 
 
-For OpenWeather, the library uses the icon codes provided by the API to derive standardized conditions, which ensures accurate mapping regardless of the description text. For NWS, the library uses the textDescription field for standardization.
+For OpenWeather, the library uses the Weather Condition ID codes provided by the API to derive standardized conditions.
+For NWS, the library uses the textDescription field for standardization.
 
 #### Available Standardized Conditions
 
@@ -293,7 +295,7 @@ console.log(weather.conditions.value);     // Standardized value (e.g., "Clear")
 console.log(weather.conditions.original);  // Original provider text (e.g., "clear sky")
 ```
 
-For OpenWeather, the standardization is based on the API's icon codes as documented at [OpenWeather Weather Conditions](https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2), which provides more accurate and consistent results compared to using the description text.
+For OpenWeather, the standardization is based on the API's Weather Condition ID codes as documented at [OpenWeather Weather Conditions](https://openweathermap.org/weather-conditions).
 
 This allows you to display either the original detailed condition from the provider or use the standardized value for consistent UI elements or logic across your application.
 
