@@ -24,6 +24,7 @@ describe('OpenWeatherProvider', () => {
         dew_point: 10,
         humidity: 80,
         temp: 20,
+        clouds: 25,
         weather: [
           {
             id: 800,
@@ -56,6 +57,10 @@ describe('OpenWeatherProvider', () => {
         value: 'Clear', 
         unit: 'string', 
         original: 'clear sky'
+      },
+      cloudiness: {
+        value: 25,
+        unit: 'percent'
       },
     });
   });

@@ -61,5 +61,9 @@ function convertToWeatherData(data: IOpenWeatherResponse): IWeatherProviderWeath
       unit: IWeatherUnits.string,
       original: weatherData.description,
     },
+    cloudiness: {
+      value: data.current.clouds,
+      unit: IWeatherUnits.percent,
+    },
   };
 }
