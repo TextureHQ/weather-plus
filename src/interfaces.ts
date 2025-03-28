@@ -13,12 +13,12 @@ export enum IWeatherKey {
     cloudiness = 'cloudiness',
 }
 
-export interface IWeatherProviderWeatherData {
-    [IWeatherKey.dewPoint]: IDewPoint;
-    [IWeatherKey.humidity]: IRelativeHumidity;
-    [IWeatherKey.temperature]: ITemperature;
-    [IWeatherKey.conditions]: IConditions;
-    [IWeatherKey.cloudiness]: ICloudiness;
+export interface IWeatherProviderWeatherData extends Record<IWeatherKey, IBaseWeatherProperty<any, any>> {
+    dewPoint: IDewPoint;
+    humidity: IRelativeHumidity;
+    temperature: ITemperature;
+    conditions: IConditions;
+    cloudiness: ICloudiness;
 }
 
 export interface IWeatherData extends Partial<IWeatherProviderWeatherData> {
