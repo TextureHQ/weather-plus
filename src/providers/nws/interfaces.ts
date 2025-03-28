@@ -264,5 +264,6 @@ export interface IObservationsLatest {
     };
     textDescription: string;
     // Include other fields as necessary
+    cloudLayers: Array<ICloudLayer>;
   };
 }

@@ -38,6 +38,9 @@ describe('NWSProvider', () => {
       relativeHumidity: { value: 80 },
       temperature: { value: 20, unitCode: 'wmoUnit:degC' },
       textDescription: 'Clear',
+      cloudLayers: [
+        { base: { unitCode: 'wmoUnit:m', value: 1000 }, amount: 'CLR' }
+      ],
     },
   };
 
@@ -68,6 +71,10 @@ describe('NWSProvider', () => {
         value: 'Clear', 
         unit: 'string',
         original: 'Clear'
+      },
+      cloudiness: {
+        value: 0,
+        unit: 'percent'
       },
     });
   });
@@ -139,6 +146,10 @@ describe('NWSProvider', () => {
         value: 'Clear', 
         unit: 'string',
         original: 'Clear'
+      },
+      cloudiness: {
+        value: 0,
+        unit: 'percent'
       },
     });
   });

@@ -11,6 +11,7 @@ import { IWeatherProvider } from '../IWeatherProvider';
 import { InvalidProviderLocationError } from '../../errors'; // Import the error class
 import { isLocationInUS } from '../../utils/locationUtils';
 import { standardizeCondition } from './condition';
+import { getCloudinessFromCloudLayers } from './cloudiness';
 
 const log = debug('weather-plus:nws:client');
 
@@ -150,23 +151,23 @@ async function fetchLatestObservation(
   }
 }
 
-function convertToWeatherData(observation: any): IWeatherProviderWeatherData {
+function convertToWeatherData(observation: IObservationsLatest): IWeatherProviderWeatherData {
   const properties = observation.properties;
   
   return {
     dewPoint: {
-      value: properties.dewpoint.value,
+      value: properties.dewpoint.value!,
       unit:
         properties.dewpoint.unitCode === 'wmoUnit:degC'
           ? IWeatherUnits.C
           : IWeatherUnits.F,
     },
     humidity: {
-      value: properties.relativeHumidity.value,
+      value: properties.relativeHumidity.value!,
       unit: IWeatherUnits.percent,
     },
     temperature: {
-      value: properties.temperature.value,
+      value: properties.temperature.value!,
       unit:
         properties.temperature.unitCode === 'wmoUnit:degC'
           ? IWeatherUnits.C
@@ -176,6 +177,10 @@ function convertToWeatherData(observation: any): IWeatherProviderWeatherData {
       value: standardizeCondition(properties.textDescription),
       unit: IWeatherUnits.string,
       original: properties.textDescription
+    },
+    cloudiness: {
+      value: getCloudinessFromCloudLayers(properties.cloudLayers),
+      unit: IWeatherUnits.percent,
     },
   };
 }
