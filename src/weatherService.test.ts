@@ -36,6 +36,7 @@ jest.mock('./providers/nws/client', () => {
         humidity: { value: 80, unit: IWeatherUnits.percent },
         temperature: { value: 15, unit: IWeatherUnits.C },
         conditions: { value: 'Sunny', unit: IWeatherUnits.string },
+        cloudiness: { value: 0, unit: IWeatherUnits.percent },
         provider: 'nws',
       } as IWeatherData;
     }
@@ -58,6 +59,7 @@ jest.mock('./providers/openweather/client', () => {
         humidity: { value: 70, unit: IWeatherUnits.percent },
         temperature: { value: 18, unit: IWeatherUnits.C },
         conditions: { value: 'Cloudy', unit: IWeatherUnits.string },
+        cloudiness: { value: 30, unit: IWeatherUnits.percent },
         provider: 'openweather',
       } as IWeatherData;
     }
@@ -89,9 +91,10 @@ describe('WeatherService', () => {
       humidity: { value: 80, unit: IWeatherUnits.percent },
       temperature: { value: 15, unit: IWeatherUnits.C },
       conditions: { value: 'Sunny', unit: IWeatherUnits.string },
+      cloudiness: { value: 0, unit: IWeatherUnits.percent },
       provider: 'nws',
       cached: false,
-      // cachedAt is undefined when data is freshly fetched
+      cachedAt: undefined,
     };
 
     const weather = await weatherService.getWeather(lat, lng);
@@ -117,6 +120,7 @@ describe('WeatherService', () => {
       humidity: { value: 70, unit: IWeatherUnits.percent },
       temperature: { value: 18, unit: IWeatherUnits.C },
       conditions: { value: 'Cloudy', unit: IWeatherUnits.string },
+      cloudiness: { value: 30, unit: IWeatherUnits.percent },
       provider: 'openweather',
       cached: false,
     };
@@ -154,6 +158,7 @@ describe('WeatherService', () => {
       humidity: { value: 75, unit: IWeatherUnits.percent },
       temperature: { value: 16, unit: IWeatherUnits.C },
       conditions: { value: 'Overcast', unit: IWeatherUnits.string },
+      cloudiness: { value: 80, unit: IWeatherUnits.percent },
       provider: 'nws',
       cached: true,
       cachedAt: '2023-10-15T12:00:00Z',
@@ -260,6 +265,7 @@ describe('WeatherService', () => {
       humidity: { value: 70, unit: IWeatherUnits.percent },
       temperature: { value: 18, unit: IWeatherUnits.C },
       conditions: { value: 'Partly Cloudy', unit: IWeatherUnits.string },
+      cloudiness: { value: 45, unit: IWeatherUnits.percent },
       provider: 'openweather',
       cached: false,
       // cachedAt is undefined when data is freshly fetched
@@ -301,6 +307,7 @@ describe('WeatherService', () => {
       humidity: { value: 60, unit: IWeatherUnits.percent },
       temperature: { value: 25, unit: IWeatherUnits.C },
       conditions: { value: 'Clear', unit: IWeatherUnits.string },
+      cloudiness: { value: 5, unit: IWeatherUnits.percent },
       provider: 'mockProvider',
       cached: false,
       // cachedAt is undefined when data is freshly fetched
@@ -364,6 +371,7 @@ describe('WeatherService', () => {
       humidity: { value: 75, unit: IWeatherUnits.percent },
       temperature: { value: 16, unit: IWeatherUnits.C },
       conditions: { value: 'Overcast', unit: IWeatherUnits.string },
+      cloudiness: { value: 80, unit: IWeatherUnits.percent },
       provider: 'nws',
       cached: true,
       cachedAt: '2023-10-15T12:00:00Z',

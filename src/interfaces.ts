@@ -3,6 +3,7 @@ export enum IWeatherUnits {
     F = 'F',
     percent = 'percent',
     string = 'string',
+    iso8601 = 'iso8601',
 }
 
 export enum IWeatherKey {
@@ -10,16 +11,25 @@ export enum IWeatherKey {
     humidity = 'humidity',
     temperature = 'temperature',
     conditions = 'conditions',
+    cloudiness = 'cloudiness',
+    // Not available for NWS, but is available for OpenWeather
+    // We could utilize this API: https://sunrise-sunset.org/api
+    // To supply sunrise and sunset times for NWS. It's a free API, would need to add attribution.
+    sunrise = 'sunrise',
+    sunset = 'sunset',
 }
 
-export interface IWeatherProviderWeatherData {
-    [IWeatherKey.dewPoint]: IDewPoint;
-    [IWeatherKey.humidity]: IRelativeHumidity;
-    [IWeatherKey.temperature]: ITemperature;
-    [IWeatherKey.conditions]: IConditions;
+export interface IWeatherProviderWeatherData extends Record<IWeatherKey, IBaseWeatherProperty<any, any>> {
+    dewPoint: IDewPoint;
+    humidity: IRelativeHumidity;
+    temperature: ITemperature;
+    conditions: IConditions;
+    cloudiness: ICloudiness;
+    sunrise: ISunriseSunset;
+    sunset: ISunriseSunset;
 }
 
-export interface IWeatherData extends IWeatherProviderWeatherData {
+export interface IWeatherData extends Partial<IWeatherProviderWeatherData> {
     provider: string;
     cached: boolean;
     cachedAt?: string; // ISO-8601 formatted date string
@@ -36,3 +46,5 @@ export type IConditions = IBaseWeatherProperty<string, IWeatherUnits.string> & {
     original?: string;    // Original provider-specific condition value
 }
 export type ITemperature = IBaseWeatherProperty<number, IWeatherUnits.C | IWeatherUnits.F>;
+export type ICloudiness = IBaseWeatherProperty<number, IWeatherUnits.percent>;
+export type ISunriseSunset = IBaseWeatherProperty<string, IWeatherUnits.iso8601>;

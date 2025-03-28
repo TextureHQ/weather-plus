@@ -1,6 +1,6 @@
 import axios from 'axios';
 import debug from 'debug';
-import { IWeatherData, IWeatherKey, IWeatherProviderWeatherData, IWeatherUnits } from '../../interfaces';
+import { IWeatherKey, IWeatherProviderWeatherData, IWeatherUnits } from '../../interfaces';
 import {
   IGridpointsStations,
   IPointsLatLngResponse,
@@ -11,6 +11,7 @@ import { IWeatherProvider } from '../IWeatherProvider';
 import { InvalidProviderLocationError } from '../../errors'; // Import the error class
 import { isLocationInUS } from '../../utils/locationUtils';
 import { standardizeCondition } from './condition';
+import { getCloudinessFromCloudLayers } from './cloudiness';
 
 const log = debug('weather-plus:nws:client');
 
@@ -19,7 +20,7 @@ export const WEATHER_KEYS = Object.values(IWeatherKey);
 export class NWSProvider implements IWeatherProvider {
   name = 'nws';
 
-  public async getWeather(lat: number, lng: number): Promise<IWeatherProviderWeatherData> {
+  public async getWeather(lat: number, lng: number): Promise<Partial<IWeatherProviderWeatherData>> {
     // Check if the location is within the US
     if (!isLocationInUS(lat, lng)) {
       throw new InvalidProviderLocationError(
@@ -27,8 +28,8 @@ export class NWSProvider implements IWeatherProvider {
       );
     }
 
-    const data: Partial<IWeatherData> = {};
-    const weatherData: IWeatherProviderWeatherData[] = [];
+    const data: Partial<IWeatherProviderWeatherData> = {};
+    const weatherData: Partial<IWeatherProviderWeatherData>[] = [];
 
     try {
       const observationStations = await fetchObservationStationUrl(lat, lng);
@@ -68,7 +69,7 @@ export class NWSProvider implements IWeatherProvider {
       for (const key of WEATHER_KEYS) {
         const value = weatherData.find((data) => data[key]);
 
-        if (value && value[key]?.value) {
+        if (value && typeof value[key]?.value !== 'undefined') {
           data[key] = value[key] as never;
         }
       }
@@ -77,7 +78,7 @@ export class NWSProvider implements IWeatherProvider {
         throw new Error('Invalid observation data');
       }
 
-      return data as IWeatherData;
+      return data;
     } catch (error) {
       log('Error in getWeather:', error);
       throw error;
@@ -150,23 +151,23 @@ async function fetchLatestObservation(
   }
 }
 
-function convertToWeatherData(observation: any): IWeatherProviderWeatherData {
+function convertToWeatherData(observation: IObservationsLatest): Partial<IWeatherProviderWeatherData> {
   const properties = observation.properties;
-  
+
   return {
     dewPoint: {
-      value: properties.dewpoint.value,
+      value: properties.dewpoint.value!,
       unit:
         properties.dewpoint.unitCode === 'wmoUnit:degC'
           ? IWeatherUnits.C
           : IWeatherUnits.F,
     },
     humidity: {
-      value: properties.relativeHumidity.value,
+      value: properties.relativeHumidity.value!,
       unit: IWeatherUnits.percent,
     },
     temperature: {
-      value: properties.temperature.value,
+      value: properties.temperature.value!,
       unit:
         properties.temperature.unitCode === 'wmoUnit:degC'
           ? IWeatherUnits.C
@@ -176,6 +177,10 @@ function convertToWeatherData(observation: any): IWeatherProviderWeatherData {
       value: standardizeCondition(properties.textDescription),
       unit: IWeatherUnits.string,
       original: properties.textDescription
+    },
+    cloudiness: {
+      value: getCloudinessFromCloudLayers(properties.cloudLayers),
+      unit: IWeatherUnits.percent,
     },
   };
 }

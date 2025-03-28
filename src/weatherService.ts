@@ -7,7 +7,7 @@ import { IWeatherProvider } from './providers/IWeatherProvider';
 import { ProviderFactory } from './providers/providerFactory';
 import { InvalidProviderLocationError } from './errors';
 import { isLocationInUS } from './utils/locationUtils';
-import { IWeatherData } from './interfaces';
+import { IWeatherData, IWeatherProviderWeatherData } from './interfaces';
 
 const log = debug('weather-plus');
 
@@ -71,7 +71,7 @@ export class WeatherService {
   }
 
   // Public method to get weather data for a given latitude and longitude
-  public async getWeather(lat: number, lng: number, options?: GetWeatherOptions) {
+  public async getWeather(lat: number, lng: number, options?: GetWeatherOptions): Promise<IWeatherData> {
     // Validate coordinates
     const validation = CoordinatesSchema.safeParse({ lat, lng });
     if (!validation.success) {
@@ -118,18 +118,20 @@ export class WeatherService {
         }
 
         // Attempt to get weather data from the provider
-        const weather: Partial<IWeatherData> = await provider.getWeather(geohashLat, geohashLng);
-        weather.provider = provider.name;
+        const providerWeather: Partial<IWeatherProviderWeatherData> = await provider.getWeather(geohashLat, geohashLng);
 
         // Add cached and cachedAt property to the weather data
-        const weatherForCache = { ...weather, cached: true, cachedAt: new Date().toISOString() };
+        const weatherForCache = { ...providerWeather, provider: provider.name, cached: true, cachedAt: new Date().toISOString() };
         // Store the retrieved weather data in cache
         await this.cache.set(locationGeohash, JSON.stringify(weatherForCache));
-        // In this case, we are setting cached to false because we just retrieved fresh data from the provider.
-        weather.cached = false;
-
+       
         // Return the weather data
-        return weather;
+        return {
+          ...weatherForCache,
+           // In this case, we are setting cached to false because we just retrieved fresh data from the provider.
+          cached: false,
+          cachedAt: undefined,
+        };
       } catch (error) {
         log(`Error with provider ${provider.name}:`, error);
         lastError = error as Error;

@@ -89,11 +89,11 @@ console.log(weather);
 
 One of the main benefits of this library is the ability to seamlessly switch between weather providers while maintaining a consistent API. This is particularly useful for:
 
-	•	Fallback Mechanism: Use a free provider by default and fallback to a paid provider if necessary.
-	•	Coverage: Some providers may not support certain locations; having multiple providers ensures broader coverage.
-	•	Cost Optimization: Reduce costs by prioritizing free or cheaper providers.
+- **Fallback Mechanism**: Use a free provider by default and fallback to a paid provider if necessary.
+- **Coverage**: Some providers may not support certain locations; having multiple providers ensures broader coverage.
+- **Cost Optimization**: Reduce costs by prioritizing free or cheaper providers.
 
-Available Providers
+#### Available Providers
 
 - 'nws' - National Weather Service
   - Notes:
@@ -325,10 +325,22 @@ interface IWeatherData {
     unit: string;            // Always "string"
     original: string;        // Original provider condition text
   };
+  cloudiness: {              // Percentage of cloud cover
+    value: number;
+    unit: string;            // Always "percent"
+  };
+  sunrise: {                 // Available for some providers (e.g., OpenWeather)
+    value: string;           // Sunrise time
+    unit: string;            // Always "iso8601"
+  };
+  sunset: {                  // Available for some providers (e.g., OpenWeather)
+    value: string;           // Sunset time
+    unit: string;            // Always "iso8601"
+  };
 }
 ```
 
-Note today the response is fairly basic, but we're working on adding more data all of the time.
+Note that the availability of specific data fields may vary depending on the weather provider being used. The library continues to expand with additional weather data over time.
 
 ### Complete Example
 

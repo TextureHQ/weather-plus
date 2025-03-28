@@ -18,7 +18,7 @@ export class OpenWeatherProvider implements IWeatherProvider {
     this.apiKey = apiKey;
   }
 
-  public async getWeather(lat: number, lng: number): Promise<IWeatherProviderWeatherData> {
+  public async getWeather(lat: number, lng: number): Promise<Partial<IWeatherProviderWeatherData>> {
     const url = `https://api.openweathermap.org/data/3.0/onecall`;
 
     const params = {
@@ -40,7 +40,7 @@ export class OpenWeatherProvider implements IWeatherProvider {
   }
 }
 
-function convertToWeatherData(data: IOpenWeatherResponse): IWeatherProviderWeatherData {
+function convertToWeatherData(data: IOpenWeatherResponse): Partial<IWeatherProviderWeatherData> {
   const weatherData = data.current.weather[0];
   
   return {
@@ -60,6 +60,18 @@ function convertToWeatherData(data: IOpenWeatherResponse): IWeatherProviderWeath
       value: standardizeCondition(weatherData.id),
       unit: IWeatherUnits.string,
       original: weatherData.description,
+    },
+    cloudiness: {
+      value: data.current.clouds,
+      unit: IWeatherUnits.percent,
+    },
+    sunrise: {
+      value: new Date(data.current.sunrise * 1000).toISOString(),
+      unit: IWeatherUnits.iso8601,
+    },
+    sunset: {
+      value: new Date(data.current.sunset * 1000).toISOString(),
+      unit: IWeatherUnits.iso8601,
     },
   };
 }
