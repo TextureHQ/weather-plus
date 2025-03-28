@@ -16,6 +16,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "prebuild": "rimraf ./dist",
+    "prepack": "npm run build",
     "coverage": "jest --coverage"
   },
   "files": [
