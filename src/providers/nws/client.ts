@@ -69,7 +69,7 @@ export class NWSProvider implements IWeatherProvider {
       for (const key of WEATHER_KEYS) {
         const value = weatherData.find((data) => data[key]);
 
-        if (value && value[key]?.value) {
+        if (value && typeof value[key]?.value !== 'undefined') {
           data[key] = value[key] as never;
         }
       }
@@ -153,7 +153,7 @@ async function fetchLatestObservation(
 
 function convertToWeatherData(observation: IObservationsLatest): Partial<IWeatherProviderWeatherData> {
   const properties = observation.properties;
-  
+
   return {
     dewPoint: {
       value: properties.dewpoint.value!,
