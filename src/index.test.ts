@@ -96,6 +96,15 @@ describe('WeatherPlus Library', () => {
             qualityControl: 'V',
           },
           textDescription: 'Sunny',
+          cloudLayers: [
+            {
+              base: {
+                unitCode: 'wmoUnit:m',
+                value: 1000,
+              },
+              amount: 'CLR',
+            },
+          ],
         },
       },
     ];
@@ -130,8 +139,13 @@ describe('WeatherPlus Library', () => {
         unit: 'string',
         original: 'Sunny'
       },
+      cloudiness: {
+        value: 0,
+        unit: 'percent',
+      },
       provider: 'nws',
       cached: false,
+      cachedAt: undefined,
     };
     expect(response).toEqual(expectedResponse);
   });
@@ -196,6 +210,7 @@ describe('WeatherPlus Library', () => {
       unit: 'string',
       original: 'light rain' 
     });
+    expect(response.cloudiness).toEqual({ value: 75, unit: 'percent' });
   });
 
   it('should throw an error if all providers fail', async () => {
@@ -265,6 +280,15 @@ describe('WeatherPlus Library', () => {
             qualityControl: 'V',
           },
           textDescription: 'Sunny',
+          cloudLayers: [
+            {
+              base: {
+                unitCode: 'wmoUnit:m',
+                value: 1000,
+              },
+              amount: 'CLR',
+            },
+          ],
         },
       },
     ];
@@ -293,6 +317,7 @@ describe('WeatherPlus Library', () => {
     expect(response1.humidity).toEqual(response2.humidity);
     expect(response1.temperature).toEqual(response2.temperature);
     expect(response1.conditions).toEqual(response2.conditions);
+    expect(response1.cloudiness).toEqual(response2.cloudiness);
   });
 
   it('should export InvalidProviderLocationError', () => {

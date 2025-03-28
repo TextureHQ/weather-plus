@@ -130,6 +130,7 @@ export class WeatherService {
           ...weatherForCache,
            // In this case, we are setting cached to false because we just retrieved fresh data from the provider.
           cached: false,
+          cachedAt: undefined,
         };
       } catch (error) {
         log(`Error with provider ${provider.name}:`, error);
