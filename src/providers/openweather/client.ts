@@ -65,5 +65,13 @@ function convertToWeatherData(data: IOpenWeatherResponse): Partial<IWeatherProvi
       value: data.current.clouds,
       unit: IWeatherUnits.percent,
     },
+    sunrise: {
+      value: new Date(data.current.sunrise * 1000).toISOString(),
+      unit: IWeatherUnits.iso8601,
+    },
+    sunset: {
+      value: new Date(data.current.sunset * 1000).toISOString(),
+      unit: IWeatherUnits.iso8601,
+    },
   };
 }

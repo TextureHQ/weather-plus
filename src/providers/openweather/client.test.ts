@@ -25,6 +25,8 @@ describe('OpenWeatherProvider', () => {
         humidity: 80,
         temp: 20,
         clouds: 25,
+        sunrise: 1743158735,
+        sunset: 1743203762,
         weather: [
           {
             id: 800,
@@ -61,6 +63,14 @@ describe('OpenWeatherProvider', () => {
       cloudiness: {
         value: 25,
         unit: 'percent'
+      },
+      sunrise: {
+        value: '2025-03-28T10:45:35.000Z',
+        unit: 'iso8601'
+      },
+      sunset: {
+        value: '2025-03-28T23:16:02.000Z',
+        unit: 'iso8601'
       },
     });
   });
