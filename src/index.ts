@@ -2,6 +2,7 @@ import { WeatherService } from './weatherService';
 import { InvalidProviderLocationError, ProviderNotSupportedError, WeatherProviderError } from './errors';
 import { RedisClientType } from 'redis';
 import { GetWeatherOptions } from './weatherService';
+import { IWeatherData } from './interfaces';
 
 // Define the options interface for WeatherPlus
 interface WeatherPlusOptions {
@@ -27,7 +28,7 @@ class WeatherPlus {
   }
 
   // Public method to get weather data for a given latitude and longitude
-  async getWeather(lat: number, lng: number, options?: GetWeatherOptions) {
+  async getWeather(lat: number, lng: number, options?: GetWeatherOptions): Promise<IWeatherData> {
     return this.weatherService.getWeather(lat, lng, options);
   }
 }

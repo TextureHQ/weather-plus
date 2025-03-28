@@ -18,7 +18,7 @@ export class OpenWeatherProvider implements IWeatherProvider {
     this.apiKey = apiKey;
   }
 
-  public async getWeather(lat: number, lng: number): Promise<IWeatherProviderWeatherData> {
+  public async getWeather(lat: number, lng: number): Promise<Partial<IWeatherProviderWeatherData>> {
     const url = `https://api.openweathermap.org/data/3.0/onecall`;
 
     const params = {
@@ -40,7 +40,7 @@ export class OpenWeatherProvider implements IWeatherProvider {
   }
 }
 
-function convertToWeatherData(data: IOpenWeatherResponse): IWeatherProviderWeatherData {
+function convertToWeatherData(data: IOpenWeatherResponse): Partial<IWeatherProviderWeatherData> {
   const weatherData = data.current.weather[0];
   
   return {

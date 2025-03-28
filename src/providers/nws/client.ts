@@ -1,6 +1,6 @@
 import axios from 'axios';
 import debug from 'debug';
-import { IWeatherData, IWeatherKey, IWeatherProviderWeatherData, IWeatherUnits } from '../../interfaces';
+import { IWeatherKey, IWeatherProviderWeatherData, IWeatherUnits } from '../../interfaces';
 import {
   IGridpointsStations,
   IPointsLatLngResponse,
@@ -20,7 +20,7 @@ export const WEATHER_KEYS = Object.values(IWeatherKey);
 export class NWSProvider implements IWeatherProvider {
   name = 'nws';
 
-  public async getWeather(lat: number, lng: number): Promise<IWeatherProviderWeatherData> {
+  public async getWeather(lat: number, lng: number): Promise<Partial<IWeatherProviderWeatherData>> {
     // Check if the location is within the US
     if (!isLocationInUS(lat, lng)) {
       throw new InvalidProviderLocationError(
@@ -28,8 +28,8 @@ export class NWSProvider implements IWeatherProvider {
       );
     }
 
-    const data: Partial<IWeatherData> = {};
-    const weatherData: IWeatherProviderWeatherData[] = [];
+    const data: Partial<IWeatherProviderWeatherData> = {};
+    const weatherData: Partial<IWeatherProviderWeatherData>[] = [];
 
     try {
       const observationStations = await fetchObservationStationUrl(lat, lng);
@@ -78,7 +78,7 @@ export class NWSProvider implements IWeatherProvider {
         throw new Error('Invalid observation data');
       }
 
-      return data as IWeatherData;
+      return data;
     } catch (error) {
       log('Error in getWeather:', error);
       throw error;
@@ -151,7 +151,7 @@ async function fetchLatestObservation(
   }
 }
 
-function convertToWeatherData(observation: IObservationsLatest): IWeatherProviderWeatherData {
+function convertToWeatherData(observation: IObservationsLatest): Partial<IWeatherProviderWeatherData> {
   const properties = observation.properties;
   
   return {
