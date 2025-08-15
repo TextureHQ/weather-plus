@@ -12,10 +12,16 @@ import { InvalidProviderLocationError } from '../../errors'; // Import the error
 import { isLocationInUS } from '../../utils/locationUtils';
 import { standardizeCondition } from './condition';
 import { getCloudinessFromCloudLayers } from './cloudiness';
+import { ProviderCapability } from '../capabilities';
 
 const log = debug('weather-plus:nws:client');
 
 export const WEATHER_KEYS = Object.values(IWeatherKey);
+
+export const NWS_CAPABILITY: ProviderCapability = Object.freeze({
+  supports: { current: true, hourly: false, daily: false, alerts: false },
+  regions: ['US'],
+});
 
 export class NWSProvider implements IWeatherProvider {
   name = 'nws';

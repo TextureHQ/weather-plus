@@ -4,8 +4,15 @@ import { IWeatherUnits, IWeatherProviderWeatherData } from '../../interfaces';
 import { IOpenWeatherResponse } from './interfaces';
 import { IWeatherProvider } from '../IWeatherProvider';
 import { standardizeCondition} from './condition';
+import { ProviderCapability } from '../capabilities';
 
 const log = debug('weather-plus:openweather:client');
+
+export const OPENWEATHER_CAPABILITY: ProviderCapability = Object.freeze({
+  supports: { current: true, hourly: true, daily: true, alerts: true },
+  units: ['standard', 'metric', 'imperial'] as Array<'standard' | 'metric' | 'imperial'>,
+  locales: [] as string[],
+});
 
 export class OpenWeatherProvider implements IWeatherProvider {
   private apiKey: string;
