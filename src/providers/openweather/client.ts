@@ -6,6 +6,7 @@ import { IWeatherProvider } from '../IWeatherProvider';
 import { standardizeCondition} from './condition';
 import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
+import { mapAxiosErrorToProviderError } from '../errorMapper';
 
 const log = debug('weather-plus:openweather:client');
 
@@ -46,15 +47,14 @@ export class OpenWeatherProvider implements IWeatherProvider {
       return result;
     } catch (error: any) {
       log('Error in getWeather:', error);
+      const mapped = mapAxiosErrorToProviderError('openweather', url, error);
       try {
         defaultOutcomeReporter.record('openweather', {
           ok: false,
           latencyMs: Date.now() - start,
-          code: 'UpstreamError',
-          status: error?.response?.status,
-          retryAfterMs: error?.response?.headers?.['retry-after']
-            ? Number(error.response.headers['retry-after']) * 1000
-            : undefined,
+          code: mapped.code,
+          status: mapped.status,
+          retryAfterMs: mapped.retryAfterMs,
         });
       } catch {}
       throw error;

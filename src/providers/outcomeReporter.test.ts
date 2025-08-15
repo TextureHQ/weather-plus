@@ -74,7 +74,7 @@ describe('outcome reporter hooks', () => {
       await expect(provider.getWeather(40, -100)).rejects.toBeTruthy();
       expect(reporter.events[1].provider).toBe('nws');
       expect(reporter.events[1].outcome.ok).toBe(false);
-      expect(reporter.events[1].outcome.code).toBe('UpstreamError');
+      expect(reporter.events[1].outcome.code).toBe('UnavailableError');
     } finally {
       (mod as any).defaultOutcomeReporter = original;
       mock.restore();
