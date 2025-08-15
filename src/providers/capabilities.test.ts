@@ -21,11 +21,21 @@ describe('provider capabilities', () => {
     expect(cap.units).toEqual(expect.arrayContaining(['standard', 'metric', 'imperial']));
   });
 
-  it('snapshots the built-in capabilities map', () => {
+  it('validates the built-in capabilities map explicitly', () => {
     const map = {
       nws: NWS_CAPABILITY,
       openweather: OPENWEATHER_CAPABILITY,
     } as const;
-    expect(map).toMatchSnapshot();
+    expect(map).toEqual({
+      nws: {
+        supports: { current: true, hourly: false, daily: false, alerts: false },
+        regions: ['US'],
+      },
+      openweather: {
+        supports: { current: true, hourly: true, daily: true, alerts: true },
+        units: ['standard', 'metric', 'imperial'],
+        locales: [],
+      },
+    });
   });
 });
