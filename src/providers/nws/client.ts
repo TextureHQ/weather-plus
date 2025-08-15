@@ -14,6 +14,7 @@ import { standardizeCondition } from './condition';
 import { getCloudinessFromCloudLayers } from './cloudiness';
 import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
+import { mapAxiosErrorToProviderError } from '../errorMapper';
 
 const log = debug('weather-plus:nws:client');
 
@@ -88,13 +89,16 @@ export class NWSProvider implements IWeatherProvider {
 
       defaultOutcomeReporter.record('nws', { ok: true, latencyMs: Date.now() - start });
       return data;
-    } catch (error) {
+    } catch (error: any) {
       log('Error in getWeather:', error);
+      const mapped = mapAxiosErrorToProviderError('nws', `https://api.weather.gov/points/${lat},${lng}`, error);
       try {
         defaultOutcomeReporter.record('nws', {
           ok: false,
           latencyMs: Date.now() - start,
-          code: 'UpstreamError',
+          code: mapped.code,
+          status: mapped.status,
+          retryAfterMs: mapped.retryAfterMs,
         });
       } catch {}
       throw error;
