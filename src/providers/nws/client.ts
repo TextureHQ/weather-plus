@@ -12,10 +12,17 @@ import { InvalidProviderLocationError } from '../../errors'; // Import the error
 import { isLocationInUS } from '../../utils/locationUtils';
 import { standardizeCondition } from './condition';
 import { getCloudinessFromCloudLayers } from './cloudiness';
+import { ProviderCapability } from '../capabilities';
+import { defaultOutcomeReporter } from '../outcomeReporter';
 
 const log = debug('weather-plus:nws:client');
 
 export const WEATHER_KEYS = Object.values(IWeatherKey);
+
+export const NWS_CAPABILITY: ProviderCapability = Object.freeze({
+  supports: { current: true, hourly: false, daily: false, alerts: false },
+  regions: ['US'],
+});
 
 export class NWSProvider implements IWeatherProvider {
   name = 'nws';
@@ -31,6 +38,7 @@ export class NWSProvider implements IWeatherProvider {
     const data: Partial<IWeatherProviderWeatherData> = {};
     const weatherData: Partial<IWeatherProviderWeatherData>[] = [];
 
+    const start = Date.now();
     try {
       const observationStations = await fetchObservationStationUrl(lat, lng);
       const stations = await fetchNearbyStations(observationStations);
@@ -78,9 +86,17 @@ export class NWSProvider implements IWeatherProvider {
         throw new Error('Invalid observation data');
       }
 
+      defaultOutcomeReporter.record('nws', { ok: true, latencyMs: Date.now() - start });
       return data;
     } catch (error) {
       log('Error in getWeather:', error);
+      try {
+        defaultOutcomeReporter.record('nws', {
+          ok: false,
+          latencyMs: Date.now() - start,
+          code: 'UpstreamError',
+        });
+      } catch {}
       throw error;
     }
   }
