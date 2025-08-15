@@ -5,6 +5,7 @@ import { IOpenWeatherResponse } from './interfaces';
 import { IWeatherProvider } from '../IWeatherProvider';
 import { standardizeCondition} from './condition';
 import { ProviderCapability } from '../capabilities';
+import { defaultOutcomeReporter } from '../outcomeReporter';
 
 const log = debug('weather-plus:openweather:client');
 
@@ -26,6 +27,7 @@ export class OpenWeatherProvider implements IWeatherProvider {
   }
 
   public async getWeather(lat: number, lng: number): Promise<Partial<IWeatherProviderWeatherData>> {
+    const start = Date.now();
     const url = `https://api.openweathermap.org/data/3.0/onecall`;
 
     const params = {
@@ -39,9 +41,22 @@ export class OpenWeatherProvider implements IWeatherProvider {
 
     try {
       const response = await axios.get<IOpenWeatherResponse>(url, { params });
-      return convertToWeatherData(response.data);
-    } catch (error) {
+      const result = convertToWeatherData(response.data);
+      defaultOutcomeReporter.record('openweather', { ok: true, latencyMs: Date.now() - start });
+      return result;
+    } catch (error: any) {
       log('Error in getWeather:', error);
+      try {
+        defaultOutcomeReporter.record('openweather', {
+          ok: false,
+          latencyMs: Date.now() - start,
+          code: 'UpstreamError',
+          status: error?.response?.status,
+          retryAfterMs: error?.response?.headers?.['retry-after']
+            ? Number(error.response.headers['retry-after']) * 1000
+            : undefined,
+        });
+      } catch {}
       throw error;
     }
   }
