@@ -136,6 +136,26 @@ describe('WeatherbitProvider', () => {
     });
   });
 
+  it('omits optional metrics when Weatherbit leaves them undefined', async () => {
+    mock
+      .onGet('https://api.weatherbit.io/v2.0/current')
+      .reply(200, {
+        data: [
+          {
+            temp: 18,
+            weather: { code: 1000, description: 'Clear sky' },
+          },
+        ],
+      });
+
+    const data = await provider.getWeather(lat, lng);
+
+    expect(data).toEqual({
+      temperature: { value: 18, unit: 'C' },
+      conditions: { value: 'Clear', unit: 'string', original: 'Clear sky' },
+    });
+  });
+
   it('wraps unexpected rejection payloads', async () => {
     mock.restore();
     const spy = jest.spyOn(axios, 'get').mockRejectedValueOnce(undefined);

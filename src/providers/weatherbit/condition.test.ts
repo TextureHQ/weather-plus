@@ -11,6 +11,7 @@ describe('Weatherbit condition mapping', () => {
   });
 
   it('defaults to Unknown for unsupported codes', () => {
+    expect(standardizeWeatherbitCondition(undefined)).toBe(StandardWeatherCondition.Unknown);
     expect(standardizeWeatherbitCondition(9999)).toBe(StandardWeatherCondition.Unknown);
     expect(standardizeWeatherbitCondition(undefined)).toBe(StandardWeatherCondition.Unknown);
   });
@@ -19,5 +20,6 @@ describe('Weatherbit condition mapping', () => {
     expect(describeWeatherbitCondition(1100, 'Partly cloudy')).toBe('Partly cloudy');
     expect(describeWeatherbitCondition(9999)).toBe('Code 9999');
     expect(describeWeatherbitCondition(undefined, 'Custom')).toBe('Custom');
+    expect(describeWeatherbitCondition(undefined)).toBe('Unknown');
   });
 });
