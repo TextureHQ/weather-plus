@@ -2,6 +2,7 @@ import { OPENWEATHER_CAPABILITY } from './openweather/client';
 import { NWS_CAPABILITY } from './nws/client';
 import { ProviderCapability } from './capabilities';
 import { TOMORROW_CAPABILITY } from './tomorrow/client';
+import { WEATHERBIT_CAPABILITY } from './weatherbit/client';
 
 describe('provider capabilities', () => {
   it('NWS_CAPABILITY matches expected shape and values', () => {
@@ -30,11 +31,20 @@ describe('provider capabilities', () => {
     expect(cap.supports.alerts).toBeFalsy();
   });
 
+  it('WEATHERBIT_CAPABILITY matches expected shape and values', () => {
+    const cap: ProviderCapability = WEATHERBIT_CAPABILITY;
+    expect(cap.supports.current).toBe(true);
+    expect(cap.supports.hourly).toBeFalsy();
+    expect(cap.supports.daily).toBeFalsy();
+    expect(cap.supports.alerts).toBeFalsy();
+  });
+
   it('validates the built-in capabilities map explicitly', () => {
     const map = {
       nws: NWS_CAPABILITY,
       openweather: OPENWEATHER_CAPABILITY,
       tomorrow: TOMORROW_CAPABILITY,
+      weatherbit: WEATHERBIT_CAPABILITY,
     } as const;
     expect(map).toEqual({
       nws: {
@@ -47,6 +57,10 @@ describe('provider capabilities', () => {
         locales: [],
       },
       tomorrow: {
+        supports: { current: true, hourly: false, daily: false, alerts: false },
+        regions: [],
+      },
+      weatherbit: {
         supports: { current: true, hourly: false, daily: false, alerts: false },
         regions: [],
       },

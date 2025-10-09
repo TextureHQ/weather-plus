@@ -253,6 +253,14 @@ describe('WeatherService', () => {
     expect(() => {
       new WeatherService({ providers: ['openweather'] });
     }).toThrow('OpenWeather provider requires an API key.');
+
+    expect(() => {
+      new WeatherService({ providers: ['tomorrow'] });
+    }).toThrow('Tomorrow.io provider requires an API key.');
+
+    expect(() => {
+      new WeatherService({ providers: ['weatherbit'] });
+    }).toThrow('Weatherbit provider requires an API key.');
   });
 
   it('throws a descriptive error when no providers can supply data', async () => {
