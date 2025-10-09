@@ -1,6 +1,6 @@
 import { ICloudLayer } from "./interfaces";
 
-export function getCloudinessFromCloudLayers(cloudLayers: Array<ICloudLayer>): number {
+export function getCloudinessFromCloudLayers(cloudLayers: Array<ICloudLayer> | null | undefined): number {
     if (!Array.isArray(cloudLayers) || cloudLayers.length === 0) {
         return 0;
     }

@@ -19,15 +19,17 @@ export enum IWeatherKey {
     sunset = 'sunset',
 }
 
-export interface IWeatherProviderWeatherData extends Record<IWeatherKey, IBaseWeatherProperty<any, any>> {
-    dewPoint: IDewPoint;
-    humidity: IRelativeHumidity;
-    temperature: ITemperature;
-    conditions: IConditions;
-    cloudiness: ICloudiness;
-    sunrise: ISunriseSunset;
-    sunset: ISunriseSunset;
-}
+export type WeatherProviderPropertyMap = {
+    [IWeatherKey.dewPoint]: IDewPoint;
+    [IWeatherKey.humidity]: IRelativeHumidity;
+    [IWeatherKey.temperature]: ITemperature;
+    [IWeatherKey.conditions]: IConditions;
+    [IWeatherKey.cloudiness]: ICloudiness;
+    [IWeatherKey.sunrise]: ISunriseSunset;
+    [IWeatherKey.sunset]: ISunriseSunset;
+};
+
+export type IWeatherProviderWeatherData = WeatherProviderPropertyMap;
 
 export interface IWeatherData extends Partial<IWeatherProviderWeatherData> {
     provider: string;

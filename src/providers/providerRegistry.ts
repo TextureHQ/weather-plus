@@ -81,7 +81,7 @@ export class ProviderRegistry {
   }
 
   listProviders(intent: { current?: boolean; hourly?: boolean; daily?: boolean; alerts?: boolean }): ProviderId[] {
-    const ids: ProviderId[] = [] as any;
+    const ids: ProviderId[] = [];
     for (const [id, st] of this.providers.entries()) {
       if (!this.supportsIntent(st.capability, intent)) continue;
       ids.push(id);

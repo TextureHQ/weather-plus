@@ -45,8 +45,8 @@ const nwsConditionsMap: Record<string, StandardWeatherCondition> = {
 export function standardizeCondition(condition: string): string {
   if (condition in nwsConditionsMap) {
     return nwsConditionsMap[condition];
-  } else {
-    log(`Unknown NWS condition: "${condition}". Returning Unknown condition.`);
-    return StandardWeatherCondition.Unknown;
   }
+
+  log(`Unknown NWS condition: "${condition}". Returning Unknown condition.`);
+  return StandardWeatherCondition.Unknown;
 }

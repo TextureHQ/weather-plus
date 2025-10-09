@@ -4,6 +4,11 @@ import { IWeatherUnits, IWeatherData } from './interfaces';
 import { IWeatherProvider } from './providers/IWeatherProvider';
 import geohash from 'ngeohash';
 
+type MockedCache = {
+  get: jest.Mock<Promise<string | null>, [string]>;
+  set: jest.Mock<Promise<void>, [string, string] | [string, string, number?]>;
+};
+
 jest.mock('./cache', () => {
   return {
     Cache: jest.fn().mockImplementation(() => {
@@ -164,14 +169,9 @@ describe('WeatherService', () => {
       cachedAt: '2023-10-15T12:00:00Z',
     };
 
-    const cacheGetMock = jest
-      .fn()
-      .mockResolvedValue(JSON.stringify(cachedWeatherData));
-    const cacheSetMock = jest.fn();
-
-    // Replace cache methods with mocks
-    (weatherService as any).cache.get = cacheGetMock;
-    (weatherService as any).cache.set = cacheSetMock;
+    const cache = Reflect.get(weatherService, 'cache') as MockedCache;
+    cache.get.mockResolvedValue(JSON.stringify(cachedWeatherData));
+    cache.set.mockResolvedValue();
 
     const lat = 38.8977;
     const lng = -77.0365;
@@ -181,17 +181,16 @@ describe('WeatherService', () => {
     expect(weather).toEqual(cachedWeatherData);
     expect(weather.cached).toBe(true);
     expect(weather.cachedAt).toBe('2023-10-15T12:00:00Z');
-    expect(cacheGetMock).toHaveBeenCalled();
-    expect(cacheSetMock).not.toHaveBeenCalled();
+    expect(cache.get).toHaveBeenCalled();
+    expect(cache.set).not.toHaveBeenCalled();
   });
 
   it('should rethrow generic errors from provider.getWeather', async () => {
     const genericError = new Error('Generic provider error');
 
     // Mock the provider's getWeather to throw a generic error
-    jest
-      .spyOn(weatherService['providers'][0], 'getWeather')
-      .mockRejectedValue(genericError);
+    const providers = Reflect.get(weatherService, 'providers') as IWeatherProvider[];
+    jest.spyOn(providers[0], 'getWeather').mockRejectedValue(genericError);
 
     const lat = 38.8977; // Valid US location
     const lng = -77.0365;
@@ -246,7 +245,7 @@ describe('WeatherService', () => {
 
   it('should throw an error if an unsupported provider is specified', () => {
     expect(() => {
-      new WeatherService({ providers: ['unsupportedProvider' as any] });
+      new WeatherService({ providers: ['unsupportedProvider'] });
     }).toThrow('Provider unsupportedProvider is not supported yet');
   });
 
@@ -281,8 +280,7 @@ describe('WeatherService', () => {
       apiKeys: { openweather: 'test-api-key' },
     });
 
-    // Inject mock provider
-    (weatherService as any).providers = [mockProvider];
+    Reflect.set(weatherService, 'providers', [mockProvider]);
 
     // Act
     const result = await weatherService.getWeather(lat, lng);
@@ -297,11 +295,6 @@ describe('WeatherService', () => {
   });
 
   it('should bypass cache when bypassCache option is true', async () => {
-    const mockCache = {
-      get: jest.fn(),
-      set: jest.fn(),
-    };
-
     const mockWeatherData: IWeatherData = {
       dewPoint: { value: 15, unit: IWeatherUnits.C },
       humidity: { value: 60, unit: IWeatherUnits.percent },
@@ -324,26 +317,27 @@ describe('WeatherService', () => {
       redisClient: undefined,
     });
 
-    // Inject mock cache and provider
-    (weatherService as any).cache = mockCache;
-    (weatherService as any).providers = [mockProvider];
+    const cache = Reflect.get(weatherService, 'cache') as MockedCache;
+    cache.get.mockClear();
+    cache.set.mockClear();
+    Reflect.set(weatherService, 'providers', [mockProvider]);
 
     // Call getWeather with bypassCache option
     const options: GetWeatherOptions = { bypassCache: true };
     const result = await weatherService.getWeather(0, 0, options);
 
     // Expect cache.get not to be called
-    expect(mockCache.get).not.toHaveBeenCalled();
+    expect(cache.get).not.toHaveBeenCalled();
 
     const { latitude, longitude } = geohash.decode(geohash.encode(0, 0, 5));
     // Expect provider.getWeather to be called
     expect(mockProvider.getWeather).toHaveBeenCalledWith(latitude, longitude);
 
     // Expect cache.set to be called with new data including cached: true and cachedAt
-    expect(mockCache.set).toHaveBeenCalled();
+    expect(cache.set).toHaveBeenCalled();
 
     // Capture the arguments passed to cache.set
-    const [cacheKey, cacheValue] = mockCache.set.mock.calls[0];
+    const [cacheKey, cacheValue] = cache.set.mock.calls[0];
 
     // Verify that the cache key is a string
     expect(cacheKey).toEqual(expect.any(String));
@@ -377,12 +371,8 @@ describe('WeatherService', () => {
       cachedAt: '2023-10-15T12:00:00Z',
     };
 
-    const cacheGetMock = jest
-      .fn()
-      .mockResolvedValue(JSON.stringify(cachedWeatherData));
-
-    // Replace cache methods with mocks
-    (weatherService as any).cache.get = cacheGetMock;
+    const cache = Reflect.get(weatherService, 'cache') as MockedCache;
+    cache.get.mockResolvedValue(JSON.stringify(cachedWeatherData));
 
     const lat = 38.8977;
     const lng = -77.0365;
@@ -392,6 +382,6 @@ describe('WeatherService', () => {
     expect(weather).toEqual(cachedWeatherData);
     expect(weather.cached).toBe(true);
     expect(weather.cachedAt).toBe('2023-10-15T12:00:00Z');
-    expect(cacheGetMock).toHaveBeenCalled();
+    expect(cache.get).toHaveBeenCalled();
   });
 });

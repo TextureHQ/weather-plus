@@ -10,11 +10,12 @@
 - `yarn build:cjs` / `yarn build:esm` generate a single module target when you need faster iteration.
 - `yarn dev` watches the compiler (`tsc-watch`) and re-runs `node dist/index.js` after successful builds for local experimentation.
 - `yarn test` runs the Jest suite once; `yarn test:watch` keeps Jest hot during development; `yarn coverage` enforces coverage expectations and refreshes the `coverage/` report.
+- `yarn lint` runs Biome across the repo; fix any reported issues or explicitly suppress with justification.
 
 ## Coding Style & Naming Conventions
 - Write modern, strict TypeScript (see `tsconfig.json`: `strict: true`, ES6 modules). Prefer named exports, keeping default exports limited to top-level entry points (`WeatherPlus`).
 - Use two-space indentation, camelCase for functions/variables, PascalCase for classes/types, and SCREAMING_CASE for constants. Match existing file casing (e.g., `providerRegistry.ts`, `weatherService.ts`) to stay consistent.
-- Keep provider adapters cohesive: map external API responses to internal interfaces inside the provider module, and surface errors via the shared `errors` utilities.
+- Keep provider adapters cohesive: map external API responses to internal interfaces inside the provider module, and surface errors via the shared `errors` utilities. Biome (`biome.json`) enforces formatting, import order, and lint defaults—run it before committing changes.
 
 ## Testing Guidelines
 - Jest powers unit and integration tests; colocate new specs as `*.test.ts` alongside the module under test.

@@ -1,15 +1,20 @@
-import { Feature, Geometry, Point, GeoJsonProperties } from 'geojson';
+import { Feature, Geometry, Point, GeoJsonProperties, FeatureCollection } from 'geojson';
 import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
 import { feature } from 'topojson-client';
 import usAtlasData from 'us-atlas/states-10m.json';
 import { Polygon, MultiPolygon } from 'geojson';
+import { GeometryCollection, Topology } from 'topojson-specification';
 
-// Cast the imported JSON data to 'any'
-const usAtlas = usAtlasData as any;
+type USAtlasTopology = Topology<{ states: GeometryCollection }>;
+
+const usAtlas = usAtlasData as unknown as USAtlasTopology;
 
 // Convert TopoJSON to GeoJSON and extract US boundaries
-const usGeoJSON = feature(usAtlas, usAtlas.objects.states) as any;
-const usBoundaries = usGeoJSON.features as Feature<Geometry, GeoJsonProperties>[];
+const usGeoJSON = feature(
+  usAtlas,
+  usAtlas.objects.states
+) as FeatureCollection<Polygon | MultiPolygon, GeoJsonProperties>;
+const usBoundaries = usGeoJSON.features ?? [];
 
 /**
  * Checks if a given latitude and longitude are within the United States boundaries.

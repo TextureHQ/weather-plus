@@ -9,4 +9,8 @@ export class NoopProviderOutcomeReporter implements ProviderOutcomeReporter {
   record(_provider: ProviderId, _outcome: ProviderCallOutcome): void {}
 }
 
-export const defaultOutcomeReporter: ProviderOutcomeReporter = new NoopProviderOutcomeReporter();
+export let defaultOutcomeReporter: ProviderOutcomeReporter = new NoopProviderOutcomeReporter();
+
+export function setDefaultOutcomeReporter(reporter: ProviderOutcomeReporter): void {
+  defaultOutcomeReporter = reporter;
+}

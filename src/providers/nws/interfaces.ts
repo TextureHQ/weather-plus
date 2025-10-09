@@ -229,7 +229,7 @@ export interface IProperties {
   rawMessage: string;
   textDescription: string;
   icon: string;
-  presentWeather: any[];
+  presentWeather: Array<Record<string, unknown>>;
   temperature: ITemperature;
   dewpoint: IDewpoint;
   windDirection: IWindDirection;

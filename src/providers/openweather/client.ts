@@ -1,9 +1,9 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import debug from 'debug';
 import { IWeatherUnits, IWeatherProviderWeatherData } from '../../interfaces';
 import { IOpenWeatherResponse } from './interfaces';
 import { IWeatherProvider } from '../IWeatherProvider';
-import { standardizeCondition} from './condition';
+import { standardizeCondition } from './condition';
 import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
 
@@ -28,7 +28,7 @@ export class OpenWeatherProvider implements IWeatherProvider {
 
   public async getWeather(lat: number, lng: number): Promise<Partial<IWeatherProviderWeatherData>> {
     const start = Date.now();
-    const url = `https://api.openweathermap.org/data/3.0/onecall`;
+    const url = 'https://api.openweathermap.org/data/3.0/onecall';
 
     const params = {
       lat: lat.toString(),
@@ -44,20 +44,20 @@ export class OpenWeatherProvider implements IWeatherProvider {
       const result = convertToWeatherData(response.data);
       defaultOutcomeReporter.record('openweather', { ok: true, latencyMs: Date.now() - start });
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       log('Error in getWeather:', error);
       try {
+        const axiosError = error as AxiosError | undefined;
+        const retryAfterHeader = axiosError?.response?.headers?.['retry-after'];
         defaultOutcomeReporter.record('openweather', {
           ok: false,
           latencyMs: Date.now() - start,
           code: 'UpstreamError',
-          status: error?.response?.status,
-          retryAfterMs: error?.response?.headers?.['retry-after']
-            ? Number(error.response.headers['retry-after']) * 1000
-            : undefined,
+          status: axiosError?.response?.status,
+          retryAfterMs: retryAfterHeader ? Number(retryAfterHeader) * 1000 : undefined,
         });
       } catch {}
-      throw error;
+      throw (error instanceof Error ? error : new Error('Failed to fetch OpenWeather data'));
     }
   }
 }

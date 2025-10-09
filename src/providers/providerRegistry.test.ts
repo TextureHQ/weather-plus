@@ -30,8 +30,8 @@ describe('ProviderRegistry', () => {
     expect(reg.getHealth('nws')?.circuit).toBe('open');
 
     // simulate time passing for half-open
-    const now = Date.now;
-    (Date as any).now = () => now() + 11;
+    const originalNow = Date.now();
+    const nowSpy = jest.spyOn(Date, 'now').mockImplementation(() => originalNow + 11);
     reg.recordOutcome('nws', { ok: true, latencyMs: 5 });
     expect(reg.getHealth('nws')?.circuit).toBe('half-open');
 
@@ -39,6 +39,6 @@ describe('ProviderRegistry', () => {
     reg.recordOutcome('nws', { ok: true, latencyMs: 5 });
     reg.recordOutcome('nws', { ok: true, latencyMs: 5 });
     expect(reg.getHealth('nws')?.circuit).toBe('closed');
-    (Date as any).now = now;
+    nowSpy.mockRestore();
   });
 });

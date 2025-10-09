@@ -7,39 +7,60 @@ describe('ProviderRegistry more branches', () => {
   it('EMA successRate decays and rises', () => {
     const reg = new ProviderRegistry();
     reg.register('nws', CAP);
-    const s0 = reg.getHealth('nws')!.successRate;
+    const getHealthOrThrow = () => {
+      const health = reg.getHealth('nws');
+      if (!health) {
+        throw new Error('nws health missing');
+      }
+      return health;
+    };
+    const s0 = getHealthOrThrow().successRate;
     reg.recordOutcome('nws', { ok: false, latencyMs: 1, code: 'UpstreamError' });
-    const s1 = reg.getHealth('nws')!.successRate;
+    const s1 = getHealthOrThrow().successRate;
     expect(s1).toBeLessThan(s0);
     reg.recordOutcome('nws', { ok: true, latencyMs: 1 });
-    const s2 = reg.getHealth('nws')!.successRate;
+    const s2 = getHealthOrThrow().successRate;
     expect(s2).toBeGreaterThan(s1);
   });
 
   it('half-open remains until required successes close it', () => {
     const reg = new ProviderRegistry({ circuit: { failureCountToOpen: 1, halfOpenAfterMs: 10, successToClose: 2 } });
     reg.register('nws', CAP);
+    const getHealthOrThrow = () => {
+      const health = reg.getHealth('nws');
+      if (!health) {
+        throw new Error('nws health missing');
+      }
+      return health;
+    };
     reg.recordOutcome('nws', { ok: false, latencyMs: 1, code: 'UpstreamError' });
-    const now = Date.now;
-    (Date as any).now = () => now() + 11;
+    const originalNow = Date.now();
+    const nowSpy = jest.spyOn(Date, 'now').mockImplementation(() => originalNow + 11);
     reg.recordOutcome('nws', { ok: true, latencyMs: 1 });
-    expect(reg.getHealth('nws')!.circuit).toBe('half-open');
+    expect(getHealthOrThrow().circuit).toBe('half-open');
     reg.recordOutcome('nws', { ok: true, latencyMs: 1 });
     reg.recordOutcome('nws', { ok: true, latencyMs: 1 });
-    expect(reg.getHealth('nws')!.circuit).toBe('closed');
-    (Date as any).now = now;
+    expect(getHealthOrThrow().circuit).toBe('closed');
+    nowSpy.mockRestore();
   });
 
   it('reopen after closing', () => {
     const reg = new ProviderRegistry({ circuit: { failureCountToOpen: 1, halfOpenAfterMs: 10, successToClose: 1 } });
     reg.register('nws', CAP);
+    const getHealthOrThrow = () => {
+      const health = reg.getHealth('nws');
+      if (!health) {
+        throw new Error('nws health missing');
+      }
+      return health;
+    };
     reg.recordOutcome('nws', { ok: false, latencyMs: 1, code: 'UpstreamError' });
-    const now = Date.now;
-    (Date as any).now = () => now() + 11;
+    const originalNow = Date.now();
+    const nowSpy = jest.spyOn(Date, 'now').mockImplementation(() => originalNow + 11);
     reg.recordOutcome('nws', { ok: true, latencyMs: 1 }); // half-open
     reg.recordOutcome('nws', { ok: true, latencyMs: 1 }); // closed
     reg.recordOutcome('nws', { ok: false, latencyMs: 1, code: 'UpstreamError' }); // open again
-    expect(reg.getHealth('nws')!.circuit).toBe('open');
-    (Date as any).now = now;
+    expect(getHealthOrThrow().circuit).toBe('open');
+    nowSpy.mockRestore();
   });
 });

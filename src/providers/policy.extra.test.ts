@@ -2,8 +2,8 @@ import { ProviderRegistry } from './providerRegistry';
 import { selectProviders } from './policy';
 import { ProviderCapability } from './capabilities';
 
-const CAP_BASIC: ProviderCapability = { supports: { current: true } } as any;
-const CAP_FULL: ProviderCapability = { supports: { current: true, hourly: true, daily: true, alerts: true } } as any;
+const CAP_BASIC: ProviderCapability = { supports: { current: true } };
+const CAP_FULL: ProviderCapability = { supports: { current: true, hourly: true, daily: true, alerts: true } };
 
 describe('policy engine extra coverage', () => {
   function setup() {

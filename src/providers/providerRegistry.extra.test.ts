@@ -1,8 +1,8 @@
 import { ProviderRegistry } from './providerRegistry';
 import { ProviderCapability } from './capabilities';
 
-const CAP_BASIC: ProviderCapability = { supports: { current: true } } as any;
-const CAP_FULL: ProviderCapability = { supports: { current: true, hourly: true, daily: true } } as any;
+const CAP_BASIC: ProviderCapability = { supports: { current: true } };
+const CAP_FULL: ProviderCapability = { supports: { current: true, hourly: true, daily: true } };
 
 describe('ProviderRegistry extra coverage', () => {
   it('getCapability returns registered metadata', () => {
@@ -20,6 +20,6 @@ describe('ProviderRegistry extra coverage', () => {
 
   it('recordOutcome with unknown provider is a no-op', () => {
     const reg = new ProviderRegistry();
-    expect(() => reg.recordOutcome('unknown' as any, { ok: true, latencyMs: 1 })).not.toThrow();
+    expect(() => reg.recordOutcome('unknown', { ok: true, latencyMs: 1 })).not.toThrow();
   });
 });

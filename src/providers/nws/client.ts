@@ -113,14 +113,14 @@ async function fetchObservationStationUrl(
     const response = await axios.get<IPointsLatLngResponse>(url);
 
     if (
-      typeof response.data === 'object' &&
-      response.data.properties &&
-      response.data.properties.observationStations
+      typeof response.data !== 'object' ||
+      !response.data.properties ||
+      !response.data.properties.observationStations
     ) {
-      return response.data.properties.observationStations;
-    } else {
       throw new Error('Invalid response data');
     }
+
+    return response.data.properties.observationStations;
   } catch (error) {
     log('Error in fetchObservationStationUrl:', error);
     throw new Error('Failed to fetch observation station URL');
@@ -134,14 +134,14 @@ async function fetchNearbyStations(
     const response = await axios.get<IGridpointsStations>(observationStations);
 
     if (
-      typeof response.data === 'object' &&
-      response.data.features &&
-      Array.isArray(response.data.features)
+      typeof response.data !== 'object' ||
+      !response.data.features ||
+      !Array.isArray(response.data.features)
     ) {
-      return response.data.features;
-    } else {
       throw new Error('Invalid response data');
     }
+
+    return response.data.features;
   } catch (error) {
     log('Error in fetchNearbyStations:', error);
     throw new Error('Failed to fetch nearby stations');
@@ -156,47 +156,73 @@ async function fetchLatestObservation(
   try {
     const response = await axios.get<IObservationsLatest>(url);
 
-    if (typeof response.data === 'object' && response.data.properties) {
-      return response.data;
-    } else {
+    if (typeof response.data !== 'object' || !response.data.properties) {
       throw new Error('Invalid observation data');
     }
+
+    return response.data;
   } catch (error) {
     log('Error in fetchLatestObservation:', error);
     throw new Error('Failed to fetch latest observation');
   }
 }
 
-function convertToWeatherData(observation: IObservationsLatest): Partial<IWeatherProviderWeatherData> {
-  const properties = observation.properties;
+function convertToWeatherData(
+  observation: IObservationsLatest
+): Partial<IWeatherProviderWeatherData> {
+  const { properties } = observation;
+  const result: Partial<IWeatherProviderWeatherData> = {};
 
-  return {
-    dewPoint: {
-      value: properties.dewpoint.value!,
+  const dewPointValue = properties.dewpoint?.value;
+  if (typeof dewPointValue === 'number') {
+    result.dewPoint = {
+      value: dewPointValue,
       unit:
         properties.dewpoint.unitCode === 'wmoUnit:degC'
           ? IWeatherUnits.C
           : IWeatherUnits.F,
-    },
-    humidity: {
-      value: properties.relativeHumidity.value!,
+    };
+  }
+
+  const humidityValue = properties.relativeHumidity?.value;
+  if (typeof humidityValue === 'number') {
+    result.humidity = {
+      value: humidityValue,
       unit: IWeatherUnits.percent,
-    },
-    temperature: {
-      value: properties.temperature.value!,
+    };
+  }
+
+  const temperatureValue = properties.temperature?.value;
+  if (typeof temperatureValue === 'number') {
+    result.temperature = {
+      value: temperatureValue,
       unit:
         properties.temperature.unitCode === 'wmoUnit:degC'
           ? IWeatherUnits.C
           : IWeatherUnits.F,
-    },
-    conditions: {
-      value: standardizeCondition(properties.textDescription),
-      unit: IWeatherUnits.string,
-      original: properties.textDescription
-    },
-    cloudiness: {
-      value: getCloudinessFromCloudLayers(properties.cloudLayers),
-      unit: IWeatherUnits.percent,
-    },
+    };
+  }
+
+  if (
+    typeof dewPointValue !== 'number' &&
+    typeof humidityValue !== 'number' &&
+    typeof temperatureValue !== 'number'
+  ) {
+    throw new Error('Invalid observation data');
+  }
+
+  const description = properties.textDescription ?? 'Unknown';
+
+  result.conditions = {
+    value: standardizeCondition(description),
+    unit: IWeatherUnits.string,
+    original: properties.textDescription,
   };
+
+  result.cloudiness = {
+    value: getCloudinessFromCloudLayers(properties.cloudLayers ?? []),
+    unit: IWeatherUnits.percent,
+  };
+
+  return result;
 }

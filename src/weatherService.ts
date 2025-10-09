@@ -8,13 +8,14 @@ import { ProviderFactory } from './providers/providerFactory';
 import { InvalidProviderLocationError } from './errors';
 import { isLocationInUS } from './utils/locationUtils';
 import { IWeatherData, IWeatherProviderWeatherData } from './interfaces';
+import { ProviderId } from './providers/capabilities';
 
 const log = debug('weather-plus');
 
 // Define the options interface for WeatherService
 interface WeatherServiceOptions {
   redisClient?: RedisClientType;             // Optional Redis client for caching
-  providers: Array<'nws' | 'openweather'>;   // Ordered list of providers for fallback
+  providers: ProviderId[];                   // Ordered list of providers for fallback
   apiKeys?: { [provider: string]: string };  // Mapping of provider names to their API keys
   geohashPrecision?: number;                 // Optional geohash precision for caching
   cacheTTL?: number;                         // Optional cache time-to-live in seconds
