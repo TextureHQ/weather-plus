@@ -102,6 +102,14 @@ describe('WeatherbitProvider', () => {
     await expect(provider.getWeather(lat, lng)).rejects.toThrow('Invalid weather data');
   });
 
+  it('throws when response omits the data array entirely', async () => {
+    mock
+      .onGet('https://api.weatherbit.io/v2.0/current')
+      .reply(200, {});
+
+    await expect(provider.getWeather(lat, lng)).rejects.toThrow('Invalid weather data');
+  });
+
   it('throws when record lacks core temperature metrics', async () => {
     mock
       .onGet('https://api.weatherbit.io/v2.0/current')
@@ -185,5 +193,24 @@ describe('WeatherbitProvider', () => {
     } finally {
       setDefaultOutcomeReporter(original);
     }
+  });
+
+  it('falls back to Unknown condition when weather block is missing', async () => {
+    mock
+      .onGet('https://api.weatherbit.io/v2.0/current')
+      .reply(200, {
+        data: [
+          {
+            dewpt: 12,
+          },
+        ],
+      });
+
+    const data = await provider.getWeather(lat, lng);
+
+    expect(data).toEqual({
+      dewPoint: { value: 12, unit: 'C' },
+      conditions: { value: 'Unknown', unit: 'string', original: 'Unknown' },
+    });
   });
 });
