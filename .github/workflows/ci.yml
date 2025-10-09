@@ -32,14 +32,6 @@ jobs:
       - name: Run lint
         run: yarn lint
 
-      - name: Run Code Climate Test Reporter before-build
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        run: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-
       - name: Run tests with coverage
         run: yarn coverage
 
@@ -48,18 +40,3 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage/lcov.info
-
-      - name: Format coverage report for Code Climate
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        run: |
-          ./cc-test-reporter format-coverage coverage/lcov.info \
-            --input-type lcov \
-            --output coverage/codeclimate.json
-
-      - name: Upload coverage to Code Climate
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-        run: |
-          ./cc-test-reporter upload-coverage \
-            --input coverage/codeclimate.json
