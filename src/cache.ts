@@ -26,23 +26,24 @@ export class Cache {
     if (this.cacheType === 'redis' && this.redisClient) {
       const val = await this.redisClient.get(key);
       return val === undefined ? null : val;
-    } else {
-      const item = this.memoryCache.get(key);
-      if (item && item.expiresAt > Date.now()) {
-        return item.value;
-      }
-      this.memoryCache.delete(key);
-      return null;
     }
+
+    const item = this.memoryCache.get(key);
+    if (item && item.expiresAt > Date.now()) {
+      return item.value;
+    }
+    this.memoryCache.delete(key);
+    return null;
   }
 
   async set(key: string, value: string, ttl?: number): Promise<void> {
     const expiresIn = ttl ?? this.defaultTTL;
     if (this.cacheType === 'redis' && this.redisClient) {
       await this.redisClient.set(key, value, { EX: expiresIn });
-    } else {
-      const expiresAt = Date.now() + expiresIn * 1000;
-      this.memoryCache.set(key, { value, expiresAt });
+      return;
     }
+
+    const expiresAt = Date.now() + expiresIn * 1000;
+    this.memoryCache.set(key, { value, expiresAt });
   }
 }

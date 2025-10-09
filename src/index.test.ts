@@ -21,12 +21,12 @@ jest.mock('redis', () => {
 
 describe('WeatherPlus Library', () => {
   let mock: MockAdapter;
-  let redisMock: any;
+  let redisMock: { mGet: jest.Mock; mSet: jest.Mock; createClient: jest.Mock };
 
   beforeAll(() => {
     // Use the same axios instance that your providers use
     mock = new MockAdapter(axios);
-    redisMock = require('redis');
+    redisMock = require('redis') as { mGet: jest.Mock; mSet: jest.Mock; createClient: jest.Mock };
   });
 
   afterAll(() => {
@@ -41,7 +41,7 @@ describe('WeatherPlus Library', () => {
   it('should throw an error if an unsupported provider is specified', () => {
     // Use type assertion to bypass TypeScript error for testing purposes
     const initUnsupportedProvider = () => {
-      new WeatherPlus({ providers: ['tomorrow.io' as any] });
+      new WeatherPlus({ providers: ['tomorrow.io'] });
     };
     expect(initUnsupportedProvider).toThrow('Provider tomorrow.io is not supported yet');
   });
@@ -49,7 +49,7 @@ describe('WeatherPlus Library', () => {
   it('should throw an error if an unsupported provider is included in providers array', () => {
     // Use type assertion to bypass TypeScript error for testing purposes
     const initUnsupportedProvider = () => {
-      new WeatherPlus({ providers: ['nws', 'weatherkit' as any] });
+      new WeatherPlus({ providers: ['nws', 'weatherkit'] });
     };
     expect(initUnsupportedProvider).toThrow('Provider weatherkit is not supported yet');
   });

@@ -33,7 +33,8 @@ describe('Cache', () => {
     await cache.set(key, JSON.stringify(value), ttl);
     const result = await cache.get(key);
 
-    expect(JSON.parse(result!)).toEqual(value);
+    expect(result).not.toBeNull();
+    expect(JSON.parse(result as string)).toEqual(value);
     expect(mockRedisClient.set).toHaveBeenCalledWith(key, JSON.stringify(value), { EX: ttl });
     expect(mockRedisClient.get).toHaveBeenCalledWith(key);
   });
@@ -106,7 +107,8 @@ describe('Cache', () => {
       await cache.set(key, JSON.stringify(value), ttl);
       const result = await cache.get(key);
 
-      expect(JSON.parse(result!)).toEqual(value);
+      expect(result).not.toBeNull();
+      expect(JSON.parse(result as string)).toEqual(value);
     });
 
     it('should return null for nonexistent keys in memory cache', async () => {
@@ -219,8 +221,9 @@ describe('Cache', () => {
 
         // Assert
         expect(cachedData).not.toBeNull();
-        expect(JSON.parse(cachedData!)).toEqual(weatherData);
-        expect(JSON.parse(cachedData!).provider).toBe('nws'); // Verify provider name
+        const parsed = JSON.parse(cachedData as string);
+        expect(parsed).toEqual(weatherData);
+        expect(parsed.provider).toBe('nws'); // Verify provider name
     });
   });
 });

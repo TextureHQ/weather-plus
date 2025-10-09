@@ -87,8 +87,8 @@ export function standardizeCondition(weatherId: number): string {
   // Use ID-based mapping as primary method
   if (weatherId in openWeatherIdMap) {
     return openWeatherIdMap[weatherId];
-  } else {
-    log(`Unrecognized OpenWeather condition ID: ${weatherId}`);
-    return StandardWeatherCondition.Unknown;
   }
+
+  log(`Unrecognized OpenWeather condition ID: ${weatherId}`);
+  return StandardWeatherCondition.Unknown;
 }

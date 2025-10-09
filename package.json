@@ -8,16 +8,18 @@
   "author": "Victor Quinn <mail@victorquinn.com>",
   "license": "MIT",
   "private": false,
+  "packageManager": "yarn@1.22.22",
   "scripts": {
     "build:cjs": "tsc --project tsconfig.cjs.json",
     "build:esm": "tsc --project tsconfig.esm.json",
-    "build": "npm run build:cjs && npm run build:esm",
+    "build": "yarn build:cjs && yarn build:esm",
     "dev": "tsc-watch --onSuccess 'node dist/index.js'",
     "test": "jest",
     "test:watch": "jest --watch",
     "prebuild": "rimraf ./dist",
-    "prepack": "npm run build",
-    "coverage": "jest --coverage"
+    "prepack": "yarn build",
+    "coverage": "jest --coverage",
+    "lint": "biome lint ."
   },
   "files": [
     "dist"
@@ -48,6 +50,7 @@
     "ts-jest": "^29.1.4",
     "ts-node": "^10.9.2",
     "tsc-watch": "^6.2.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "@biomejs/biome": "^1.7.3"
   }
 }

@@ -24,9 +24,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'yarn'
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install --frozen-lockfile
+
+      - name: Run lint
+        run: yarn lint
 
       - name: Run Code Climate Test Reporter before-build
         env:
@@ -37,7 +41,7 @@ jobs:
           ./cc-test-reporter before-build
 
       - name: Run tests with coverage
-        run: npm run coverage
+        run: yarn coverage
 
       - name: Upload coverage to CodeCov
         uses: codecov/codecov-action@v3

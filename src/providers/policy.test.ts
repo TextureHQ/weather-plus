@@ -2,8 +2,8 @@ import { ProviderRegistry } from './providerRegistry';
 import { selectProviders } from './policy';
 import { ProviderCapability } from './capabilities';
 
-const CAP_A: ProviderCapability = { supports: { current: true } } as any;
-const CAP_B: ProviderCapability = { supports: { current: true, hourly: true } } as any;
+const CAP_A: ProviderCapability = { supports: { current: true } };
+const CAP_B: ProviderCapability = { supports: { current: true, hourly: true } };
 
 describe('policy engine', () => {
   function setup() {
@@ -29,12 +29,12 @@ describe('policy engine', () => {
     expect(res.candidates).toEqual(['openweather']);
     expect(res.skipped.map(s => s.id)).toContain('nws');
 
-    const now = Date.now;
-    (Date as any).now = () => now() + 11;
+    const originalNow = Date.now();
+    const nowSpy = jest.spyOn(Date, 'now').mockImplementation(() => originalNow + 11);
     reg.recordOutcome('nws', { ok: true, latencyMs: 5 }); // half-open
     res = selectProviders(reg, { current: true }, { providerPolicy: 'priority-then-health', healthThresholds: { minSuccessRate: 0.1 } });
     expect(res.candidates).toEqual(['openweather', 'nws']);
-    ;(Date as any).now = now;
+    nowSpy.mockRestore();
   });
 
   it('weighted policy orders by weight among healthy', () => {

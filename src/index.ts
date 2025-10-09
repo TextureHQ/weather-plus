@@ -3,10 +3,11 @@ import { InvalidProviderLocationError, ProviderNotSupportedError, WeatherProvide
 import { RedisClientType } from 'redis';
 import { GetWeatherOptions } from './weatherService';
 import { IWeatherData } from './interfaces';
+import { ProviderId } from './providers/capabilities';
 
 // Define the options interface for WeatherPlus
 interface WeatherPlusOptions {
-  providers?: Array<'nws' | 'openweather'>; // Ordered list of providers for fallback
+  providers?: ProviderId[]; // Ordered list of providers for fallback
   apiKeys?: { [provider: string]: string };  // Mapping of provider names to their API keys
   redisClient?: RedisClientType;             // Optional Redis client for caching
   geohashPrecision?: number;                 // Optional geohash precision for caching

@@ -1,10 +1,10 @@
 import { ProviderRegistry } from './providerRegistry';
 import { selectProviders } from './policy';
-import { ProviderCapability } from './capabilities';
+import { FallbackPolicyConfig, ProviderCapability } from './capabilities';
 
 describe('policy engine more branches', () => {
-  const CAP_A = { supports: { current: true } } as ProviderCapability;
-  const CAP_B = { supports: { current: true, hourly: true } } as ProviderCapability;
+  const CAP_A: ProviderCapability = { supports: { current: true } };
+  const CAP_B: ProviderCapability = { supports: { current: true, hourly: true } };
 
   function setup() {
     const reg = new ProviderRegistry({ circuit: { failureCountToOpen: 1, halfOpenAfterMs: 10, successToClose: 1 } });
@@ -49,8 +49,8 @@ describe('policy engine more branches', () => {
 
   it('unknown policy falls back to priority behavior', () => {
     const reg = setup();
-    const anyConfig: any = { providerPolicy: 'does-not-exist' };
-    const res = selectProviders(reg, { current: true }, anyConfig);
+    const fallbackConfig = { providerPolicy: 'does-not-exist' } as unknown as FallbackPolicyConfig;
+    const res = selectProviders(reg, { current: true }, fallbackConfig);
     expect(res.candidates).toEqual(['nws', 'openweather']);
   });
 });

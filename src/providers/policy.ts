@@ -18,7 +18,7 @@ export function selectProviders(
   }
 
   if (policy === 'priority-then-health') {
-    const candidates: ProviderId[] = [] as any;
+    const candidates: ProviderId[] = [];
     const skipped: SelectionResult['skipped'] = [];
     for (const id of base) {
       const h = registry.getHealth(id);
@@ -31,7 +31,7 @@ export function selectProviders(
       candidates.push(id);
     }
     // Half-open should be appended last to probe; ensure they are at the end
-    const halfOpen: ProviderId[] = [] as any;
+    const halfOpen: ProviderId[] = [];
     for (const id of base) {
       const h = registry.getHealth(id);
       if (h?.circuit === 'half-open') {
@@ -44,7 +44,7 @@ export function selectProviders(
 
   if (policy === 'weighted') {
     const weights = config.providerWeights ?? {};
-    const healthy: ProviderId[] = [] as any;
+    const healthy: ProviderId[] = [];
     const skipped: SelectionResult['skipped'] = [];
     for (const id of base) {
       const h = registry.getHealth(id);

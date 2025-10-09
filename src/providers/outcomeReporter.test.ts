@@ -2,11 +2,12 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { OpenWeatherProvider } from './openweather/client';
 import { NWSProvider } from './nws/client';
-import { ProviderOutcomeReporter } from './outcomeReporter';
+import { ProviderOutcomeReporter, defaultOutcomeReporter, setDefaultOutcomeReporter } from './outcomeReporter';
+import { ProviderCallOutcome, ProviderId } from './capabilities';
 
 class TestReporter implements ProviderOutcomeReporter {
-  events: any[] = [];
-  record(provider: any, outcome: any) {
+  events: Array<{ provider: ProviderId; outcome: ProviderCallOutcome }> = [];
+  record(provider: ProviderId, outcome: ProviderCallOutcome) {
     this.events.push({ provider, outcome });
   }
 }
@@ -17,10 +18,8 @@ describe('outcome reporter hooks', () => {
     const provider = new OpenWeatherProvider('key');
 
     const reporter = new TestReporter();
-    // Monkey-patch defaultOutcomeReporter for test
-    const mod = await import('./outcomeReporter');
-    const original = mod.defaultOutcomeReporter as any;
-    (mod as any).defaultOutcomeReporter = reporter as any;
+    const original = defaultOutcomeReporter;
+    setDefaultOutcomeReporter(reporter);
 
     try {
       mock.onGet('https://api.openweathermap.org/data/3.0/onecall').reply(200, {
@@ -35,9 +34,13 @@ describe('outcome reporter hooks', () => {
       await expect(provider.getWeather(1, 2)).rejects.toBeTruthy();
       expect(reporter.events[1].provider).toBe('openweather');
       expect(reporter.events[1].outcome.ok).toBe(false);
-      expect(reporter.events[1].outcome.code).toBe('UpstreamError');
+      const failureOutcome = reporter.events[1].outcome;
+      if (failureOutcome.ok) {
+        throw new Error('Expected failure outcome');
+      }
+      expect(failureOutcome.code).toBe('UpstreamError');
     } finally {
-      (mod as any).defaultOutcomeReporter = original;
+      setDefaultOutcomeReporter(original);
       mock.restore();
     }
   });
@@ -47,9 +50,8 @@ describe('outcome reporter hooks', () => {
     const provider = new NWSProvider();
 
     const reporter = new TestReporter();
-    const mod = await import('./outcomeReporter');
-    const original = mod.defaultOutcomeReporter as any;
-    (mod as any).defaultOutcomeReporter = reporter as any;
+    const original = defaultOutcomeReporter;
+    setDefaultOutcomeReporter(reporter);
 
     try {
       mock.onGet(/https:\/\/api\.weather\.gov\/points\/.*/).reply(200, {
@@ -74,9 +76,13 @@ describe('outcome reporter hooks', () => {
       await expect(provider.getWeather(40, -100)).rejects.toBeTruthy();
       expect(reporter.events[1].provider).toBe('nws');
       expect(reporter.events[1].outcome.ok).toBe(false);
-      expect(reporter.events[1].outcome.code).toBe('UpstreamError');
+      const failureOutcome = reporter.events[1].outcome;
+      if (failureOutcome.ok) {
+        throw new Error('Expected failure outcome');
+      }
+      expect(failureOutcome.code).toBe('UpstreamError');
     } finally {
-      (mod as any).defaultOutcomeReporter = original;
+      setDefaultOutcomeReporter(original);
       mock.restore();
     }
   });
