@@ -63,6 +63,25 @@ describe('TomorrowProvider', () => {
     });
   });
 
+  it('normalizes unknown or missing weather codes into descriptive strings', async () => {
+    mock
+      .onGet('https://api.tomorrow.io/v4/weather/realtime')
+      .reply(200, {
+        data: {
+          values: {
+            humidity: 40,
+          },
+        },
+      });
+
+    const data = await provider.getWeather(lat, lng);
+
+    expect(data).toEqual({
+      humidity: { value: 40, unit: 'percent' },
+      conditions: { value: 'Unknown', unit: 'string', original: 'Code -1' },
+    });
+  });
+
   it('records failure metadata when Tomorrow.io responds with an error', async () => {
     class TestReporter implements ProviderOutcomeReporter {
       public events: Array<{ provider: string; outcome: ProviderCallOutcome }> = [];
@@ -99,6 +118,14 @@ describe('TomorrowProvider', () => {
     mock
       .onGet('https://api.tomorrow.io/v4/weather/realtime')
       .reply(200, { data: { values: {} } });
+
+    await expect(provider.getWeather(lat, lng)).rejects.toThrow('Invalid weather data');
+  });
+
+  it('throws when values block is missing entirely', async () => {
+    mock
+      .onGet('https://api.tomorrow.io/v4/weather/realtime')
+      .reply(200, { data: {} });
 
     await expect(provider.getWeather(lat, lng)).rejects.toThrow('Invalid weather data');
   });
