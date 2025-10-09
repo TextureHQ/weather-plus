@@ -165,4 +165,25 @@ describe('WeatherbitProvider', () => {
     spy.mockRestore();
     mock = new MockAdapter(axios);
   });
+
+  it('swallows reporter failures while reporting upstream errors', async () => {
+    const failingReporter: ProviderOutcomeReporter = {
+      record() {
+        throw new Error('reporting failure');
+      },
+    };
+
+    const original = defaultOutcomeReporter;
+    setDefaultOutcomeReporter(failingReporter);
+
+    mock
+      .onGet('https://api.weatherbit.io/v2.0/current')
+      .reply(503);
+
+    try {
+      await expect(provider.getWeather(lat, lng)).rejects.toThrow('Request failed with status code 503');
+    } finally {
+      setDefaultOutcomeReporter(original);
+    }
+  });
 });
