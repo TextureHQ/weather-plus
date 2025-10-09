@@ -255,6 +255,18 @@ describe('WeatherService', () => {
     }).toThrow('OpenWeather provider requires an API key.');
   });
 
+  it('throws a descriptive error when no providers can supply data', async () => {
+    const service = new WeatherService({
+      providers: ['nws'],
+    });
+
+    Reflect.set(service as unknown as Record<string, unknown>, 'providers', []);
+
+    await expect(service.getWeather(38.8977, -77.0365)).rejects.toThrow(
+      'Unable to retrieve weather data from any provider.'
+    );
+  });
+
   it('should verify that the provider name is included in the weather data', async () => {
     const lat = 37.7749; // San Francisco
     const lng = -122.4194;

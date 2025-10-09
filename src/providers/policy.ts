@@ -62,7 +62,3 @@ export function selectProviders(
 
   return { candidates: base, skipped: [] };
 }
-
-function dedupe<T>(arr: T[]): T[] {
-  return Array.from(new Set(arr));
-}

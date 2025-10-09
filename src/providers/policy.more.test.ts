@@ -53,4 +53,59 @@ describe('policy engine more branches', () => {
     const res = selectProviders(reg, { current: true }, fallbackConfig);
     expect(res.candidates).toEqual(['nws', 'openweather']);
   });
+
+  it('priority-then-health skips providers without health snapshots', () => {
+    const registry = {
+      listProviders: () => ['ghost'],
+      getHealth: () => undefined,
+    } as unknown as ProviderRegistry;
+
+    const res = selectProviders(registry, { current: true }, { providerPolicy: 'priority-then-health' });
+
+    expect(res.candidates).toEqual([]);
+    expect(res.skipped).toEqual([]);
+  });
+
+  it('weighted policy skips providers below the minimum success threshold', () => {
+    const registry = {
+      listProviders: () => ['nws', 'openweather'],
+      getHealth: (id: string) =>
+        id === 'nws'
+          ? { circuit: 'closed', successRate: 0.1 }
+          : { circuit: 'closed', successRate: 0.9 },
+    } as unknown as ProviderRegistry;
+
+    const res = selectProviders(registry, { current: true }, {
+      providerPolicy: 'weighted',
+      providerWeights: { openweather: 5, nws: 1 },
+      healthThresholds: { minSuccessRate: 0.5 },
+    });
+
+    expect(res.candidates).toEqual(['openweather']);
+    expect(res.skipped).toEqual([{ id: 'nws', reason: 'below-success-threshold' }]);
+  });
+
+  it('weighted policy ignores providers without health snapshots', () => {
+    const registry = {
+      listProviders: () => ['ghost'],
+      getHealth: () => undefined,
+    } as unknown as ProviderRegistry;
+
+    const res = selectProviders(registry, { current: true }, { providerPolicy: 'weighted' });
+
+    expect(res.candidates).toEqual([]);
+    expect(res.skipped).toEqual([]);
+  });
+
+  it('weighted policy skips providers with open circuits', () => {
+    const registry = {
+      listProviders: () => ['nws'],
+      getHealth: () => ({ circuit: 'open', successRate: 0.9 }),
+    } as unknown as ProviderRegistry;
+
+    const res = selectProviders(registry, { current: true }, { providerPolicy: 'weighted' });
+
+    expect(res.candidates).toEqual([]);
+    expect(res.skipped).toEqual([{ id: 'nws', reason: 'circuit-open' }]);
+  });
 });

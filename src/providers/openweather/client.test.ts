@@ -1,6 +1,8 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { OpenWeatherProvider } from './client';
+import { ProviderOutcomeReporter, defaultOutcomeReporter, setDefaultOutcomeReporter } from '../outcomeReporter';
+import { ProviderCallOutcome } from '../capabilities';
 
 describe('OpenWeatherProvider', () => {
   const lat = 51.5074; // Example latitude (London)
@@ -89,5 +91,49 @@ describe('OpenWeatherProvider', () => {
       .reply(500);
 
     await expect(provider.getWeather(lat, lng)).rejects.toThrow();
+  });
+
+  it('records retry metadata when OpenWeather responds with errors', async () => {
+    class TestReporter implements ProviderOutcomeReporter {
+      public events: Array<{ provider: string; outcome: ProviderCallOutcome }> = [];
+      record(provider: string, outcome: ProviderCallOutcome): void {
+        this.events.push({ provider, outcome });
+      }
+    }
+
+    const reporter = new TestReporter();
+    const originalReporter = defaultOutcomeReporter;
+    setDefaultOutcomeReporter(reporter);
+
+    mock
+      .onGet('https://api.openweathermap.org/data/3.0/onecall')
+      .reply(429, {}, { 'retry-after': '5' });
+
+    try {
+      await expect(provider.getWeather(lat, lng)).rejects.toThrow('Request failed with status code 429');
+
+      expect(reporter.events).toHaveLength(1);
+      expect(reporter.events[0]).toEqual({
+        provider: 'openweather',
+        outcome: expect.objectContaining({
+          ok: false,
+          code: 'UpstreamError',
+          status: 429,
+          retryAfterMs: 5000,
+        }),
+      });
+    } finally {
+      setDefaultOutcomeReporter(originalReporter);
+    }
+  });
+
+  it('wraps unexpected rejection values in a descriptive error', async () => {
+    mock.restore();
+    const axiosSpy = jest.spyOn(axios, 'get').mockRejectedValueOnce('boom');
+
+    await expect(provider.getWeather(lat, lng)).rejects.toThrow('Failed to fetch OpenWeather data');
+
+    axiosSpy.mockRestore();
+    mock = new MockAdapter(axios);
   });
 });
