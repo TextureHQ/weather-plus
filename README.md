@@ -9,7 +9,7 @@ An awesome TypeScript weather client for fetching weather data from various weat
 - **Multiple Weather Providers with Fallback Support**: Seamlessly switch between weather providers and specify an ordered list for fallback.
   - [National Weather Service](https://weather-gov.github.io/api/)
   - [OpenWeather](https://openweathermap.org/api)
-  - [Tomorrow.io](https://www.tomorrow.io/) (coming soon!)
+  - [Tomorrow.io](https://www.tomorrow.io/)
   - [WeatherKit](https://developer.apple.com/weatherkit/) (coming soon!)
 - **Clean and Standardized API**: Fetch weather data using a consistent interface, regardless of the underlying provider.
   - Standardized weather conditions across providers
@@ -102,7 +102,8 @@ One of the main benefits of this library is the ability to seamlessly switch bet
     - Rate-limited to 5 requests per second and 300 requests per minute.
 - 'openweather' - OpenWeather
   - Requires an API key.
-- 'tomorrow.io' - Tomorrow.io (coming soon!)
+- 'tomorrow' - Tomorrow.io
+  - Requires an API key (create one at [app.tomorrow.io](https://app.tomorrow.io/)).
 - 'weatherkit' - Apple WeatherKit (coming soon!)
 
 ### Specifying Providers
@@ -111,9 +112,10 @@ You can specify the providers in order of preference:
 
 ```ts
 const weatherPlus = new WeatherPlus({
-  providers: ['nws', 'openweather'],
+  providers: ['nws', 'openweather', 'tomorrow'],
   apiKeys: {
     openweather: 'your-openweather-api-key',
+    tomorrow: 'your-tomorrow-io-api-key',
   },
 });
 ```
@@ -124,12 +126,31 @@ Some providers require API keys. Provide them using the apiKeys object, mapping 
 
 ```ts
 const weatherPlus = new WeatherPlus({
-  providers: ['openweather'],
+  providers: ['openweather', 'tomorrow'],
   apiKeys: {
     openweather: 'your-openweather-api-key',
+    tomorrow: 'your-tomorrow-io-api-key', // https://app.tomorrow.io/
   },
 });
 ```
+
+#### Tomorrow.io Configuration
+
+1. Sign up at [app.tomorrow.io](https://app.tomorrow.io/) and create an API key.
+2. Add the key to the `apiKeys` map under the `tomorrow` entry.
+3. Include `'tomorrow'` in the `providers` array (its position controls fallback order).
+
+```ts
+const weatherPlus = new WeatherPlus({
+  providers: ['tomorrow', 'openweather'],
+  apiKeys: {
+    tomorrow: process.env.TOMORROW_API_KEY!,
+    openweather: process.env.OPENWEATHER_API_KEY!,
+  },
+});
+```
+
+The Tomorrow adapter maps the realtime API to the shared schema, normalizing weather codes to `StandardWeatherCondition` and exposing temperature, humidity, dew point, and cloud cover values.
 
 ### Built-in Caching
 
