@@ -1,6 +1,7 @@
 import { StandardWeatherCondition } from '../../weatherCondition';
 
 const WEATHERBIT_CODE_MAP: Record<number, StandardWeatherCondition> = {
+  800: StandardWeatherCondition.Clear,
   1000: StandardWeatherCondition.Clear,
   1001: StandardWeatherCondition.MostlyClear,
   1100: StandardWeatherCondition.PartlyCloudy,

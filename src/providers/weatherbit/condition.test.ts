@@ -3,6 +3,7 @@ import { StandardWeatherCondition } from '../../weatherCondition';
 
 describe('Weatherbit condition mapping', () => {
   it('maps known codes to standardized conditions', () => {
+    expect(standardizeWeatherbitCondition(800)).toBe(StandardWeatherCondition.Clear);
     expect(standardizeWeatherbitCondition(1000)).toBe(StandardWeatherCondition.Clear);
     expect(standardizeWeatherbitCondition(1101)).toBe(StandardWeatherCondition.MostlyCloudy);
     expect(standardizeWeatherbitCondition(4001)).toBe(StandardWeatherCondition.Rain);
