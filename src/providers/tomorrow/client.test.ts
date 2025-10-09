@@ -129,4 +129,14 @@ describe('TomorrowProvider', () => {
 
     await expect(provider.getWeather(lat, lng)).rejects.toThrow('Invalid weather data');
   });
+
+  it('wraps unexpected rejection payloads in a descriptive error', async () => {
+    mock.restore();
+    const spy = jest.spyOn(axios, 'get').mockRejectedValueOnce(undefined);
+
+    await expect(provider.getWeather(lat, lng)).rejects.toThrow('Failed to fetch Tomorrow.io data');
+
+    spy.mockRestore();
+    mock = new MockAdapter(axios);
+  });
 });
