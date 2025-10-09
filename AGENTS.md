@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - `src/` houses all TypeScript source; entry point is `src/index.ts`, with domain logic in `weatherService.ts` and provider implementations under `src/providers/`.
-- Each provider keeps its own helpers (`openweather/`, `nws/`) and colocated tests (`*.test.ts`). Shared contracts live in `interfaces.ts` and `providers/IWeatherProvider.ts`.
+- Each provider keeps its own helpers (`openweather/`, `nws/`, `tomorrow/`) and colocated tests (`*.test.ts`). Shared contracts live in `interfaces.ts` and `providers/IWeatherProvider.ts`.
 - Utilities (caching, error taxonomy, normalization) sit in `src/utils/` and `src/errors.ts`. Build artifacts publish to `dist/` (CJS and ESM). Architectural notes and RFCs reside in `docs/rfcs/`.
 
 ## Build, Test, and Development Commands
