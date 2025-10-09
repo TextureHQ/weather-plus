@@ -82,10 +82,6 @@ export class NWSProvider implements IWeatherProvider {
         }
       }
 
-      if (Object.keys(data).length === 0) {
-        throw new Error('Invalid observation data');
-      }
-
       defaultOutcomeReporter.record('nws', { ok: true, latencyMs: Date.now() - start });
       return data;
     } catch (error) {

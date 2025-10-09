@@ -214,6 +214,22 @@ describe('NWSProvider', () => {
     await expect(provider.getWeather(latInUS, lngInUS)).rejects.toThrow('Invalid observation data');
   });
 
+  it('reports failure when all stations return unusable data', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station123' }],
+      });
+
+    mock.onGet('station123/observations/latest').reply(200, {
+      properties: {},
+    });
+
+    await expect(provider.getWeather(latInUS, lngInUS)).rejects.toThrow('Invalid observation data');
+  });
+
   it('should throw when latest observation response omits properties entirely', async () => {
     mockObservationStationUrl();
 

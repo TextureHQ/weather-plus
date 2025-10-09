@@ -1,4 +1,4 @@
-export type ProviderId = 'nws' | 'openweather' | (string & {});
+export type ProviderId = 'nws' | 'openweather' | 'tomorrow' | (string & {});
 
 export interface ProviderCapability {
   supports: {
