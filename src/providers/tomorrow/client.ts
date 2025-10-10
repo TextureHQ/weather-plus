@@ -17,12 +17,14 @@ export const TOMORROW_CAPABILITY: ProviderCapability = Object.freeze({
 export class TomorrowProvider implements IWeatherProvider {
   name = 'tomorrow';
   private readonly apiKey: string;
+  private readonly timeout?: number;
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, timeout?: number) {
     if (!apiKey) {
       throw new Error('Tomorrow.io provider requires an API key.');
     }
     this.apiKey = apiKey;
+    this.timeout = timeout;
   }
 
   public async getWeather(lat: number, lng: number): Promise<Partial<IWeatherProviderWeatherData>> {
@@ -36,7 +38,7 @@ export class TomorrowProvider implements IWeatherProvider {
     log(`Fetching weather data from Tomorrow.io: ${url} with params ${JSON.stringify(params)}`);
 
     try {
-      const response = await axios.get<ITomorrowRealtimeResponse>(url, { params });
+      const response = await axios.get<ITomorrowRealtimeResponse>(url, { params, timeout: this.timeout });
       const result = convertToWeatherData(response.data);
       defaultOutcomeReporter.record('tomorrow', { ok: true, latencyMs: Date.now() - start });
       return result;
@@ -44,10 +46,11 @@ export class TomorrowProvider implements IWeatherProvider {
       log('Error in getWeather:', error);
       try {
         const axiosError = error as AxiosError | undefined;
+        const isTimeout = axiosError?.code === 'ECONNABORTED' || axiosError?.message?.includes('timeout');
         defaultOutcomeReporter.record('tomorrow', {
           ok: false,
           latencyMs: Date.now() - start,
-          code: 'UpstreamError',
+          code: isTimeout ? 'TimeoutError' : 'UpstreamError',
           status: axiosError?.response?.status,
         });
       } catch {}

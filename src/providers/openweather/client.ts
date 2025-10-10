@@ -17,13 +17,15 @@ export const OPENWEATHER_CAPABILITY: ProviderCapability = Object.freeze({
 
 export class OpenWeatherProvider implements IWeatherProvider {
   private apiKey: string;
+  private timeout?: number;
   name = 'openweather';
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, timeout?: number) {
     if (!apiKey) {
       throw new Error('OpenWeather provider requires an API key.');
     }
     this.apiKey = apiKey;
+    this.timeout = timeout;
   }
 
   public async getWeather(lat: number, lng: number): Promise<Partial<IWeatherProviderWeatherData>> {
@@ -40,7 +42,7 @@ export class OpenWeatherProvider implements IWeatherProvider {
     log(`Fetching weather data from OpenWeather API: ${url} with params ${JSON.stringify(params)}`);
 
     try {
-      const response = await axios.get<IOpenWeatherResponse>(url, { params });
+      const response = await axios.get<IOpenWeatherResponse>(url, { params, timeout: this.timeout });
       const result = convertToWeatherData(response.data);
       defaultOutcomeReporter.record('openweather', { ok: true, latencyMs: Date.now() - start });
       return result;
@@ -48,11 +50,13 @@ export class OpenWeatherProvider implements IWeatherProvider {
       log('Error in getWeather:', error);
       try {
         const axiosError = error as AxiosError | undefined;
+        const isTimeout = axiosError?.code === 'ECONNABORTED' || axiosError?.message?.includes('timeout');
         const retryAfterHeader = axiosError?.response?.headers?.['retry-after'];
+
         defaultOutcomeReporter.record('openweather', {
           ok: false,
           latencyMs: Date.now() - start,
-          code: 'UpstreamError',
+          code: isTimeout ? 'TimeoutError' : 'UpstreamError',
           status: axiosError?.response?.status,
           retryAfterMs: retryAfterHeader ? Number(retryAfterHeader) * 1000 : undefined,
         });

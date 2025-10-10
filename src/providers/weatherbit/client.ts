@@ -17,12 +17,14 @@ export const WEATHERBIT_CAPABILITY: ProviderCapability = Object.freeze({
 export class WeatherbitProvider implements IWeatherProvider {
   name = 'weatherbit';
   private readonly apiKey: string;
+  private readonly timeout?: number;
 
-  constructor(apiKey: string) {
+  constructor(apiKey: string, timeout?: number) {
     if (!apiKey) {
       throw new Error('Weatherbit provider requires an API key.');
     }
     this.apiKey = apiKey;
+    this.timeout = timeout;
   }
 
   public async getWeather(lat: number, lng: number): Promise<Partial<IWeatherProviderWeatherData>> {
@@ -37,7 +39,7 @@ export class WeatherbitProvider implements IWeatherProvider {
     log(`Fetching weather data from Weatherbit: ${url} with params ${JSON.stringify(params)}`);
 
     try {
-      const response = await axios.get<IWeatherbitCurrentResponse>(url, { params });
+      const response = await axios.get<IWeatherbitCurrentResponse>(url, { params, timeout: this.timeout });
       const result = convertToWeatherData(response.data);
       defaultOutcomeReporter.record('weatherbit', { ok: true, latencyMs: Date.now() - start });
       return result;
@@ -45,10 +47,11 @@ export class WeatherbitProvider implements IWeatherProvider {
       log('Error in getWeather:', error);
       try {
         const axiosError = error as AxiosError | undefined;
+        const isTimeout = axiosError?.code === 'ECONNABORTED' || axiosError?.message?.includes('timeout');
         defaultOutcomeReporter.record('weatherbit', {
           ok: false,
           latencyMs: Date.now() - start,
-          code: 'UpstreamError',
+          code: isTimeout ? 'TimeoutError' : 'UpstreamError',
           status: axiosError?.response?.status,
         });
       } catch {}

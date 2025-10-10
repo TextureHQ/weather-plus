@@ -12,6 +12,7 @@ interface WeatherPlusOptions {
   redisClient?: RedisClientType;             // Optional Redis client for caching
   geohashPrecision?: number;                 // Optional geohash precision for caching
   cacheTTL?: number;                         // Optional cache time-to-live in seconds
+  timeout?: number;                          // Optional timeout in milliseconds for provider requests (default: 10000ms)
 }
 
 // Main WeatherPlus class that users will interact with
@@ -25,6 +26,7 @@ class WeatherPlus {
       providers: options.providers || ['nws'], // Default to NWS if no providers specified
       apiKeys: options.apiKeys,
       cacheTTL: options.cacheTTL,
+      timeout: options.timeout ?? 10000,
     });
   }
 

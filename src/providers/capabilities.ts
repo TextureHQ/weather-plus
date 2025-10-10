@@ -28,7 +28,8 @@ export type ProviderErrorCode =
   | 'ValidationError'
   | 'ParseError'
   | 'UpstreamError'
-  | 'UnavailableError';
+  | 'UnavailableError'
+  | 'TimeoutError';
 
 export type ProviderCallOutcome =
   | { ok: true; latencyMs: number }
