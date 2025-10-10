@@ -213,4 +213,93 @@ describe('WeatherbitProvider', () => {
       conditions: { value: 'Unknown', unit: 'string', original: 'Unknown' },
     });
   });
+
+  it('should use custom timeout when provided', async () => {
+    const customTimeout = 15000;
+    const providerWithTimeout = new WeatherbitProvider(apiKey, customTimeout);
+
+    const mockResponse = {
+      data: [{ temp: 20, rh: 80, dewpt: 10 }],
+    };
+
+    mock
+      .onGet('https://api.weatherbit.io/v2.0/current')
+      .reply(200, mockResponse);
+
+    await providerWithTimeout.getWeather(lat, lng);
+
+    expect(mock.history.get[0].timeout).toBe(customTimeout);
+  });
+
+  it('should report timeout errors with TimeoutError code', async () => {
+    class TestReporter implements ProviderOutcomeReporter {
+      public events: Array<{ provider: string; outcome: ProviderCallOutcome }> = [];
+      record(provider: string, outcome: ProviderCallOutcome): void {
+        this.events.push({ provider, outcome });
+      }
+    }
+
+    const reporter = new TestReporter();
+    const originalReporter = defaultOutcomeReporter;
+    setDefaultOutcomeReporter(reporter);
+
+    mock.restore();
+    const axiosSpy = jest.spyOn(axios, 'get').mockRejectedValueOnce({
+      code: 'ECONNABORTED',
+      message: 'timeout of 10000ms exceeded',
+    });
+
+    try {
+      await expect(provider.getWeather(lat, lng)).rejects.toThrow();
+
+      expect(reporter.events).toHaveLength(1);
+      expect(reporter.events[0]).toEqual({
+        provider: 'weatherbit',
+        outcome: expect.objectContaining({
+          ok: false,
+          code: 'TimeoutError',
+        }),
+      });
+    } finally {
+      setDefaultOutcomeReporter(originalReporter);
+      axiosSpy.mockRestore();
+      mock = new MockAdapter(axios);
+    }
+  });
+
+  it('should report ETIMEDOUT errors with TimeoutError code', async () => {
+    class TestReporter implements ProviderOutcomeReporter {
+      public events: Array<{ provider: string; outcome: ProviderCallOutcome }> = [];
+      record(provider: string, outcome: ProviderCallOutcome): void {
+        this.events.push({ provider, outcome });
+      }
+    }
+
+    const reporter = new TestReporter();
+    const originalReporter = defaultOutcomeReporter;
+    setDefaultOutcomeReporter(reporter);
+
+    mock.restore();
+    const axiosSpy = jest.spyOn(axios, 'get').mockRejectedValueOnce({
+      code: 'ETIMEDOUT',
+      message: 'Connection timeout',
+    });
+
+    try {
+      await expect(provider.getWeather(lat, lng)).rejects.toThrow();
+
+      expect(reporter.events).toHaveLength(1);
+      expect(reporter.events[0]).toEqual({
+        provider: 'weatherbit',
+        outcome: expect.objectContaining({
+          ok: false,
+          code: 'TimeoutError',
+        }),
+      });
+    } finally {
+      setDefaultOutcomeReporter(originalReporter);
+      axiosSpy.mockRestore();
+      mock = new MockAdapter(axios);
+    }
+  });
 });

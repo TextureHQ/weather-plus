@@ -19,6 +19,7 @@ interface WeatherServiceOptions {
   apiKeys?: { [provider: string]: string };  // Mapping of provider names to their API keys
   geohashPrecision?: number;                 // Optional geohash precision for caching
   cacheTTL?: number;                         // Optional cache time-to-live in seconds
+  timeout?: number;                          // Optional timeout in milliseconds for provider requests
 }
 
 // Schema for validating latitude and longitude coordinates
@@ -51,7 +52,7 @@ export class WeatherService {
     // Create instances of the specified providers
     this.providers = options.providers.map((providerName) => {
       const apiKey = options.apiKeys ? options.apiKeys[providerName] : undefined;
-      return ProviderFactory.createProvider(providerName, apiKey);
+      return ProviderFactory.createProvider(providerName, apiKey, options.timeout);
     });
 
     // Set geohash precision for caching; default to 5 if not specified
