@@ -222,6 +222,18 @@ const weather = await weatherPlus.getWeather(51.5074, -0.1278, { bypassCache: tr
 
 This will not entirely bypass the cache, it bypasses it for the read request and then the returned data is cached again for future use.
 
+### Request Timeout
+
+You can configure the timeout for HTTP requests to weather providers. The default timeout is 10 seconds (10000 milliseconds).
+
+```ts
+const weatherPlus = new WeatherPlus({
+  timeout: 15000, // Set timeout to 15 seconds
+});
+```
+
+This timeout applies to all provider requests. If a provider doesn't respond within the specified time, a timeout error will be thrown and the next provider in the fallback list will be tried (if configured).
+
 ### Geohash Precision
 
 The library uses geohashing to cache weather data for nearby locations efficiently. Geohashing converts latitude and longitude into a short alphanumeric string, representing an area on the Earth’s surface.
@@ -402,6 +414,7 @@ import { createClient } from 'redis';
     redisClient,
     geohashPrecision: 5,
     cacheTTL: 600, // 10 minutes
+    timeout: 10000, // 10 second timeout (default)
   });
 
   try {
