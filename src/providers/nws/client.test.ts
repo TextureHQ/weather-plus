@@ -5,6 +5,8 @@ import { InvalidProviderLocationError } from '../../errors';
 import * as conditionModule from './condition';
 import * as cloudinessModule from './cloudiness';
 import { IObservationsLatest } from './interfaces';
+import { ProviderOutcomeReporter, defaultOutcomeReporter, setDefaultOutcomeReporter } from '../outcomeReporter';
+import { ProviderCallOutcome } from '../capabilities';
 
 describe('NWSProvider', () => {
   const latInUS = 38.8977; // Latitude in the US (e.g., Washington D.C.)
@@ -272,5 +274,137 @@ describe('NWSProvider', () => {
 
     conditionSpy.mockRestore();
     cloudSpy.mockRestore();
+  });
+
+  it('should report errors with status codes when available', async () => {
+    class TestReporter implements ProviderOutcomeReporter {
+      public events: Array<{ provider: string; outcome: ProviderCallOutcome }> = [];
+      record(provider: string, outcome: ProviderCallOutcome): void {
+        this.events.push({ provider, outcome });
+      }
+    }
+
+    const reporter = new TestReporter();
+    const originalReporter = defaultOutcomeReporter;
+    setDefaultOutcomeReporter(reporter);
+
+    mockObservationStationUrl();
+
+    mock
+        .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+        .reply(200, {
+          features: [{ id: 'station123' }],
+        });
+
+    mock.onGet('station123/observations/latest').reply(503);
+
+    try {
+      await expect(provider.getWeather(latInUS, lngInUS)).rejects.toThrow();
+
+      expect(reporter.events).toHaveLength(1);
+      expect(reporter.events[0]).toEqual({
+        provider: 'nws',
+        outcome: expect.objectContaining({
+          ok: false,
+          code: 'UpstreamError',
+        }),
+      });
+    } finally {
+      setDefaultOutcomeReporter(originalReporter);
+    }
+  });
+
+  it('should use custom timeout when provided', async () => {
+    const customTimeout = 15000;
+    const providerWithTimeout = new NWSProvider(customTimeout);
+
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station123' }],
+      });
+
+    mockLatestObservation('station123');
+
+    await providerWithTimeout.getWeather(latInUS, lngInUS);
+
+    // NWS makes multiple axios calls - check that timeout is passed to all of them
+    expect(mock.history.get[0].timeout).toBe(customTimeout); // fetchObservationStationUrl
+    expect(mock.history.get[1].timeout).toBe(customTimeout); // fetchNearbyStations
+    expect(mock.history.get[2].timeout).toBe(customTimeout); // fetchLatestObservation
+  });
+
+  it('should report timeout errors with TimeoutError code', async () => {
+    class TestReporter implements ProviderOutcomeReporter {
+      public events: Array<{ provider: string; outcome: ProviderCallOutcome }> = [];
+      record(provider: string, outcome: ProviderCallOutcome): void {
+        this.events.push({ provider, outcome });
+      }
+    }
+
+    const reporter = new TestReporter();
+    const originalReporter = defaultOutcomeReporter;
+    setDefaultOutcomeReporter(reporter);
+
+    mock.restore();
+    const axiosSpy = jest.spyOn(axios, 'get').mockRejectedValueOnce({
+      code: 'ECONNABORTED',
+      message: 'timeout of 10000ms exceeded',
+    });
+
+    try {
+      await expect(provider.getWeather(latInUS, lngInUS)).rejects.toThrow();
+
+      expect(reporter.events).toHaveLength(1);
+      expect(reporter.events[0]).toEqual({
+        provider: 'nws',
+        outcome: expect.objectContaining({
+          ok: false,
+          code: 'TimeoutError',
+        }),
+      });
+    } finally {
+      setDefaultOutcomeReporter(originalReporter);
+      axiosSpy.mockRestore();
+      mock = new MockAdapter(axios);
+    }
+  });
+
+  it('should report ETIMEDOUT errors with TimeoutError code', async () => {
+    class TestReporter implements ProviderOutcomeReporter {
+      public events: Array<{ provider: string; outcome: ProviderCallOutcome }> = [];
+      record(provider: string, outcome: ProviderCallOutcome): void {
+        this.events.push({ provider, outcome });
+      }
+    }
+
+    const reporter = new TestReporter();
+    const originalReporter = defaultOutcomeReporter;
+    setDefaultOutcomeReporter(reporter);
+
+    mock.restore();
+    const axiosSpy = jest.spyOn(axios, 'get').mockRejectedValueOnce({
+      code: 'ETIMEDOUT',
+      message: 'Connection timeout',
+    });
+
+    try {
+      await expect(provider.getWeather(latInUS, lngInUS)).rejects.toThrow();
+
+      expect(reporter.events).toHaveLength(1);
+      expect(reporter.events[0]).toEqual({
+        provider: 'nws',
+        outcome: expect.objectContaining({
+          ok: false,
+          code: 'TimeoutError',
+        }),
+      });
+    } finally {
+      setDefaultOutcomeReporter(originalReporter);
+      axiosSpy.mockRestore();
+      mock = new MockAdapter(axios);
+    }
   });
 });
