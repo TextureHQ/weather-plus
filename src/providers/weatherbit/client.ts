@@ -6,6 +6,7 @@ import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
 import { describeWeatherbitCondition, standardizeWeatherbitCondition } from './condition';
 import { IWeatherbitCurrentResponse } from './interfaces';
+import { isTimeoutError } from '../../utils/providerUtils';
 
 const log = debug('weather-plus:weatherbit:client');
 
@@ -47,11 +48,10 @@ export class WeatherbitProvider implements IWeatherProvider {
       log('Error in getWeather:', error);
       try {
         const axiosError = error as AxiosError | undefined;
-        const isTimeout = axiosError?.code === 'ECONNABORTED' || axiosError?.message?.includes('timeout');
         defaultOutcomeReporter.record('weatherbit', {
           ok: false,
           latencyMs: Date.now() - start,
-          code: isTimeout ? 'TimeoutError' : 'UpstreamError',
+          code: isTimeoutError(error) ? 'TimeoutError' : 'UpstreamError',
           status: axiosError?.response?.status,
         });
       } catch {}

@@ -6,6 +6,7 @@ import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
 import { describeTomorrowCondition, standardizeTomorrowCondition } from './condition';
 import { ITomorrowRealtimeResponse } from './interfaces';
+import { isTimeoutError } from '../../utils/providerUtils';
 
 const log = debug('weather-plus:tomorrow:client');
 
@@ -46,11 +47,10 @@ export class TomorrowProvider implements IWeatherProvider {
       log('Error in getWeather:', error);
       try {
         const axiosError = error as AxiosError | undefined;
-        const isTimeout = axiosError?.code === 'ECONNABORTED' || axiosError?.message?.includes('timeout');
         defaultOutcomeReporter.record('tomorrow', {
           ok: false,
           latencyMs: Date.now() - start,
-          code: isTimeout ? 'TimeoutError' : 'UpstreamError',
+          code: isTimeoutError(error) ? 'TimeoutError' : 'UpstreamError',
           status: axiosError?.response?.status,
         });
       } catch {}

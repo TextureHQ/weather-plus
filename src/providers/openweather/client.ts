@@ -6,6 +6,7 @@ import { IWeatherProvider } from '../IWeatherProvider';
 import { standardizeCondition } from './condition';
 import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
+import { isTimeoutError } from '../../utils/providerUtils';
 
 const log = debug('weather-plus:openweather:client');
 
@@ -50,13 +51,12 @@ export class OpenWeatherProvider implements IWeatherProvider {
       log('Error in getWeather:', error);
       try {
         const axiosError = error as AxiosError | undefined;
-        const isTimeout = axiosError?.code === 'ECONNABORTED' || axiosError?.message?.includes('timeout');
         const retryAfterHeader = axiosError?.response?.headers?.['retry-after'];
 
         defaultOutcomeReporter.record('openweather', {
           ok: false,
           latencyMs: Date.now() - start,
-          code: isTimeout ? 'TimeoutError' : 'UpstreamError',
+          code: isTimeoutError(error) ? 'TimeoutError' : 'UpstreamError',
           status: axiosError?.response?.status,
           retryAfterMs: retryAfterHeader ? Number(retryAfterHeader) * 1000 : undefined,
         });
