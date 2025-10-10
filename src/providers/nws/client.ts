@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import debug from 'debug';
 import { IWeatherKey, IWeatherProviderWeatherData, IWeatherUnits } from '../../interfaces';
 import {
@@ -14,6 +14,7 @@ import { standardizeCondition } from './condition';
 import { getCloudinessFromCloudLayers } from './cloudiness';
 import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
+import { isTimeoutError } from '../../utils/providerUtils';
 
 const log = debug('weather-plus:nws:client');
 
@@ -89,16 +90,18 @@ export class NWSProvider implements IWeatherProvider {
 
       defaultOutcomeReporter.record('nws', { ok: true, latencyMs: Date.now() - start });
       return data;
-    } catch (error) {
+    } catch (error: unknown) {
       log('Error in getWeather:', error);
       try {
+        const axiosError = error as AxiosError | undefined;
         defaultOutcomeReporter.record('nws', {
           ok: false,
           latencyMs: Date.now() - start,
-          code: 'UpstreamError',
+          code: isTimeoutError(error) ? 'TimeoutError' : 'UpstreamError',
+          status: axiosError?.response?.status,
         });
       } catch {}
-      throw error;
+      throw (error instanceof Error ? error : new Error('Failed to fetch NWS data'));
     }
   }
 }
@@ -111,44 +114,34 @@ async function fetchObservationStationUrl(
   const url = `https://api.weather.gov/points/${lat},${lng}`;
   log(`URL: ${url}`);
 
-  try {
-    const response = await axios.get<IPointsLatLngResponse>(url, { timeout });
+  const response = await axios.get<IPointsLatLngResponse>(url, { timeout });
 
-    if (
-      typeof response.data !== 'object' ||
-      !response.data.properties ||
-      !response.data.properties.observationStations
-    ) {
-      throw new Error('Invalid response data');
-    }
-
-    return response.data.properties.observationStations;
-  } catch (error) {
-    log('Error in fetchObservationStationUrl:', error);
+  if (
+    typeof response.data !== 'object' ||
+    !response.data.properties ||
+    !response.data.properties.observationStations
+  ) {
     throw new Error('Failed to fetch observation station URL');
   }
+
+  return response.data.properties.observationStations;
 }
 
 async function fetchNearbyStations(
   observationStations: string,
   timeout?: number
 ): Promise<IFeature[]> {
-  try {
-    const response = await axios.get<IGridpointsStations>(observationStations, { timeout });
+  const response = await axios.get<IGridpointsStations>(observationStations, { timeout });
 
-    if (
-      typeof response.data !== 'object' ||
-      !response.data.features ||
-      !Array.isArray(response.data.features)
-    ) {
-      throw new Error('Invalid response data');
-    }
-
-    return response.data.features;
-  } catch (error) {
-    log('Error in fetchNearbyStations:', error);
+  if (
+    typeof response.data !== 'object' ||
+    !response.data.features ||
+    !Array.isArray(response.data.features)
+  ) {
     throw new Error('Failed to fetch nearby stations');
   }
+
+  return response.data.features;
 }
 
 async function fetchLatestObservation(
@@ -157,18 +150,13 @@ async function fetchLatestObservation(
 ): Promise<IObservationsLatest> {
   const url = `${stationId}/observations/latest`;
 
-  try {
-    const response = await axios.get<IObservationsLatest>(url, { timeout });
+  const response = await axios.get<IObservationsLatest>(url, { timeout });
 
-    if (typeof response.data !== 'object' || !response.data.properties) {
-      throw new Error('Invalid observation data');
-    }
-
-    return response.data;
-  } catch (error) {
-    log('Error in fetchLatestObservation:', error);
-    throw new Error('Failed to fetch latest observation');
+  if (typeof response.data !== 'object' || !response.data.properties) {
+    throw new Error('Invalid observation data');
   }
+
+  return response.data;
 }
 
 function convertToWeatherData(
