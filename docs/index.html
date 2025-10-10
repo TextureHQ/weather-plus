@@ -137,7 +137,9 @@
         <h1>Typed weather data from multiple providers, one API.</h1>
         <p>
           Weather Plus wraps NWS, OpenWeather, Tomorrow.io, and Weatherbit behind a
-          single, type-safe interface with built-in caching and graceful fallback.
+          single interface—normalizing wildly different payloads and condition codes
+          into one schema—so your application stays consistent even when
+          providers change.
         </p>
         <div class="hero-logo">
           <img
@@ -166,17 +168,28 @@
             </p>
           </article>
           <article class="feature-card">
-            <h3>Strict TypeScript types</h3>
+            <h3>Unified schema</h3>
             <p>
-              All responses conform to a shared schema with standardized weather
-              conditions to keep your domain logic predictable.
+              Weather Plus transforms each provider’s response into the same,
+              strictly-typed shape—temperature, humidity, cloud cover, and
+              standardized conditions included—so swapping providers or adding
+              fallbacks is trivial.
             </p>
           </article>
           <article class="feature-card">
             <h3>Smart caching</h3>
             <p>
-              Use an in-memory cache out of the box or plug in Redis for
-              multi-instance deployments. Geohash keys keep stores compact.
+              Use in-memory or Redis caching with geohash keys. Closely located
+              lookups map to the same cell, delivering high hit rates while keeping
+              the cache compact.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Reliable fallback</h3>
+            <p>
+              Weather Plus automatically records successes, failure reasons, retry
+              hints, and latency, favoring healthy providers and bubbling up issues
+              with enough context to debug quickly.
             </p>
           </article>
           <article class="feature-card">
@@ -276,7 +289,8 @@ console.log(report.conditions.value);
             <h3>Observability</h3>
             <p>
               Inject a custom outcome reporter to log or emit metrics whenever a
-              provider call succeeds or fails.
+              provider call succeeds or fails. Capture latency distribution and
+              failure taxonomy out of the box.
             </p>
           </article>
         </div>
