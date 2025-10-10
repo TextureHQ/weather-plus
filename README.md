@@ -10,6 +10,7 @@ An awesome TypeScript weather client for fetching weather data from various weat
   - [National Weather Service](https://weather-gov.github.io/api/)
   - [OpenWeather](https://openweathermap.org/api)
   - [Tomorrow.io](https://www.tomorrow.io/)
+  - [Weatherbit](https://www.weatherbit.io/)
   - [WeatherKit](https://developer.apple.com/weatherkit/) (coming soon!)
 - **Clean and Standardized API**: Fetch weather data using a consistent interface, regardless of the underlying provider.
   - Standardized weather conditions across providers
@@ -104,6 +105,8 @@ One of the main benefits of this library is the ability to seamlessly switch bet
   - Requires an API key.
 - 'tomorrow' - Tomorrow.io
   - Requires an API key (create one at [app.tomorrow.io](https://app.tomorrow.io/)).
+- 'weatherbit' - Weatherbit
+  - Requires an API key (plans available directly from [weatherbit.io](https://www.weatherbit.io/)).
 - 'weatherkit' - Apple WeatherKit (coming soon!)
 
 ### Specifying Providers
@@ -112,10 +115,10 @@ You can specify the providers in order of preference:
 
 ```ts
 const weatherPlus = new WeatherPlus({
-  providers: ['nws', 'openweather', 'tomorrow'],
+  providers: ['nws', 'openweather', 'weatherbit'],
   apiKeys: {
     openweather: 'your-openweather-api-key',
-    tomorrow: 'your-tomorrow-io-api-key',
+    weatherbit: 'your-weatherbit-api-key',
   },
 });
 ```
@@ -126,10 +129,11 @@ Some providers require API keys. Provide them using the apiKeys object, mapping 
 
 ```ts
 const weatherPlus = new WeatherPlus({
-  providers: ['openweather', 'tomorrow'],
+  providers: ['openweather', 'tomorrow', 'weatherbit'],
   apiKeys: {
     openweather: 'your-openweather-api-key',
     tomorrow: 'your-tomorrow-io-api-key', // https://app.tomorrow.io/
+    weatherbit: 'your-weatherbit-api-key', // https://www.weatherbit.io/
   },
 });
 ```
@@ -151,6 +155,23 @@ const weatherPlus = new WeatherPlus({
 ```
 
 The Tomorrow adapter maps the realtime API to the shared schema, normalizing weather codes to `StandardWeatherCondition` and exposing temperature, humidity, dew point, and cloud cover values.
+
+#### Weatherbit Configuration
+
+1. Create an account at [weatherbit.io](https://www.weatherbit.io/) and generate an API key.
+2. Add the key to the `apiKeys` map under the `weatherbit` entry.
+3. Include `'weatherbit'` in your providers list wherever you want it to participate in the fallback order.
+
+```ts
+const weatherPlus = new WeatherPlus({
+  providers: ['weatherbit', 'nws'],
+  apiKeys: {
+    weatherbit: process.env.WEATHERBIT_API_KEY!,
+  },
+});
+```
+
+The Weatherbit adapter standardizes the realtime endpoint by mapping temperature, humidity, dew point, cloud cover, and the Weatherbit condition codes into the shared schema.
 
 ### Built-in Caching
 
