@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Weather Plus &mdash; TypeScript Weather SDK</title>
+    <meta
+      name="description"
+      content="Weather Plus is a TypeScript SDK for fetching realtime weather data from multiple providers with graceful fallback, caching, and a unified schema."
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/@picocss/pico@2.0.6/css/pico.min.css"
+    />
+    <style>
+      :root {
+        --brand: #2563eb;
+        --brand-soft: #ebf2ff;
+        --text: #0f172a;
+        --text-muted: #475569;
+      }
+
+      body {
+        background: #ffffff;
+        color: var(--text);
+      }
+
+      main.container {
+        max-width: 980px;
+        margin: 0 auto 4rem;
+        padding: 0 1.5rem 4rem;
+      }
+
+      header.hero {
+        margin-top: 3.5rem;
+        text-align: center;
+      }
+
+      header.hero h1 {
+        font-size: clamp(2.6rem, 4vw, 3.6rem);
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      header.hero p {
+        font-size: 1.15rem;
+        color: var(--text-muted);
+        max-width: 720px;
+        margin: 0.6rem auto;
+        line-height: 1.6;
+      }
+
+      .hero-logo {
+        margin-top: 2.25rem;
+      }
+
+      .hero-logo img {
+        max-width: 200px;
+      }
+
+      .cta-buttons {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1.2rem;
+        flex-wrap: wrap;
+      }
+
+      .cta-buttons a {
+        padding: 0.75rem 1.5rem;
+        border-radius: 999px;
+        font-weight: 600;
+      }
+
+      .cta-buttons a.secondary {
+        background: var(--brand-soft);
+        color: var(--brand);
+        border: none;
+      }
+
+      section {
+        margin-top: 4rem;
+      }
+
+      h2 {
+        margin-bottom: 1.4rem;
+        font-size: 2rem;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.6rem;
+      }
+
+      .feature-card {
+        padding: 1.6rem;
+        border-radius: 1.05rem;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+      }
+
+      .feature-card h3 {
+        margin-bottom: 0.75rem;
+        font-size: 1.15rem;
+        color: var(--text);
+      }
+
+      .feature-card p {
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      pre {
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 1.1rem 1.25rem;
+        border-radius: 0.9rem;
+        overflow-x: auto;
+        font-size: 0.95rem;
+      }
+
+      table {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+      }
+
+      table th,
+      table td {
+        font-size: 0.95rem;
+      }
+
+      ul.checklist {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      ul.checklist li {
+        position: relative;
+        padding-left: 1.8rem;
+        margin-bottom: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      ul.checklist li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: var(--brand);
+        font-weight: 600;
+      }
+
+      footer {
+        margin: 4rem 0 2rem;
+        text-align: center;
+        color: var(--text-muted);
+      }
+
+      footer .texture-wordmark {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      footer .texture-wordmark img {
+        height: 22px;
+      }
+
+      @media (max-width: 768px) {
+        header.hero h1 {
+          font-size: clamp(2.3rem, 6vw, 3.2rem);
+        }
+
+        .hero-logo img {
+          max-width: 160px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <header class="hero">
+        <p class="tag">Weather Plus</p>
+        <h1>Typed weather data from multiple providers, one API.</h1>
+        <p>
+          Weather Plus unifies NWS, OpenWeather, Tomorrow.io, and Weatherbit behind a
+          single interface—normalizing disparate payloads and condition codes into
+          one schema—so your application stays consistent even when providers
+          change.
+        </p>
+        <p>
+          Built and maintained by
+          <img
+            src="https://cdn.texturehq.com/texture-wordmark-black.png"
+            alt="Texture HQ"
+            style="height: 26px; vertical-align: middle"
+          />
+        </p>
+        <div class="cta-buttons">
+          <a class="contrast" href="https://www.npmjs.com/package/weather-plus"
+            >View on npm</a
+          >
+          <a class="secondary" href="https://github.com/TextureHQ/weather-plus"
+            >GitHub repository</a
+          >
+        </div>
+      </header>
+
+      <section>
+        <h2>Why Weather Plus?</h2>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3>Multi-provider fallback</h3>
+            <p>
+              Supply an ordered list of providers. Weather Plus will try each one
+              in turn, short-circuiting as soon as a provider succeeds.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Unified schema &amp; types</h3>
+            <p>
+              Every provider is transformed into the same, strictly typed shape:
+              temperature, humidity, cloud cover, and standardized conditions. Swap
+              providers or add fallbacks without changing downstream code.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>High-hit caching</h3>
+            <p>
+              Use in-memory or Redis caching with geohash keys. Nearby lookups map
+              to the same cell, delivering high hit rates while keeping the cache
+              compact and predictable.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Reliable fallback</h3>
+            <p>
+              Weather Plus records successes, failure reasons, retry hints, and
+              latency. Healthy providers stay primary; unhealthy ones surface with
+              enough context to debug quickly.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Observability hooks</h3>
+            <p>
+              Inject custom outcome reporters to emit metrics or logs whenever a
+              provider call succeeds or fails. Capture latency distribution and
+              failure taxonomy out of the box.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>Under the hood</h2>
+        <ul class="checklist">
+          <li>
+            Provider responses are normalized into a single contract, and condition
+            codes are mapped onto Weather Plus&rsquo; shared taxonomy.
+          </li>
+          <li>
+            Errors flow through a consistent hierarchy (`Unavailable`, `Upstream`,
+            `Validation`, etc.) so fallbacks and retries are deterministic.
+          </li>
+          <li>
+            Outcome reporters encapsulate success/failure telemetry so you can wire
+            in logging, metrics, or alerting without touching provider code.
+          </li>
+          <li>
+            Provider ordering and retries are “good citizen” friendly: Weather Plus
+            respects rate limits and avoids hammering unhealthy providers.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Quick start</h2>
+        <pre><code>yarn add weather-plus</code></pre>
+        <pre><code class="language-ts">import WeatherPlus from 'weather-plus';
+
+const weather = new WeatherPlus({
+  providers: ['weatherbit', 'openweather', 'nws'],
+  apiKeys: {
+    weatherbit: process.env.WEATHERBIT_API_KEY!,
+    openweather: process.env.OPENWEATHER_API_KEY!,
+  },
+});
+
+const report = await weather.getWeather(40.7128, -74.0060);
+console.log(report.conditions.value);
+</code></pre>
+      </section>
+
+      <section>
+        <h2>Provider coverage</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Provider</th>
+              <th>API key</th>
+              <th>Region</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>National Weather Service (NWS)</td>
+              <td>No</td>
+              <td>United States</td>
+              <td>Best-effort public data, rate-limited by API policy.</td>
+            </tr>
+            <tr>
+              <td>OpenWeather</td>
+              <td>Yes</td>
+              <td>Global</td>
+              <td>Supports both free and paid tiers.</td>
+            </tr>
+            <tr>
+              <td>Tomorrow.io</td>
+              <td>Yes</td>
+              <td>Global</td>
+              <td>Realtime conditions with rich metadata.</td>
+            </tr>
+            <tr>
+              <td>Weatherbit</td>
+              <td>Yes</td>
+              <td>Global</td>
+              <td>Straightforward paid plans with realtime weather.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Configuration overview</h2>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3>Provider ordering</h3>
+            <p>
+              `providers` accepts an array like `['weatherbit', 'openweather', 'nws']`.
+              The first provider to resolve wins; failures automatically fall
+              through to the next provider.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>API keys</h3>
+            <p>
+              Use the `apiKeys` map to supply credentials keyed by provider name.
+              Providers without keys (e.g. NWS) can be omitted.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Caching</h3>
+            <p>
+              Pass a Redis client to enable cross-instance caching. Otherwise an
+              in-memory store is used. Adjust TTL and geohash precision as needed.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Observability</h3>
+            <p>
+              Inject a custom outcome reporter to log or emit metrics whenever a
+              provider call succeeds or fails. Capture latency distribution and
+              failure taxonomy out of the box.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>Fallback &amp; error handling</h2>
+        <p>
+          Weather Plus normalizes provider errors into a shared taxonomy so you can
+          route retries and observability in a single place. When all providers
+          fail, the most recent error is re-thrown with cause information preserved.
+        </p>
+      </section>
+
+      <section>
+        <h2>Helpful links</h2>
+        <ul>
+          <li>
+            <a href="https://github.com/TextureHQ/weather-plus#readme" target="_blank"
+              >Project README</a
+            >
+          </li>
+          <li>
+            <a href="https://github.com/TextureHQ/weather-plus/tree/main/docs/rfcs"
+              target="_blank"
+              >RFCs &amp; architecture decisions</a
+            >
+          </li>
+          <li>
+            <a href="https://www.npmjs.com/package/weather-plus" target="_blank"
+              >npm package details</a
+            >
+          </li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>
+      <span class="texture-wordmark">
+        Built with ❤️ in NYC by
+        <img
+          src="https://cdn.texturehq.com/texture-wordmark-black.png"
+          alt="Texture HQ"
+        />
+      </span>
+      &middot;
+      <a href="https://github.com/TextureHQ/weather-plus">Contribute on GitHub</a>
+    </footer>
+  </body>
+</html>
