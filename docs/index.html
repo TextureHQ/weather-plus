@@ -97,12 +97,30 @@
         padding: 0.7rem 1.5rem;
         border-radius: 999px;
         font-weight: 600;
+        border: 1px solid transparent;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+      }
+
+      .cta-buttons a:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(29, 78, 216, 0.15);
       }
 
       .cta-buttons a.secondary {
         background: var(--brand-soft);
         color: var(--brand);
-        border: none;
+        border: 1px solid rgba(29, 78, 216, 0.25);
+      }
+
+      .cta-buttons a.contrast {
+        background: var(--brand);
+        color: white;
+      }
+
+      .cta-buttons a.outline {
+        background: #ffffff;
+        color: var(--text);
+        border: 1px solid rgba(15, 17, 32, 0.15);
       }
 
       section {
@@ -181,14 +199,25 @@
       table {
         border-radius: 0.9rem;
         overflow: hidden;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
         background: #ffffff;
+        border: 1px solid rgba(15, 23, 42, 0.08);
       }
 
       table th,
       table td {
         font-size: 0.95rem;
         color: var(--text);
+        background: #ffffff;
+      }
+
+      table thead th {
+        background: var(--brand-soft);
+        font-weight: 600;
+      }
+
+            table tbody tr:nth-child(odd) {
+        background: #f8fafc;
       }
 
       footer {
@@ -236,18 +265,13 @@
         </p>
         <div class="texture-brand">
           Built by
-          <img
-            src="https://cdn.texturehq.com/texture-wordmark-black.png"
-            alt="Texture"
-          />
+          <a href="https://www.texturehq.com" target="_blank" rel="noopener">
+            <img src="https://cdn.texturehq.com/texture-wordmark-black.png" alt="Texture" />
+          </a>
         </div>
         <div class="cta-buttons">
-          <a class="contrast" href="https://www.npmjs.com/package/weather-plus"
-            >View on npm</a
-          >
-          <a class="secondary" href="https://github.com/TextureHQ/weather-plus"
-            >GitHub repository</a
-          >
+          <a class="outline" href="https://www.npmjs.com/package/weather-plus">View on npm</a>
+          <a class="contrast" href="https://github.com/TextureHQ/weather-plus">GitHub repository</a>
         </div>
       </header>
 
@@ -277,7 +301,7 @@ const client = new WeatherPlus({
 
 const report = await client.getWeather(40.7128, -74.0060);
 
-console.log(report.temperature?.value); // → number in °C
+console.log(report.temperature?.value); // → number in °C by default (see `unit`)
 console.log(report.conditions?.value);  // → standardized enum string
 console.log(report.provider);            // → 'weatherbit'
 </code></pre>
@@ -307,7 +331,7 @@ console.log(report.provider);            // → 'weatherbit'
         <h2>Provider fallback &amp; timeouts</h2>
         <p class="description">
           Provide an ordered list of providers. Optional <code>timeout</code>
-          controls how long each provider is given before the next one is tried.
+          controls how long each provider is given before the next one is tried. If omitted, Axios waits indefinitely (no default timeout).
         </p>
         <pre><code class="language-ts">const client = new WeatherPlus({
   providers: ['openweather', 'tomorrow', 'weatherbit'],
@@ -316,7 +340,7 @@ console.log(report.provider);            // → 'weatherbit'
     tomorrow: process.env.TOMORROW_API_KEY!,
     weatherbit: process.env.WEATHERBIT_API_KEY!,
   },
-  timeout: 4000, // 4s per provider before falling back
+  timeout: 4000, // 4s per provider before falling back (default is no timeout)
 });
 </code></pre>
       </section>
@@ -340,6 +364,12 @@ console.log(report.provider);            // → 'weatherbit'
             </p>
           </article>
         </div>
+        <p class="description">
+          Each cache key is derived from the request geohash (default precision 5).
+          Increase the precision for block-by-block accuracy or lower it to share
+          results across larger regions. TTL controls freshness regardless of
+          provider response headers.
+        </p>
         <pre><code class="language-ts">import { createClient } from 'redis';
 
 const redis = createClient({ url: process.env.REDIS_URL });
@@ -489,10 +519,9 @@ setDefaultOutcomeReporter(reporter);
     <footer>
       <span class="texture-wordmark">
         Built with ❤️ in NYC by
-        <img
-          src="https://cdn.texturehq.com/texture-wordmark-black.png"
-          alt="Texture"
-        />
+        <a href="https://www.texturehq.com" target="_blank" rel="noopener">
+          <img src="https://cdn.texturehq.com/texture-wordmark-black.png" alt="Texture" />
+        </a>
       </span>
       &middot;
       <a href="https://github.com/TextureHQ/weather-plus">Contribute on GitHub</a>
