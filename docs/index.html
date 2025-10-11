@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Weather Plus &mdash; TypeScript Weather SDK</title>
+    <title>Weather Plus — TypeScript Weather SDK</title>
     <meta
       name="description"
-      content="Weather Plus is a TypeScript SDK for fetching realtime weather data from multiple providers with graceful fallback, caching, and strict typing."
+      content="Weather Plus unifies several weather providers behind one TypeScript SDK with graceful fallback, caching, and a normalized schema."
     />
     <link
       rel="stylesheet"
@@ -14,49 +14,73 @@
     />
     <style>
       :root {
-        --brand: #2563eb;
-        --brand-soft: #eef2ff;
+        --brand: #1d4ed8;
+        --brand-soft: #e0edff;
+        --bg: #ffffff;
+        --text: #0f172a;
+        --text-muted: #475569;
       }
 
       body {
-        background: #f8fafc;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main.container {
+        max-width: 980px;
+        margin: 0 auto 4rem;
+        padding: 0 1.6rem 4rem;
       }
 
       header.hero {
-        margin-top: 3rem;
+        margin-top: 3.5rem;
         text-align: center;
       }
 
       header.hero h1 {
-        font-size: clamp(2.5rem, 4vw, 3.5rem);
-        margin-bottom: 0.5rem;
+        font-size: clamp(2.7rem, 4vw, 3.6rem);
+        margin-bottom: 0.75rem;
+        font-weight: 700;
       }
 
-      header.hero p {
-        font-size: 1.1rem;
-        color: #334155;
+      header.hero p.lede {
+        font-size: 1.18rem;
+        color: var(--text-muted);
+        max-width: 720px;
+        margin: 0.6rem auto 0;
+        line-height: 1.6;
+      }
+
+      .texture-brand {
+        margin-top: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: var(--text-muted);
+      }
+
+      .texture-brand img {
+        height: 26px;
       }
 
       .cta-buttons {
-        margin-top: 1.5rem;
+        margin-top: 2rem;
         display: flex;
         justify-content: center;
-        gap: 1rem;
+        gap: 1.2rem;
         flex-wrap: wrap;
       }
 
-      .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.5rem;
+      .cta-buttons a {
+        padding: 0.75rem 1.6rem;
+        border-radius: 999px;
+        font-weight: 600;
       }
 
-      .feature-card {
-        padding: 1.5rem;
-        border-radius: 1rem;
-        background: white;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+      .cta-buttons a.secondary {
+        background: var(--brand-soft);
+        color: var(--brand);
+        border: none;
       }
 
       section {
@@ -64,68 +88,97 @@
       }
 
       h2 {
-        margin-bottom: 1rem;
+        margin-bottom: 1.4rem;
+        font-size: 2rem;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.6rem;
+      }
+
+      .feature-card {
+        background: #ffffff;
+        border-radius: 1.05rem;
+        padding: 1.7rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
+      }
+
+      .feature-card h3 {
+        font-size: 1.15rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .feature-card p {
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      ul.checklist {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      ul.checklist li {
+        position: relative;
+        padding-left: 1.9rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      ul.checklist li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: var(--brand);
+        font-weight: 700;
       }
 
       pre {
         background: #0f172a;
         color: #e2e8f0;
-        padding: 1rem;
-        border-radius: 0.75rem;
+        padding: 1.1rem 1.25rem;
+        border-radius: 0.9rem;
         overflow-x: auto;
+        font-size: 0.95rem;
       }
 
       table {
         border-radius: 1rem;
         overflow: hidden;
-        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.05);
       }
 
-      .tag {
-        display: inline-block;
-        font-size: 0.85rem;
-        background: var(--brand-soft);
-        color: var(--brand);
-        padding: 0.25rem 0.6rem;
-        border-radius: 999px;
+      table th,
+      table td {
+        font-size: 0.95rem;
       }
 
       footer {
         margin: 4rem 0 2rem;
         text-align: center;
-        color: #64748b;
+        color: var(--text-muted);
       }
 
       footer .texture-wordmark {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
       }
 
       footer .texture-wordmark img {
-        height: 20px;
-      }
-
-      .hero-logo {
-        margin-top: 2rem;
-      }
-
-      .hero-logo img {
-        max-width: 180px;
-      }
-
-      .provider-logo {
-        height: 18px;
-        vertical-align: baseline;
-        margin-left: 0.35rem;
+        height: 22px;
       }
 
       @media (max-width: 768px) {
         header.hero h1 {
-          font-size: clamp(2.2rem, 6vw, 3rem);
+          font-size: clamp(2.3rem, 6vw, 3.2rem);
         }
-        .hero-logo img {
-          max-width: 140px;
+        .texture-brand img {
+          height: 22px;
         }
       }
     </style>
@@ -135,16 +188,17 @@
       <header class="hero">
         <p class="tag">Weather Plus</p>
         <h1>Typed weather data from multiple providers, one API.</h1>
-        <p>
-          Weather Plus wraps NWS, OpenWeather, Tomorrow.io, and Weatherbit behind a
-          single interface—normalizing wildly different payloads and condition codes
-          into one schema—so your application stays consistent even when
-          providers change.
+        <p class="lede">
+          Weather Plus unifies NWS, OpenWeather, Tomorrow.io, and Weatherbit into a
+          single contract—reshaping each payload, condition code, and error into a
+          shared schema—so your application stays consistent even as providers
+          change.
         </p>
-        <div class="hero-logo">
+        <div class="texture-brand">
+          Built with ❤️ by
           <img
             src="https://cdn.texturehq.com/texture-wordmark-black.png"
-            alt="Texture HQ"
+            alt="Texture"
           />
         </div>
         <div class="cta-buttons">
@@ -161,45 +215,59 @@
         <h2>Why Weather Plus?</h2>
         <div class="feature-grid">
           <article class="feature-card">
-            <h3>Multi-provider fallback</h3>
+            <h3>Normalized schema &amp; types</h3>
             <p>
-              Supply an ordered list of providers. Weather Plus will try each one
-              in turn and stop as soon as a provider succeeds.
+              Every provider is transformed into the same, strictly typed shape:
+              temperature, humidity, cloud cover, and standardized conditions. Swap
+              providers or add fallbacks without touching downstream code.
             </p>
           </article>
           <article class="feature-card">
-            <h3>Unified schema</h3>
+            <h3>Graceful fallback</h3>
             <p>
-              Weather Plus transforms each provider’s response into the same,
-              strictly-typed shape—temperature, humidity, cloud cover, and
-              standardized conditions included—so swapping providers or adding
-              fallbacks is trivial.
+              Configure an ordered provider list. Weather Plus short-circuits on the
+              first success, recording failure taxonomy and latency for downstream
+              observability.
             </p>
           </article>
           <article class="feature-card">
-            <h3>Smart caching</h3>
+            <h3>High-hit caching</h3>
             <p>
-              Use in-memory or Redis caching with geohash keys. Closely located
-              lookups map to the same cell, delivering high hit rates while keeping
-              the cache compact.
-            </p>
-          </article>
-          <article class="feature-card">
-            <h3>Reliable fallback</h3>
-            <p>
-              Weather Plus automatically records successes, failure reasons, retry
-              hints, and latency, favoring healthy providers and bubbling up issues
-              with enough context to debug quickly.
+              In-memory or Redis caching with geohash keys maps nearby lookups to
+              the same cell. You get compact storage <em>and</em> strong cache hit
+              rates for geo-centric workloads.
             </p>
           </article>
           <article class="feature-card">
             <h3>Observability hooks</h3>
             <p>
-              Outcome reporters track provider successes, failures, and latency so
-              you can route alerts or metrics wherever you like.
+              Outcome reporters log successes, failures, retry hints, and latency so
+              you can emit metrics or alerts without wiring each provider by hand.
             </p>
           </article>
         </div>
+      </section>
+
+      <section>
+        <h2>Under the hood</h2>
+        <ul class="checklist">
+          <li>
+            Provider payloads are reshaped into a single contract and condition
+            taxonomy so your domain logic never sees provider-specific quirks.
+          </li>
+          <li>
+            Errors are normalized (`Unavailable`, `Upstream`, `Validation`, etc.) so
+            fallbacks and retries are deterministic and well-instrumented.
+          </li>
+          <li>
+            Outcome reporters capture latency distribution, success/failure counts,
+            and raw causes for observability and alerting.
+          </li>
+          <li>
+            Fallbacks obey good-citizen behaviour—providers aren’t hammered when
+            unhealthy, and you can layer in your own policies easily.
+          </li>
+        </ul>
       </section>
 
       <section>
@@ -266,42 +334,41 @@ console.log(report.conditions.value);
           <article class="feature-card">
             <h3>Provider ordering</h3>
             <p>
-              `providers` accepts an array like `['weatherbit', 'openweather', 'nws']`.
-              The first provider to resolve wins; failures automatically fall
-              through to the next provider.
+              Define priorities with `providers: ['weatherbit', 'openweather', 'nws']`.
+              Weather Plus stops on the first successful provider.
             </p>
           </article>
           <article class="feature-card">
             <h3>API keys</h3>
             <p>
-              Use the `apiKeys` map to supply credentials keyed by provider name.
-              Providers without keys (e.g. NWS) can be omitted.
+              Supply credentials via the `apiKeys` map. Providers without keys (like
+              NWS) can be omitted.
             </p>
           </article>
           <article class="feature-card">
             <h3>Caching</h3>
             <p>
-              Pass a Redis client to enable cross-instance caching. Otherwise an
-              in-memory store is used. Adjust TTL and geohash precision as needed.
+              Pass a Redis client for shared caching or rely on the built-in
+              in-memory store. Configure TTL and geohash precision to suit your
+              traffic shape.
             </p>
           </article>
           <article class="feature-card">
             <h3>Observability</h3>
             <p>
-              Inject a custom outcome reporter to log or emit metrics whenever a
-              provider call succeeds or fails. Capture latency distribution and
-              failure taxonomy out of the box.
+              Inject your own outcome reporter to pipe metrics into whatever stack
+              you use—Datadog, Prometheus, OpenTelemetry, CloudWatch, you name it.
             </p>
           </article>
         </div>
       </section>
 
       <section>
-        <h2>Fallback &amp; error handling</h2>
+        <h2>Fallback and error handling</h2>
         <p>
-          Weather Plus normalizes provider errors into a shared taxonomy so you can
-          route retries and observability in a single place. When all providers
-          fail, the most recent error is re-thrown with cause information preserved.
+          Weather Plus normalizes provider errors into a shared taxonomy. When every
+          provider fails, the most recent error is re-thrown with full context so you
+          can make decisions (retry, circuit open, alert) confidently.
         </p>
       </section>
 
@@ -333,7 +400,7 @@ console.log(report.conditions.value);
         Built with ❤️ in NYC by
         <img
           src="https://cdn.texturehq.com/texture-wordmark-black.png"
-          alt="Texture HQ"
+          alt="Texture"
         />
       </span>
       &middot;
