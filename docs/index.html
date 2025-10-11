@@ -20,13 +20,15 @@
       :root {
         --brand: #1d4ed8;
         --brand-soft: #dbeafe;
-        --text: #0f172a;
-        --text-muted: #475569;
+        --text: #0b1120;
+        --text-muted: #4b5563;
+        --background: #f8fafc;
       }
 
       body {
-        background: #ffffff;
+        background: var(--background);
         color: var(--text);
+        margin: 0;
       }
 
       main.container {
@@ -36,25 +38,44 @@
       }
 
       header.hero {
-        margin-top: 3.5rem;
+        padding-top: 3rem;
+      }
+
+      header.hero .tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 999px;
+        background: var(--brand-soft);
+        color: var(--brand);
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
       }
 
       header.hero h1 {
-        font-size: clamp(2.5rem, 4vw, 3.4rem);
-        margin-bottom: 0.75rem;
+        font-size: clamp(2.8rem, 4vw, 3.6rem);
+        margin: 1rem 0 0.75rem;
         font-weight: 700;
+        color: var(--text);
+      }
+
+      header.hero h2 {
+        font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+        font-weight: 500;
+        margin: 0.25rem 0 0.9rem;
+        color: var(--text-muted);
       }
 
       header.hero p.lede {
-        font-size: 1.15rem;
+        font-size: 1.05rem;
         color: var(--text-muted);
         max-width: 720px;
-        margin-top: 0.75rem;
         line-height: 1.6;
       }
 
       .texture-brand {
-        margin-top: 1rem;
+        margin-top: 1.2rem;
         display: inline-flex;
         align-items: center;
         gap: 0.6rem;
@@ -66,7 +87,7 @@
       }
 
       .cta-buttons {
-        margin-top: 1.6rem;
+        margin-top: 1.8rem;
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
@@ -89,22 +110,25 @@
       }
 
       section h2 {
-        font-size: 1.9rem;
+        font-size: 2rem;
         margin-bottom: 1.1rem;
+        color: var(--text);
       }
 
       p.description {
         color: var(--text-muted);
         max-width: 760px;
+        line-height: 1.6;
       }
 
       pre {
-        background: #0f172a;
+        background: #111827;
         color: #e2e8f0;
         border-radius: 0.9rem;
         padding: 1.1rem 1.25rem;
         overflow-x: auto;
         font-size: 0.95rem;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.25);
       }
 
       .feature-grid {
@@ -124,6 +148,7 @@
       .feature-card h3 {
         margin-bottom: 0.65rem;
         font-size: 1.1rem;
+        color: var(--text);
       }
 
       .feature-card p {
@@ -157,11 +182,13 @@
         border-radius: 0.9rem;
         overflow: hidden;
         box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        background: #ffffff;
       }
 
       table th,
       table td {
         font-size: 0.95rem;
+        color: var(--text);
       }
 
       footer {
@@ -181,6 +208,10 @@
       }
 
       @media (max-width: 768px) {
+        header.hero {
+          padding-top: 2rem;
+        }
+
         .cta-buttons {
           flex-direction: column;
           align-items: flex-start;
@@ -195,8 +226,9 @@
   <body>
     <main class="container">
       <header class="hero">
-        <p class="tag">Weather Plus</p>
-        <h1>Typed weather data from multiple providers, one API.</h1>
+        <span class="tag">Documentation</span>
+        <h1>Weather Plus</h1>
+        <h2>Typed weather data from multiple providers, one API.</h2>
         <p class="lede">
           Weather Plus unifies NWS, OpenWeather, Tomorrow.io, and Weatherbit into a
           single contract—reshaping payloads, condition codes, and errors so your
@@ -404,25 +436,25 @@ setDefaultOutcomeReporter(reporter);
           </thead>
           <tbody>
             <tr>
-              <td>National Weather Service (NWS)</td>
+              <td><a href="https://weather-gov.github.io/api/" target="_blank">National Weather Service (NWS)</a></td>
               <td>No</td>
               <td>United States</td>
               <td>Free, but limited to US lat/lng and rate-limited by policy.</td>
             </tr>
             <tr>
-              <td>OpenWeather</td>
+              <td><a href="https://openweathermap.org/api" target="_blank">OpenWeather</a></td>
               <td>Yes</td>
               <td>Global</td>
               <td>Supports free and paid tiers with robust forecast data.</td>
             </tr>
             <tr>
-              <td>Tomorrow.io</td>
+              <td><a href="https://www.tomorrow.io/" target="_blank">Tomorrow.io</a></td>
               <td>Yes</td>
               <td>Global</td>
               <td>Realtime conditions with rich metadata and enterprise plans.</td>
             </tr>
             <tr>
-              <td>Weatherbit</td>
+              <td><a href="https://www.weatherbit.io/" target="_blank">Weatherbit</a></td>
               <td>Yes</td>
               <td>Global</td>
               <td>Simple paid plans, great for realtime conditions.</td>
