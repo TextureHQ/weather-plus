@@ -3,129 +3,191 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Weather Plus &mdash; TypeScript Weather SDK</title>
+    <title>Weather Plus Documentation</title>
     <meta
       name="description"
-      content="Weather Plus is a TypeScript SDK for fetching realtime weather data from multiple providers with graceful fallback, caching, and strict typing."
+      content="Developer documentation for Weather Plus, a TypeScript SDK that normalizes multiple weather providers behind a single API."
     />
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2.0.6/css/pico.min.css" />
     <link
       rel="stylesheet"
-      href="https://unpkg.com/@picocss/pico@2.0.6/css/pico.min.css"
+      href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
     />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js" defer></script>
     <style>
       :root {
-        --brand: #2563eb;
-        --brand-soft: #eef2ff;
+        --brand: #1d4ed8;
+        --brand-soft: #dbeafe;
+        --text: #0f172a;
+        --text-muted: #475569;
       }
 
       body {
-        background: #f8fafc;
+        background: #ffffff;
+        color: var(--text);
+      }
+
+      main.container {
+        max-width: 980px;
+        margin: 0 auto 4rem;
+        padding: 0 1.6rem 4rem;
       }
 
       header.hero {
-        margin-top: 3rem;
-        text-align: center;
+        margin-top: 3.5rem;
       }
 
       header.hero h1 {
-        font-size: clamp(2.5rem, 4vw, 3.5rem);
-        margin-bottom: 0.5rem;
+        font-size: clamp(2.5rem, 4vw, 3.4rem);
+        margin-bottom: 0.75rem;
+        font-weight: 700;
       }
 
-      header.hero p {
-        font-size: 1.1rem;
-        color: #334155;
+      header.hero p.lede {
+        font-size: 1.15rem;
+        color: var(--text-muted);
+        max-width: 720px;
+        margin-top: 0.75rem;
+        line-height: 1.6;
+      }
+
+      .texture-brand {
+        margin-top: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: var(--text-muted);
+      }
+
+      .texture-brand img {
+        height: 26px;
       }
 
       .cta-buttons {
-        margin-top: 1.5rem;
+        margin-top: 1.6rem;
         display: flex;
-        justify-content: center;
         gap: 1rem;
         flex-wrap: wrap;
       }
 
-      .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.5rem;
+      .cta-buttons a {
+        padding: 0.7rem 1.5rem;
+        border-radius: 999px;
+        font-weight: 600;
       }
 
-      .feature-card {
-        padding: 1.5rem;
-        border-radius: 1rem;
-        background: white;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+      .cta-buttons a.secondary {
+        background: var(--brand-soft);
+        color: var(--brand);
+        border: none;
       }
 
       section {
-        margin-top: 4rem;
+        margin-top: 3.5rem;
       }
 
-      h2 {
-        margin-bottom: 1rem;
+      section h2 {
+        font-size: 1.9rem;
+        margin-bottom: 1.1rem;
+      }
+
+      p.description {
+        color: var(--text-muted);
+        max-width: 760px;
       }
 
       pre {
         background: #0f172a;
         color: #e2e8f0;
-        padding: 1rem;
-        border-radius: 0.75rem;
+        border-radius: 0.9rem;
+        padding: 1.1rem 1.25rem;
         overflow-x: auto;
+        font-size: 0.95rem;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.4rem;
+      }
+
+      .feature-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 0.9rem;
+        padding: 1.4rem;
+        background: #ffffff;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+      }
+
+      .feature-card h3 {
+        margin-bottom: 0.65rem;
+        font-size: 1.1rem;
+      }
+
+      .feature-card p {
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      ul.checklist {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      ul.checklist li {
+        position: relative;
+        padding-left: 1.8rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      ul.checklist li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        top: 0;
+        color: var(--brand);
+        font-weight: 700;
       }
 
       table {
-        border-radius: 1rem;
+        border-radius: 0.9rem;
         overflow: hidden;
-        box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
       }
 
-      .tag {
-        display: inline-block;
-        font-size: 0.85rem;
-        background: var(--brand-soft);
-        color: var(--brand);
-        padding: 0.25rem 0.6rem;
-        border-radius: 999px;
+      table th,
+      table td {
+        font-size: 0.95rem;
       }
 
       footer {
         margin: 4rem 0 2rem;
         text-align: center;
-        color: #64748b;
+        color: var(--text-muted);
       }
 
       footer .texture-wordmark {
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
       }
 
       footer .texture-wordmark img {
-        height: 20px;
-      }
-
-      .hero-logo {
-        margin-top: 2rem;
-      }
-
-      .hero-logo img {
-        max-width: 180px;
-      }
-
-      .provider-logo {
-        height: 18px;
-        vertical-align: baseline;
-        margin-left: 0.35rem;
+        height: 22px;
       }
 
       @media (max-width: 768px) {
-        header.hero h1 {
-          font-size: clamp(2.2rem, 6vw, 3rem);
+        .cta-buttons {
+          flex-direction: column;
+          align-items: flex-start;
         }
-        .hero-logo img {
-          max-width: 140px;
+
+        .texture-brand img {
+          height: 22px;
         }
       }
     </style>
@@ -135,16 +197,16 @@
       <header class="hero">
         <p class="tag">Weather Plus</p>
         <h1>Typed weather data from multiple providers, one API.</h1>
-        <p>
-          Weather Plus wraps NWS, OpenWeather, Tomorrow.io, and Weatherbit behind a
-          single interface—normalizing wildly different payloads and condition codes
-          into one schema—so your application stays consistent even when
-          providers change.
+        <p class="lede">
+          Weather Plus unifies NWS, OpenWeather, Tomorrow.io, and Weatherbit into a
+          single contract—reshaping payloads, condition codes, and errors so your
+          application stays consistent even when providers change.
         </p>
-        <div class="hero-logo">
+        <div class="texture-brand">
+          Built by
           <img
             src="https://cdn.texturehq.com/texture-wordmark-black.png"
-            alt="Texture HQ"
+            alt="Texture"
           />
         </div>
         <div class="cta-buttons">
@@ -158,56 +220,22 @@
       </header>
 
       <section>
-        <h2>Why Weather Plus?</h2>
-        <div class="feature-grid">
-          <article class="feature-card">
-            <h3>Multi-provider fallback</h3>
-            <p>
-              Supply an ordered list of providers. Weather Plus will try each one
-              in turn and stop as soon as a provider succeeds.
-            </p>
-          </article>
-          <article class="feature-card">
-            <h3>Unified schema</h3>
-            <p>
-              Weather Plus transforms each provider’s response into the same,
-              strictly-typed shape—temperature, humidity, cloud cover, and
-              standardized conditions included—so swapping providers or adding
-              fallbacks is trivial.
-            </p>
-          </article>
-          <article class="feature-card">
-            <h3>Smart caching</h3>
-            <p>
-              Use in-memory or Redis caching with geohash keys. Closely located
-              lookups map to the same cell, delivering high hit rates while keeping
-              the cache compact.
-            </p>
-          </article>
-          <article class="feature-card">
-            <h3>Reliable fallback</h3>
-            <p>
-              Weather Plus automatically records successes, failure reasons, retry
-              hints, and latency, favoring healthy providers and bubbling up issues
-              with enough context to debug quickly.
-            </p>
-          </article>
-          <article class="feature-card">
-            <h3>Observability hooks</h3>
-            <p>
-              Outcome reporters track provider successes, failures, and latency so
-              you can route alerts or metrics wherever you like.
-            </p>
-          </article>
-        </div>
+        <h2>Install</h2>
+        <pre><code class="language-bash">yarn add weather-plus
+# or
+npm install weather-plus</code></pre>
       </section>
 
       <section>
-        <h2>Quick start</h2>
-        <pre><code>yarn add weather-plus</code></pre>
+        <h2>First request</h2>
+        <p class="description">
+          Create the SDK, supply the providers you care about, and ask for data at a
+          latitude / longitude. Weather Plus will try providers in order and return
+          as soon as one succeeds.
+        </p>
         <pre><code class="language-ts">import WeatherPlus from 'weather-plus';
 
-const weather = new WeatherPlus({
+const client = new WeatherPlus({
   providers: ['weatherbit', 'openweather', 'nws'],
   apiKeys: {
     weatherbit: process.env.WEATHERBIT_API_KEY!,
@@ -215,13 +243,156 @@ const weather = new WeatherPlus({
   },
 });
 
-const report = await weather.getWeather(40.7128, -74.0060);
-console.log(report.conditions.value);
+const report = await client.getWeather(40.7128, -74.0060);
+
+console.log(report.temperature?.value); // → number in °C
+console.log(report.conditions?.value);  // → standardized enum string
+console.log(report.provider);            // → 'weatherbit'
 </code></pre>
       </section>
 
       <section>
-        <h2>Provider coverage</h2>
+        <h2>Normalized weather schema</h2>
+        <p class="description">
+          All providers are transformed into the same TypeScript contract. The
+          shared schema lives in <code>src/interfaces.ts</code> if you need to dig
+          deeper.
+        </p>
+        <pre><code class="language-ts">export interface IWeatherData {
+  provider: string;
+  cached: boolean;
+  cachedAt?: string; // ISO-8601 timestamp when served from cache
+  temperature?: { value: number; unit: 'C' | 'F' };
+  humidity?: { value: number; unit: 'percent' };
+  dewPoint?: { value: number; unit: 'C' | 'F' };
+  cloudiness?: { value: number; unit: 'percent' };
+  conditions?: { value: string; unit: 'string'; original?: string };
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>Provider fallback &amp; timeouts</h2>
+        <p class="description">
+          Provide an ordered list of providers. Optional <code>timeout</code>
+          controls how long each provider is given before the next one is tried.
+        </p>
+        <pre><code class="language-ts">const client = new WeatherPlus({
+  providers: ['openweather', 'tomorrow', 'weatherbit'],
+  apiKeys: {
+    openweather: process.env.OPENWEATHER_API_KEY!,
+    tomorrow: process.env.TOMORROW_API_KEY!,
+    weatherbit: process.env.WEATHERBIT_API_KEY!,
+  },
+  timeout: 4000, // 4s per provider before falling back
+});
+</code></pre>
+      </section>
+
+      <section>
+        <h2>Caching strategies</h2>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <h3>In-memory (default)</h3>
+            <p>
+              Every Weather Plus instance ships with an in-memory cache using
+              geohash keys. Nearby lookups map to the same cell, keeping payloads
+              compact while delivering high hit rates for city-centric requests.
+            </p>
+          </article>
+          <article class="feature-card">
+            <h3>Redis</h3>
+            <p>
+              Provide a Redis client to share cache between processes or hosts.
+              Configure TTL and geohash precision to balance freshness and hit rate.
+            </p>
+          </article>
+        </div>
+        <pre><code class="language-ts">import { createClient } from 'redis';
+
+const redis = createClient({ url: process.env.REDIS_URL });
+await redis.connect();
+
+const client = new WeatherPlus({
+  providers: ['weatherbit', 'nws'],
+  apiKeys: { weatherbit: process.env.WEATHERBIT_API_KEY! },
+  redisClient: redis,
+  cacheTTL: 900,        // seconds
+  geohashPrecision: 6,  // tighter cells for metropolitan areas
+});
+</code></pre>
+      </section>
+
+      <section>
+        <h2>Runtime options</h2>
+        <pre><code class="language-ts">// Bypass cache for a single call
+await client.getWeather(lat, lng, { bypassCache: true });
+
+// Change geohash precision (1–20)
+const regionalClient = new WeatherPlus({
+  providers: ['openweather'],
+  apiKeys: { openweather: process.env.OPENWEATHER_API_KEY! },
+  geohashPrecision: 4, // wider cells for national coverage
+});
+</code></pre>
+      </section>
+
+      <section>
+        <h2>Error taxonomy</h2>
+        <p class="description">
+          Weather Plus wraps provider errors in a shared hierarchy. You can inspect
+          the instance type or code to decide whether to retry, back off, or open a
+          circuit.
+        </p>
+        <pre><code class="language-ts">import {
+  InvalidProviderLocationError,
+  WeatherProviderError,
+} from 'weather-plus/dist/cjs/errors';
+
+try {
+  await client.getWeather(lat, lng);
+} catch (error) {
+  if (error instanceof InvalidProviderLocationError) {
+    // Provider never supports this lat/lng (e.g., NWS outside the US)
+  }
+
+  if (error instanceof WeatherProviderError) {
+    console.error(error.provider, error.code, error.cause);
+    // -> code: 'UpstreamError' | 'UnavailableError' | 'ValidationError' | etc.
+  }
+}
+</code></pre>
+      </section>
+
+      <section>
+        <h2>Outcome reporters</h2>
+        <p class="description">
+          Hook into the provider lifecycle for metrics or logging. Every call emits
+          a success/failure event with latency and error taxonomy.
+        </p>
+        <pre><code class="language-ts">import {
+  ProviderOutcomeReporter,
+  setDefaultOutcomeReporter,
+} from 'weather-plus/dist/cjs/providers/outcomeReporter';
+
+const reporter: ProviderOutcomeReporter = {
+  record(provider, outcome) {
+    if (outcome.ok) {
+      console.log(`[${provider}] success in ${outcome.latencyMs}ms`);
+    } else {
+      console.error(
+        `[${provider}] failed (${outcome.code}) after ${outcome.latencyMs}ms`,
+      );
+    }
+  },
+};
+
+setDefaultOutcomeReporter(reporter);
+</code></pre>
+      </section>
+
+      <section>
+        <h2>Provider capabilities</h2>
         <table>
           <thead>
             <tr>
@@ -236,73 +407,28 @@ console.log(report.conditions.value);
               <td>National Weather Service (NWS)</td>
               <td>No</td>
               <td>United States</td>
-              <td>Best-effort public data, rate-limited by API policy.</td>
+              <td>Free, but limited to US lat/lng and rate-limited by policy.</td>
             </tr>
             <tr>
               <td>OpenWeather</td>
               <td>Yes</td>
               <td>Global</td>
-              <td>Supports both free and paid tiers.</td>
+              <td>Supports free and paid tiers with robust forecast data.</td>
             </tr>
             <tr>
               <td>Tomorrow.io</td>
               <td>Yes</td>
               <td>Global</td>
-              <td>Realtime conditions with rich metadata.</td>
+              <td>Realtime conditions with rich metadata and enterprise plans.</td>
             </tr>
             <tr>
               <td>Weatherbit</td>
               <td>Yes</td>
               <td>Global</td>
-              <td>Straightforward paid plans with realtime weather.</td>
+              <td>Simple paid plans, great for realtime conditions.</td>
             </tr>
           </tbody>
         </table>
-      </section>
-
-      <section>
-        <h2>Configuration overview</h2>
-        <div class="feature-grid">
-          <article class="feature-card">
-            <h3>Provider ordering</h3>
-            <p>
-              `providers` accepts an array like `['weatherbit', 'openweather', 'nws']`.
-              The first provider to resolve wins; failures automatically fall
-              through to the next provider.
-            </p>
-          </article>
-          <article class="feature-card">
-            <h3>API keys</h3>
-            <p>
-              Use the `apiKeys` map to supply credentials keyed by provider name.
-              Providers without keys (e.g. NWS) can be omitted.
-            </p>
-          </article>
-          <article class="feature-card">
-            <h3>Caching</h3>
-            <p>
-              Pass a Redis client to enable cross-instance caching. Otherwise an
-              in-memory store is used. Adjust TTL and geohash precision as needed.
-            </p>
-          </article>
-          <article class="feature-card">
-            <h3>Observability</h3>
-            <p>
-              Inject a custom outcome reporter to log or emit metrics whenever a
-              provider call succeeds or fails. Capture latency distribution and
-              failure taxonomy out of the box.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section>
-        <h2>Fallback &amp; error handling</h2>
-        <p>
-          Weather Plus normalizes provider errors into a shared taxonomy so you can
-          route retries and observability in a single place. When all providers
-          fail, the most recent error is re-thrown with cause information preserved.
-        </p>
       </section>
 
       <section>
@@ -333,7 +459,7 @@ console.log(report.conditions.value);
         Built with ❤️ in NYC by
         <img
           src="https://cdn.texturehq.com/texture-wordmark-black.png"
-          alt="Texture HQ"
+          alt="Texture"
         />
       </span>
       &middot;
