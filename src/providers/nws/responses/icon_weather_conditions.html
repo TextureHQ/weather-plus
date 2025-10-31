@@ -1,0 +1,677 @@
+<!DOCTYPE html PUBLIC "- XHTML 1.0 Transitional//EN" "http://www.w3.org/T/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- InstanceBegin template="/Templates/main_php.dwt.php" codeOutsideHTMLIsLocked="false" -->
+<head>
+    <!-- InstanceBeginEditable name="doctitle" -->
+    <title>National Digital Forecast Database XML Web Service - NOAA's National
+        Weather Service</title>
+    <meta name="DC.title" content="National Digital Forecast Database XML Web Service - NOAA's National Weather Service" />
+    <meta name="DC.description" content="NDFD XML Web Service" />
+    <meta name="DC.subject" content="Weather, Forecasts, Digital, National Oceanic Atmospheric Administration, National Weather Service" />
+    <meta name="DC.date.reviewed" scheme="ISO8601" content="2020-01-10" />
+    <meta name="DC.date.created" scheme="ISO8601" content="2004-05-12" />
+    <!-- InstanceEndEditable -->
+    <meta name="DC.format" content="text/html; charset=iso-8859-1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+    <meta name="DC.language" scheme="DCTERMS.RFC1766" content="EN-US" />
+    <meta name="DC.Distribution" content="Global" />
+    <meta name="DC.robot" content="all" />
+    <meta name="DC.creator" content="NOAA's National Weather Service" />
+    <meta name="DC.contributor" content="NWS Internet Services Team" />
+    <link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+    <link rel="schema.DCTERMS" href="http://purl.org/dc/terms/" />
+    <link rel="DC.rights" href="http://www.nws.noaa.gov/disclaimer.php" />
+    <link rel="stylesheet" type="text/css" href="" />
+    <!--
+    <link href="/favicon.ico" rel="shortcut icon" />
+    <script type="text/javascript" language="JavaScript" src="/master.js"></script>
+    -->
+</head>
+<body background="staticimages/background1.gif">
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-169857002-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-169857002-1');
+</script>
+<!-- start banner inc -->
+<table cellspacing="0" cellpadding="0" border="0" width="100%" background="staticimages/topbanner.jpg">
+    <tr>
+        <td align="right" height="19"></a> <a href="http://www.weather.gov"></a>&nbsp;</td>
+    </tr>
+</table>
+<table cellspacing="0" cellpadding="0" border="0" width="100%">
+    <tr>
+        <td width="85" rowspan="2"><a href="https://www.noaa.gov"><img src="staticimages/noaaleft.jpg" alt="NOAA logo-Select to go to the NOAA homepage" width="85" height="78" border="0" /></a></td>
+        <td width="500" height="20" align="center" background="staticimages/blank_title.jpg"><font size="5" style="font-weight: bold;" color="white">National Oceanic and Atmospheric Administration's&nbsp;&nbsp;&nbsp;</font>
+        </td>
+        <td rowspan="2" background="staticimages/wfo_bkgrnd.jpg">&nbsp;</td>
+        <td width="85" align="right"><a href="https://www.weather.gov"><img src="staticimages/nwsright.jpg" alt="Select to go to the NWS homepage" width="85" height="78" border="0" /></a></td>
+    </tr>
+    <tr>
+        <td width="500" height="48" align="center" background="staticimages/blank_name.jpg"><div class="location"><font style="font-weight: bold;" size="6" color="white">National Weather Service&nbsp;&nbsp;&nbsp;</font></div></td>
+    </tr>
+</table>
+<table cellspacing="0" cellpadding="0" border="0" background="staticimages/navbkgrnd.gif" width="100%">
+    <tr>
+        <td align="left" valign="top" width="94"><img src="staticimages/navbarleft.jpg" alt="" width="94" height="23" border="0" />
+        </td>
+        <td class="nav" width="15%" align="right" id="menuitem"><a href="https://www.weather.gov/news">News</a></td>
+        <td class="nav" width="20%" align="right" id="menuitem"><a href="https://www.weather.gov/organization">Organization</a> </td>
+        <td width="20%">&nbsp;</td>
+        <td align="left" class="searchinput" width="20%" nowrap="nowrap">
+            <!-- Begin search code -->
+            <form method="get" action="https://search.usa.gov/search" style="margin-bottom:0; margin-top:0;">
+                <input type="hidden" name="v:project" value="firstgov" />
+                <font size="4" color="yellow"> <label for="query">Search&nbsp;&nbsp;</label></font>
+                <input type="text" name="query" id="query" size="10"/>
+                <input type="radio" name="affiliate" checked="checked" value="nws.noaa.gov" id="nws" />
+                <font size="4" color="yellow"> <label for="nws">NWS</label></font>
+                <input type="radio" name="affiliate" value="noaa.gov" id="noaa" />
+                <font size="4" color="yellow"> <label for="noaa">All NOAA</label></font>
+                <input type="submit" value="Go" />
+            </form>
+            <!-- End search code -->
+        </td>
+        <td width="10%">&nbsp;</td>
+        <td align="right" valign="bottom" width="24"><img src="staticimages/navbarendcap.jpg" alt="" width="24" height="23" border="0" /></td>
+    </tr>
+</table>
+<!-- end banner inc -->
+<table width="700" border="0" cellspacing="0">
+    <tr>
+        <td width="119" valign="top">
+            <!-- start leftmenu -->
+            <table width="119" border="0" cellpadding="2" cellspacing="0" bgcolor="#0A2390">
+                <!-- ********** local forecast search ********** -->
+                <tr>
+                    <td align="center"><font size="5" color="yellow">Local Forecast by
+                        &quot;City, St or Zipcode&quot;</font></td>
+                </tr>
+                <tr align="center" valign="top">
+                    <td align="left" valign="bottom" nowrap="nowrap" class="searchinput"><form method="post" action="https://forecast.weather.gov/zipcity.php" style="margin-bottom:0; margin-top:0; ">
+                        <div id="Layer2" style="position:absolute; width:200px;  height:115px; z-index:2; visibility: hidden">Search
+                            by city. Press enter or select the go button to submit request</div>
+                        <label for="zipcity" accesskey="z"></label>
+                        <input type="text" id="zipcity" name="inputstring" size="9" value="City, St or Zip" onfocus="this.value='';" />
+                        <input type="submit" name="Go2" value="Go" />
+                    </form></td>
+                </tr>
+                <!-- ********** end local forecast search ********** -->
+                <!-- ========== start leftmenu inc ========== -->
+                <tr>
+                    <td id="menuitem"><a href="https://www.weather.gov/enterprise"><font size="4" color="white">Sign-up
+                        for Email Alerts</font></a>
+                        &#160;<a href="https://www.weather.gov/rss/"><img src="staticimages/xml.gif" alt="RSS Feeds" title="RSS Feeds" width="36" height="14" border="0"/><font size="4" color="white">RSS
+                            Feeds</font></a><br />
+                        <a href="https://www.nws.noaa.gov/warnings.php"><font size="5" color="yellow">Warnings</font></a><br />
+                        &#160;<a href="https://alerts.weather.gov/cap/us.php?x=1?map=on"><font size="4" color="white">Current</font></a><br />
+                        &#160;<a href="https://alerts.weather.gov/"><font size="4" color="white">By State/County</font></a><br />
+                        &#160;<a href="https://www.cpc.ncep.noaa.gov/products/stratosphere/uv_index/uv_alert.shtml"><font size="4" color="white">UV
+                            Alerts</font></a><br /></td>
+                </tr>
+                <tr>
+                    <td id="menuitem"><a href="https://www.weather.gov/current"><font size="5" color="yellow">Observations</font></a><br />
+                        &#160;<a href="https://www.weather.gov/Radar"><font size="4" color="white">Radar</font></a><br/>
+                        &#160;<a href="https://www.goes.noaa.gov/"><font size="4" color="white">Satellite</font></a><br />
+                        &#160;<a href="https://www.nohrsc.noaa.gov/interactive/html/map.html"><font size="4" color="white">Snow Cover</font></a><br />
+                        &#160;<a href="https://www.wpc.ncep.noaa.gov/sfc/sfcobs/sfcobs.shtml"><font size="4" color="white">Surface Weather</font></a><br />
+                        &#160;<a href="https://water.weather.gov/precip/"><font size="4" color="white">Observed Precip</font></a></td>
+                </tr>
+                <tr>
+                    <td id="menuitem"><a href="https://www.weather.gov/forecastmaps"><font size="5" color="yellow">Forecasts</font></a><br />
+                        &#160;<a href="https://www.weather.gov/forecast"><font size="4" color="white">Local</font></a><br />
+                        &#160;<a href="https://digital.weather.gov/"><font size="4" color="white">Digital</font></a><br />
+                        &#160;<a href="https://aviationweather.gov/"><font size="4" color="white">Aviation</font></a><br />
+                        &#160;<a href="https://www.weather.gov/marine/"><font size="4" color="white">Marine</font></a><br />
+                        &#160;<a href="https://www.nhc.noaa.gov/"><font size="4" color="white">Hurricanes</font></a><br />
+                        &#160;<a href="https://www.spc.noaa.gov/"><font size="4" color="white">Severe Weather</font></a><br />
+                        <!-- &#160;<a href="http://www.spc.noaa.gov/products/fire_wx/">Fire Weather</a>-->
+                        &#160;<a href="https://www.weather.gov/fire/"><font size="4" color="white">Fire Weather</font></a></td>
+                </tr>
+                <tr>
+                    <td id="menuitem"><font size="5" color="yellow">Text Bulletins</font><br />
+                        &#160;<a href="https://www.weather.gov/view/validProds.php"><font size="4" color="white">By Message Type</font></a><br />
+                </tr>
+                <tr>
+                    <td id="menuitem"><a href="https://www.weather.gov/forecastmaps"><font size="5" color="yellow">Forecast
+                        Models</font></a><br />
+                        &#160;<a href="https://mag.ncep.noaa.gov/"><font size="3" color="white">Numerical Models</font></a><br />
+                        &#160;<font color="white" size="3">Statistical Models:</font><br />
+                        &#160;&#160;&#160;<a href="https://vlab.noaa.gov/web/mdl/mos-products"><font size="3" color="white">MOS
+                            Prod</font></a><br />
+                        &#160;&#160;&#160;<a href="https://vlab.noaa.gov/web/mdl/lamp-data-availability"><font size="3" color="white">GFS-LAMP
+                            Prod</font></a><br /></td>
+                </tr>
+                <tr>
+                    <td id="menuitem"><font size="5" color="yellow">Climate</font><br />
+                        &#160;<a href="https://www.cpc.ncep.noaa.gov/products/MD_index.php"><font size="4" color="white">Past Weather</font></a><br />
+                        &#160;<a href="https://www.cpc.ncep.noaa.gov/products/OUTLOOKS_index.php"><font size="4" color="white">Predictions</font></a></td>
+                </tr>
+                <tr>
+                    <td id="menuitem"><a href="https://www.weather.gov/safety"><font size="5" color="yellow">Weather
+                        Safety</font></a><br />
+                        &#160;<a href="https://www.weather.gov/nwr"><font size="4" color="white">Weather Radio</font></a><br />
+                        &#160;<a href="https://www.weather.gov/stormready"><font size="4" color="white">StormReady</font></a> /<br />
+                        &#160;<a href="https://www.weather.gov/tsunamiready"><font size="4" color="white">TsunamiReady</font></a> <br />
+                        &#160;<a href="https://www.weather.gov/skywarn"><font size="4" color="white">Skywarn&#8482;</font></a></td>
+                </tr>
+                <tr>
+                    <td id="menuitem"><a href="https://www.weather.gov/owlie"><font size="5" color="yellow">Education/Outreach</font></a></td>
+                </tr>
+                <tr>
+                    <td id="menuitem"><a href="https://www.weather.gov/informationcenter"><font size="5" color="yellow">Information
+                        Center</font></a><br />
+                        &#160;<a href="https://www.tsunami.gov"><font size="4" color="white">Tsunamis</font></a><br />
+                        &#160;<a href="https://www.weather.gov/owlie/publication_brochures"><font size="4" color="white">Publications...</font></a></td>
+                </tr>
+                <tr>
+                    <td id="menuitem"><a href="https://www.weather.gov/contact"><font size="5" color="yellow">Contact
+                        Us & FAQ</font></a><br />
+                        &#160;<a href="https://www.weather.gov/contact#comments"><font size="4" color="white">Comments...</font></a></td>
+                </tr>
+                <tr>
+                    <td align="left"><a href="https://www.usa.gov"><img src="staticimages/usagov_logo_color_110w.gif" alt="USA.gov is the U.S. government's official web portal to all federal, state and local government web resources and services." width="170" height="50" border="0" title="USA.gov is the U.S. government's official web portal to all federal, state and local government web resources and services." /></a></td>
+                </tr>
+                <tr>
+                    <td align="left" class="white" id="menuitem"><a href="https://www.facebook.com/NWS/"><img src="staticimages/facebook_logo.gif" alt="Follow the National Weather Service on FaceBook" width="170" height="50" border="0" title="Follow the National Weather Service on FaceBook" /></a><br />
+                        <a href="https://www.facebook.com/NWS/">NWS
+                            on Facebook</a></td>
+                </tr>
+            </table>
+            <!-- ========== end leftmenu inc ========== --></td>
+        <td width="525" valign="top"><!-- Start Content area... 525px wide -->
+            <!-- InstanceBeginEditable name="Content" -->
+            <table width="125%" border="0" cellpadding="20" cellspacing="2">
+                <tr>
+                    <td width="575px" colspan="2"><a name="contents" id="contents"></a><a href="https://digital.weather.gov"><font size="4">Home</font></a> &gt; <a href="https://vlab.noaa.gov/web/mdl/ndfd"><font size="4">NDFD</font></a> &gt; <font size="4">NDFD Web Service's Icon/Weather Conditions XML fields<br />
+                        <br /></td>
+                </tr>
+                <tr>
+                    <td class="pagetitle"><!--  *****************  START CONTENT SECTION  *************   -->
+                        <font size="5"><b>NDFD Web Service's Icon/Weather Conditions XML fields</b></font></td>
+                </tr>
+                <tr>
+                    <td><!--  *****************  END CONTENT SECTION  *************   -->
+                        <p><font size="6"><b><u>ICONS</u></b></font></p><br>
+                        <p><b>Below is a list of all possible fields for the NDFD Web Service's Icons.</p>
+                        <p> For DWML, these field values are in the &lt;conditions-icon&gt; child element<br> &lt;icon-link&gt;</p>
+                        <p> For TSML, these field values are in the &lt;CategoryList&gt; child element <br> &lt;rangeSet&gt;</p>
+                        <ul>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fg.jpg">fg.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sctfg.jpg"> sctfg.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nfg.jpg">nfg.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nbknfg.jpg">nbknfg.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard.jpg">blizzard.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard10.jpg">blizzard10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard20.jpg">blizzard20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard30.jpg">blizzard30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard40.jpg">blizzard40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard50.jpg">blizzard50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard60.jpg">blizzard60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard70.jpg">blizzard70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard80.jpg">blizzard80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard90.jpg">blizzard90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/blizzard100.jpg">blizzard100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/du.jpg">du.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ndu.jpg">ndu.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fu.jpg">fu.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nfu.jpg">nfu.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip.jpg">ip.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip10.jpg">ip10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip20.jpg">ip20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip30.jpg">ip30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip40.jpg">ip40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip50.jpg">ip50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip60.jpg">ip60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip70.jpg">ip70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip80.jpg">ip80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip90.jpg">ip90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip100.jpg">ip100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs.jpg">hi_shwrs.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs10.jpg">hi_shwrs10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs20.jpg">hi_shwrs20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs30.jpg">hi_shwrs30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs40.jpg">hi_shwrs40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs50.jpg">hi_shwrs50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs60.jpg">hi_shwrs60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs70.jpg">hi_shwrs70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs80.jpg">hi_shwrs80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs90.jpg">hi_shwrs90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_shwrs100.jpg">hi_shwrs100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs.jpg">hi_nshwrs.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs10.jpg">hi_nshwrs10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs20.jpg">hi_nshwrs20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs30.jpg">hi_nshwrs30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs40.jpg">hi_nshwrs40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs50.jpg">hi_nshwrs50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs60.jpg">hi_nshwrs60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs70.jpg">hi_nshwrs70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs80.jpg">hi_nshwrs80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs90.jpg">hi_nshwrs90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hi_nshwrs100.jpg">hi_nshwrs100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra.jpg">shra.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra1.jpg">shra1.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra10.jpg">shra10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra2.jpg">shra2.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra20.jpg">shra20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra30.jpg">shra30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra40.jpg">shra40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra50.jpg">shra50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra60.jpg">shra60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra70.jpg">shra70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra80.jpg">shra80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra90.jpg">shra90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/shra100.jpg">shra100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra.jpg">nra.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra10.jpg">nra10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra20.jpg">nra20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra30.jpg">nra30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra40.jpg">nra40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra50.jpg">nra50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra60.jpg">nra60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra70.jpg">nra70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra80.jpg">nra80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra90.jpg">nra90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nra100.jpg">nra100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra.jpg">ra.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra10.jpg">ra10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra20.jpg">ra20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra30.jpg">ra30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra40.jpg">ra40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra50.jpg">ra50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra60.jpg">ra60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra70.jpg">ra70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra80.jpg">ra80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra90.jpg">ra90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ra100.jpg">ra100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn.jpg">nsn.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn10.jpg">nsn10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn20.jpg">nsn20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn30.jpg">nsn30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn40.jpg">nsn40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn50.jpg">nsn50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn60.jpg">nsn60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn70.jpg">nsn70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn80.jpg">nsn80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn90.jpg">nsn90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsn100.jpg">nsn100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn.jpg">sn.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn10.jpg">sn10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn20.jpg">sn20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn30.jpg">sn30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn40.jpg">sn40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn50.jpg">sn50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn60.jpg">sn60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn70.jpg">sn70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn80.jpg">sn80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn90.jpg">sn90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sn100.jpg">sn100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn.jpg">rasn.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn10.jpg">rasn10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn20.jpg">rasn20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn30.jpg">rasn30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn40.jpg">rasn40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn50.jpg">rasn50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn60.jpg">rasn60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn70.jpg">rasn70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn80.jpg">rasn80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn90.jpg">rasn90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/rasn100.jpg">rasn100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn.jpg">nrasn.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn10.jpg">nrasn10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn20.jpg">nrasn20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn30.jpg">nrasn30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn40.jpg">nrasn40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn50.jpg">nrasn50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn60.jpg">nrasn60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn70.jpg">nrasn70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn80.jpg">nrasn80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn90.jpg">nrasn90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nrasn100.jpg">nrasn100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra.jpg">fzra.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra10.jpg">fzra10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra20.jpg">fzra20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra30.jpg">fzra30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra40.jpg">fzra40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra50.jpg">fzra50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra60.jpg">fzra60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra70.jpg">fzra70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra80.jpg">fzra80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra90.jpg">fzra90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/fzra100.jpg">fzra100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix.jpg">mix.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix10.jpg">mix10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix20.jpg">mix20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix30.jpg">mix30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix40.jpg">mix40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix50.jpg">mix50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix60.jpg">mix60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix70.jpg">mix70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix80.jpg">mix80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix90.jpg">mix90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/mix100.jpg">mix100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip.jpg">raip.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip10.jpg">raip10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip20.jpg">raip20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip30.jpg">raip30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip40.jpg">raip40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip50.jpg">raip50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip60.jpg">raip60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip70.jpg">raip70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip80.jpg">raip80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip90.jpg">raip90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/raip100.jpg">raip100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip.jpg">nraip.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip10.jpg">nraip10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip20.jpg">nraip20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip30.jpg">nraip30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip40.jpg">nraip40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip50.jpg">nraip50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip60.jpg">nraip60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip70.jpg">nraip70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip80.jpg">nraip80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip90.jpg">nraip90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nraip100.jpg">nraip100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip.jpg">ip.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip10.jpg">ip10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip20.jpg">ip20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip30.jpg">ip30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip40.jpg">ip40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip50.jpg">ip50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip60.jpg">ip60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip70.jpg">ip70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip80.jpg">ip80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip90.jpg">ip90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ip100.jpg">ip100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra.jpg">tsra.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra10.jpg">tsra10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra20.jpg">tsra20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra30.jpg">tsra30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra40.jpg">tsra40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra50.jpg">tsra50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra60.jpg">tsra60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra70.jpg">tsra70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra80.jpg">tsra80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra90.jpg">tsra90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/tsra100.jpg">tsra100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra.jpg">scttsra.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra10.jpg">scttsra10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra20.jpg">scttsra20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra30.jpg">scttsra30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra40.jpg">scttsra40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra50.jpg">scttsra50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra60.jpg">scttsra60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra70.jpg">scttsra70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra80.jpg">scttsra80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra90.jpg">scttsra90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/scttsra100.jpg">scttsra100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra.jpg">ntsra.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra10.jpg">ntsra10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra20.jpg">ntsra20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra30.jpg">ntsra30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra40.jpg">ntsra40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra50.jpg">ntsra50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra60.jpg">ntsra60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra70.jpg">ntsra70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra80.jpg">ntsra80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra90.jpg">ntsra90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ntsra100.jpg">ntsra100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra.jpg">nscttsra.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra10.jpg">nscttsra10.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra20.jpg">nscttsra20.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra30.jpg">nscttsra30.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra40.jpg">nscttsra40.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra50.jpg">nscttsra50.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra60.jpg">nscttsra60.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra70.jpg">nscttsra70.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra80.jpg">nscttsra80.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra90.jpg">nscttsra90.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nscttsra100.jpg">nscttsra100.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/skc.jpg">skc.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/few.jpg">few.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/sct.jpg">sct.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/bkn.jpg">bkn.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/ovc.jpg">ovc.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nskc.jpg">nskc.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nfew.jpg">nfew.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nsct.jpg">nsct.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nbkn.jpg">nbkn.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/novc.jpg">novc.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/hot.jpg">hot.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/cold.jpg">cold.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/wind.jpg">wind.jpg</a></li>
+                            <li><a href="http://forecast.weather.gov/images/wtf/nwind.jpg">nwind.jpg</a></li>
+                        </ul><br>
+
+                        <p><font size="6"><b><u>WEATHER</u></b></font></p><br>
+                        <p><b>In the NDFD Web Service&rsquo;s <u>12 hourly and 24 hourly summary products:</u><br><br> For DWML, the &lt;weather-conditions&gt; element (a child element of the<br>  &lt;weather&gt; element) can have the attribute &quot;weather-summary&quot;. <br><br>For TSML, for the weather parameter, the &lt;gml:valueComponent&gt; element<br> has the attribute xlink:title="Weather Summary".
+
+                            <p>In the NDFD Web Service’s <u>time-series and glance products</u> there is no weather summary. However, for all four products, the weather can be broken up into components.<br><br> For DWML, under the &lt;weather-conditions&gt; element, a child element  &lt;value&gt; can exist if there is active weather occurring. Subsequent attributes of the  &lt;value&gt; element are:</b> </p>
+                        <p> &quot;coverage&quot;<br />
+                            &quot;intensity&quot;<br />
+                            &quot;weather-type&quot;<br />
+                            &quot;additive&quot;<br />
+                            &quot;qualifier&quot;</p>
+                        <p>Here is an example:</p>
+                        <p> &lt;weather-conditions weather-summary=&quot;Rain/Sleet Likely&quot;&gt;<br />
+                            &nbsp; &lt;value coverage=&quot;likely&quot; intensity=&quot;light&quot;  weather-type=&quot;rain&quot; qualifier=&quot;none&quot;/&gt;<br />
+                            &nbsp; &lt;value coverage=&quot;likely&quot; intensity=&quot;light&quot;  additive=&quot;and&quot; weather-type=&quot;snow&quot;  qualifier=&quot;none&quot;/&gt;<br />
+                            &nbsp; &lt;value coverage=&quot;likely&quot; intensity=&quot;light&quot;  additive=&quot;and&quot; weather-type=&quot;ice pellets&quot;&nbsp;&nbsp;&nbsp;  qualifier=&quot;none&quot;/&gt;<br />
+                            &lt;/weather-conditions&gt;</p>
+
+                        <p><b>For TSML, the weather components will be found in the &lt;gml:valueComponent&gt; element's attribute. They include:</b>
+
+                        <p>xlink:title="Weather-Coverage (#)"<br />
+                            xlink:title="Weather-Type (#)"<br />
+                            xlink:title="Weather-Intensity(#)"<br />
+                            xlink:title="Weather-Qualifier (#)"<br />
+                            xlink:title="Weather-Additive (#)"</p>
+
+                        <p><b>Below is a list of all possible options for the five attributes for weather's &quot;coverage&quot;, &quot;intensity&quot;, &quot;weather-type&quot;,  &quot;additive&quot;, and &quot;qualifier&quot; (NOTE, only the field values apply to TSML, as the schema, currently, is less stringent than DWML's):</b></p>
+                        <h3><u>&ldquo;coverage&rdquo;</u></h3>
+                        <p>&lt;xsd:attribute name=&quot;coverage&quot;  use=&quot;optional&quot;&gt;<br />
+                            &nbsp; &lt;xsd:restriction  base=&quot;xsd:string&quot;&gt;<br />
+                            &nbsp; &lt;xsd:enumeration value=&quot;slight  chance&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;chance&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;likely&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;occasional&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;definitely&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;isolated&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;scattered&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;numerous&quot;/&gt;<br />
+                            &nbsp;&nbsp;&lt;xsd:enumeration  value=&quot;patchy&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;areas&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;widespread&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration value=&quot;periods  of&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;frequent&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;intermittent&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;brief&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration value=&quot;none&quot;/&gt;<br />
+                            &lt;/xsd:attribute&gt;</p>
+                        <h3><u>&ldquo;weather-type&rdquo;</u></h3>
+                        <p>&lt;xsd:attribute name=&quot;weather-type&quot; use=&quot;optional&quot;&gt;<br />
+                            &nbsp; &lt;xsd:restriction  base=&quot;xsd:string&quot;&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;freezing drizzle&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;freezing rain&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration value=&quot;snow  showers&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration value=&quot;blowing  snow&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration value=&quot;blowing  dust&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration value=&quot;rain  showers&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration value=&quot;ice  pellets&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;frosts&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;rain&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;hail&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;snow&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;thunderstorms&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;drizzle&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;fog&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;haze&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;smoke&quot;/&gt;<br />
+                            &lt;/xsd:attribute&gt;</p>
+                        <h3><u>&ldquo;intensity&rdquo;</u></h3>
+                        <p>&lt;xsd:attribute name=&quot;intensity&quot; use=&quot;optional&quot;&gt;<br />
+                            &nbsp; &lt;xsd:restriction  base=&quot;xsd:string&quot;&gt;<br />
+                            &nbsp; &lt;xsd:enumeration value=&quot;very  light&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;light&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;moderate&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;heavy&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;none&quot;/&gt;<br />
+                            &nbsp; &lt;/xsd:attribute&gt;<br />
+                            &nbsp; &lt;xsd:attribute  name=&quot;additive&quot; use=&quot;optional&quot;&gt;<br />
+                            &nbsp; &lt;xsd:restriction  base=&quot;xsd:string&quot;&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;and&quot;/&gt;<br />
+                            &nbsp; &lt;xsd:enumeration  value=&quot;or&quot;/&gt;<br />
+                            &nbsp; &lt;/xsd:restriction&gt;<br />
+                            &nbsp; &lt;/xsd:simpleType&gt;<br />
+                            &lt;/xsd:attribute&gt;</p>
+                        <h3><u>&ldquo;qualifier&rdquo;</u></h3>
+                        <p>&lt;xsd:attribute name=&quot;qualifier&quot; use=&quot;optional&quot;&gt;<br />
+                            &nbsp; &lt;xsd:restriction  base=&quot;xsd:string&quot;&gt;<br />
+                            &nbsp; &lt;xsd:pattern value=&quot;(\p{L}*  ?\p{L}*)?(,\p{L}+ ?\p{L}*)*&quot;/&gt;<br />
+                            &lt;/xsd:attribute&gt;</p>
+                        <p><b>The following is a list of all possible fields for the  &lt;weather-conditions&gt; attribute &ldquo;weather-summary&rdquo;:</b></p>
+                        <h3><u>&ldquo;weather-summary&rdquo;</u></h3>
+                        <p>Sunny<br />
+                            Mostly Sunny<br />
+                            Partly Sunny<br />
+                            Mostly Cloudy<br />
+                            Cloudy<br />
+                            Clear<br />
+                            Mostly Clear<br />
+                            Partly Cloudy<br />
+                            Increasing Clouds<br />
+                            Decreasing Clouds<br />
+                            Becoming Cloudy<br />
+                            Clearing<br />
+                            Gradual Clearing<br />
+                            Clearing Late<br />
+                            Becoming Sunny<br />
+                            Patchy Fog<br />
+                            Dense Fog<br />
+                            Areas Fog<br />
+                            Fog<br />
+                            Blowing Snow<br />
+                            Blowing Dust<br />
+                            Blowing Sand<br />
+                            Patchy Haze<br />
+                            Areas Haze<br />
+                            Haze<br />
+                            Patchy Ice Crystals<br />
+                            Areas Ice Crystals<br />
+                            Ice Crystals<br />
+                            Patchy Ice Fog<br />
+                            Areas Ice Fog<br />
+                            Ice Fog<br />
+                            Patchy Freezing Fog<br />
+                            Areas Freezing Fog<br />
+                            Freezing Fog<br />
+                            Freezing Spray<br />
+                            Patchy Smoke<br />
+                            Areas Smoke<br />
+                            Smoke<br />
+                            Patchy Frost<br />
+                            Areas Frost<br />
+                            Frost<br />
+                            Patchy Ash<br />
+                            Areas Ash<br />
+                            Volcanic Ash<br />
+                            Slight Chance Sleet<br />
+                            Chance Sleet<br />
+                            Sleet Likely <br />
+                            Sleet<br />
+                            Slight Chance Rain Showers<br />
+                            Chance Rain Showers<br />
+                            Rain Showers Likely<br />
+                            Rain Showers<br />
+                            Slight Chance Rain<br />
+                            Chance Rain<br />
+                            Rain Likely<br />
+                            Rain<br />
+                            Heavy Rain<br />
+                            Slight Chance Drizzle<br />
+                            Chance Drizzle<br />
+                            Drizzle Likely<br />
+                            Drizzle<br />
+                            Slight Chance Snow Showers<br />
+                            Chance Snow Showers<br />
+                            Snow Showers Likely<br />
+                            Snow Showers<br />
+                            Slight Chance Flurries<br />
+                            Chance Flurries<br />
+                            Flurries Likely<br />
+                            Flurries<br />
+                            Slight Chance Snow<br />
+                            Chance Snow<br />
+                            Snow Likely<br />
+                            Snow<br />
+                            Blizzard<br />
+                            Slight Chance Rain/Snow<br />
+                            Chance Rain/Snow<br />
+                            Rain/Snow Likely<br />
+                            Rain/Snow<br />
+                            Slight Chance Freezing Rain<br />
+                            Chance Freezing Rain<br />
+                            Freezing Rain Likely<br />
+                            Freezing Rain<br />
+                            Slight Chance Freezing Drizzle<br />
+                            Chance Freezing Drizzle<br />
+                            Freezing Drizzle Likely<br />
+                            Freezing Drizzle<br />
+                            Slight Chance Wintry Mix<br />
+                            Chance Wintry Mix<br />
+                            Wintry Mix Likely<br />
+                            Wintry Mix<br />
+                            Slight Chance Rain/Freezing Rain<br />
+                            Chance Rain/Freezing Rain<br />
+                            Rain/Freezing Rain Likely<br />
+                            Rain/Freezing Rain<br />
+                            Slight Chance Wintry Mix<br />
+                            Chance Wintry Mix<br />
+                            Wintry Mix Likely<br />
+                            Wintry Mix<br />
+                            Slight Chance Rain/Sleet<br />
+                            Chance Rain/Sleet<br />
+                            Rain/Sleet Likely<br />
+                            Rain/Sleet<br />
+                            Slight Chance Snow/Sleet<br />
+                            Chance Snow/Sleet<br />
+                            Snow/Sleet Likely<br />
+                            Snow/Sleet<br />
+                            Isolated Thunderstorms<br />
+                            Slight Chance Thunderstorms<br />
+                            Chance Thunderstorms<br />
+                            Thunderstorms Likely<br />
+                            Thunderstorms<br />
+                            Severe Tstms<br />
+                            Water Spouts<br />
+                            Windy<br />
+                            Blustery<br />
+                            Breezy<br />
+                            Hot<br />
+                            Cold<br />
+                            none<br />
+                        </p></td>
+                </tr>
+            </table>
+            <!-- InstanceEndEditable -->
+            <!-- end content area --></td>
+    </tr>
+    <tr>
+        <td valign="top">&nbsp;</td>
+        <td><!-- start footer -->
+            <!-- < ?php include '/www/includes/ndfd/footer.php'; ?> -->
+            <!-- end footer -->
+            &nbsp;&nbsp;&nbsp;&nbsp; <span class="gray">Page last Modified:</span> <!-- InstanceBeginEditable name="DateLastMod" --> <span class="gray">
+      <!-- start modified date -->
+                <!-- #BeginDate format:Sw1a -->23 March, 2020 2:29 PM<!-- #EndDate -->
+                <!-- end modified date -->
+      </span> <!-- InstanceEndEditable --></td>
+    </tr>
+</table>
+</body>
+<!-- InstanceEnd -->
+</html>

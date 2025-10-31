@@ -38,6 +38,66 @@ const nwsConditionsMap: Record<string, StandardWeatherCondition> = {
 };
 
 /**
+ * Mapping table for NWS icon codes
+ * Based on the 42 standardized icon codes from https://api.weather.gov/icons
+ */
+const iconCodeMap: Record<string, StandardWeatherCondition> = {
+  // Cloud Coverage
+  'skc': StandardWeatherCondition.Clear,
+  'few': StandardWeatherCondition.MostlyClear,
+  'sct': StandardWeatherCondition.PartlyCloudy,
+  'bkn': StandardWeatherCondition.MostlyCloudy,
+  'ovc': StandardWeatherCondition.Overcast,
+
+  // Windy Variants - prioritize wind over sky condition
+  'wind_skc': StandardWeatherCondition.Windy,
+  'wind_few': StandardWeatherCondition.Windy,
+  'wind_sct': StandardWeatherCondition.Windy,
+  'wind_bkn': StandardWeatherCondition.Windy,
+  'wind_ovc': StandardWeatherCondition.Windy,
+
+  // Rain
+  'rain': StandardWeatherCondition.Rain,
+  'rain_showers': StandardWeatherCondition.Showers,
+  'rain_showers_hi': StandardWeatherCondition.Showers,
+
+  // Snow
+  'snow': StandardWeatherCondition.Snow,
+
+  // Mixed Precipitation
+  'rain_snow': StandardWeatherCondition.Snow,
+  'rain_sleet': StandardWeatherCondition.Sleet,
+  'snow_sleet': StandardWeatherCondition.Sleet,
+  'rain_fzra': StandardWeatherCondition.FreezingRain,
+  'snow_fzra': StandardWeatherCondition.FreezingRain,
+
+  // Freezing Precipitation
+  'fzra': StandardWeatherCondition.FreezingRain,
+  'sleet': StandardWeatherCondition.Sleet,
+
+  // Thunderstorms
+  'tsra': StandardWeatherCondition.Thunderstorms,
+  'tsra_sct': StandardWeatherCondition.Thunderstorms,
+  'tsra_hi': StandardWeatherCondition.Thunderstorms,
+
+  // Severe Weather
+  'tornado': StandardWeatherCondition.Tornado,
+  'hurricane': StandardWeatherCondition.Hurricane,
+  'tropical_storm': StandardWeatherCondition.TropicalStorm,
+  'blizzard': StandardWeatherCondition.Blizzard,
+
+  // Visibility Conditions
+  'fog': StandardWeatherCondition.Fog,
+  'haze': StandardWeatherCondition.Haze,
+  'smoke': StandardWeatherCondition.Smoke,
+  'dust': StandardWeatherCondition.Dust,
+
+  // Temperature Conditions
+  'hot': StandardWeatherCondition.Hot,
+  'cold': StandardWeatherCondition.Cold,
+};
+
+/**
  * Standardizes an NWS condition string to a StandardWeatherCondition
  * @param condition The raw condition from NWS
  * @returns Standardized weather condition string
@@ -48,5 +108,19 @@ export function standardizeCondition(condition: string): string {
   }
 
   log(`Unknown NWS condition: "${condition}". Returning Unknown condition.`);
+  return StandardWeatherCondition.Unknown;
+}
+
+/**
+ * Standardizes an NWS icon code to a StandardWeatherCondition
+ * @param iconCode The icon code extracted from NWS icon URL
+ * @returns Standardized weather condition string
+ */
+export function standardizeIconCode(iconCode: string): string {
+  if (iconCode in iconCodeMap) {
+    return iconCodeMap[iconCode];
+  }
+
+  log(`Unknown NWS icon code: "${iconCode}". Returning Unknown condition.`);
   return StandardWeatherCondition.Unknown;
 }
