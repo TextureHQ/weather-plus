@@ -99,12 +99,23 @@ const iconCodeMap: Record<string, StandardWeatherCondition> = {
 
 /**
  * Standardizes an NWS condition string to a StandardWeatherCondition
+ * Handles both simple conditions and compound conditions with "and" or "/" separators
  * @param condition The raw condition from NWS
  * @returns Standardized weather condition string
  */
 export function standardizeCondition(condition: string): string {
   if (condition in nwsConditionsMap) {
     return nwsConditionsMap[condition];
+  }
+
+  if (condition.includes(' and ') || condition.includes('/')) {
+    const parts = condition.split(/ and |\//).map((p) => p.trim());
+
+    for (const part of parts) {
+      if (part in nwsConditionsMap) {
+        return nwsConditionsMap[part];
+      }
+    }
   }
 
   log(`Unknown NWS condition: "${condition}". Returning Unknown condition.`);

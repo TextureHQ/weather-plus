@@ -26,6 +26,15 @@ describe('NWS Conditions', () => {
     expect(standardizeCondition('SomeUnknownCondition')).toEqual(StandardWeatherCondition.Unknown);
   });
 
+  it('should standardize compound NWS conditions correctly', () => {
+    expect(standardizeCondition('Light Rain and Fog')).toEqual(StandardWeatherCondition.LightRain);
+    expect(standardizeCondition('Light Rain and Fog/Mist')).toEqual(StandardWeatherCondition.LightRain);
+    expect(standardizeCondition('Heavy Rain and Fog')).toEqual(StandardWeatherCondition.HeavyRain);
+    expect(standardizeCondition('Fog and Mist')).toEqual(StandardWeatherCondition.Fog);
+    expect(standardizeCondition('Rain/Snow')).toEqual(StandardWeatherCondition.Mixed);
+    expect(standardizeCondition('Mostly Cloudy and Windy')).toEqual(StandardWeatherCondition.MostlyCloudy);
+  });
+
   it('should standardize NWS icon codes correctly', () => {
     // Cloud Coverage
     expect(standardizeIconCode('skc')).toEqual(StandardWeatherCondition.Clear);
