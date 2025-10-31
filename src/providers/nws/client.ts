@@ -10,7 +10,7 @@ import {
 import { IWeatherProvider } from '../IWeatherProvider';
 import { InvalidProviderLocationError } from '../../errors'; // Import the error class
 import { isLocationInUS } from '../../utils/locationUtils';
-import { standardizeCondition } from './condition';
+import { standardizeCondition, standardizeIconCode } from './condition';
 import { getCloudinessFromCloudLayers } from './cloudiness';
 import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
@@ -86,6 +86,14 @@ export class NWSProvider implements IWeatherProvider {
         if (value && typeof value[key]?.value !== 'undefined') {
           data[key] = value[key] as never;
         }
+      }
+
+      if (!data.conditions) {
+        data.conditions = {
+          value: 'Unknown',
+          unit: IWeatherUnits.string,
+          original: undefined,
+        } as never;
       }
 
       defaultOutcomeReporter.record('nws', { ok: true, latencyMs: Date.now() - start });
@@ -203,13 +211,24 @@ function convertToWeatherData(
     throw new Error('Invalid observation data');
   }
 
-  const description = properties.textDescription ?? 'Unknown';
+  let parsedValue: string | undefined;
 
-  result.conditions = {
-    value: standardizeCondition(description),
-    unit: IWeatherUnits.string,
-    original: properties.textDescription,
-  };
+  if (properties.textDescription) {
+    parsedValue = standardizeCondition(properties.textDescription);
+  } else {
+    const iconCode = extractIconCode(properties.icon);
+    if (iconCode) {
+      parsedValue = standardizeIconCode(iconCode);
+    }
+  }
+
+  if (parsedValue) {
+    result.conditions = {
+      value: parsedValue,
+      unit: IWeatherUnits.string,
+      original: properties.textDescription,
+    };
+  }
 
   result.cloudiness = {
     value: getCloudinessFromCloudLayers(properties.cloudLayers ?? []),

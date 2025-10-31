@@ -1,6 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { NWSProvider } from './client';
+import { NWSProvider, extractIconCode } from './client';
 import { InvalidProviderLocationError } from '../../errors';
 import * as conditionModule from './condition';
 import * as cloudinessModule from './cloudiness';
@@ -42,6 +42,7 @@ describe('NWSProvider', () => {
       dewpoint: { value: 10, unitCode: 'wmoUnit:degC' },
       relativeHumidity: { value: 80 },
       temperature: { value: 20, unitCode: 'wmoUnit:degC' },
+      icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
       textDescription: 'Clear',
       cloudLayers: [
         { base: { unitCode: 'wmoUnit:m', value: 1000 }, amount: 'CLR' }
@@ -72,8 +73,8 @@ describe('NWSProvider', () => {
       dewPoint: { value: 10, unit: 'C' },
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
-      conditions: { 
-        value: 'Clear', 
+      conditions: {
+        value: 'Clear',
         unit: 'string',
         original: 'Clear'
       },
@@ -157,6 +158,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 50 },
         temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
         cloudLayers: undefined as unknown as IObservationsLatest['properties']['cloudLayers'],
         textDescription: undefined as unknown as string,
       },
@@ -184,6 +186,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 50 },
         temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
         cloudLayers: undefined as unknown as IObservationsLatest['properties']['cloudLayers'],
         textDescription: '',
       },
@@ -211,6 +214,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 50 },
         temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
         cloudLayers: undefined as unknown as IObservationsLatest['properties']['cloudLayers'],
         textDescription: null as unknown as string,
       },
@@ -240,6 +244,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 50 },
         temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
         cloudLayers: [],
         textDescription: '',
       },
@@ -250,6 +255,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 6, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 60 },
         temperature: { value: 11, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
         cloudLayers: [],
         textDescription: null as unknown as string,
       },
@@ -260,6 +266,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 7, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 70 },
         temperature: { value: 12, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/rain?size=medium',
         cloudLayers: [],
         textDescription: 'Light Rain',
       },
@@ -297,6 +304,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 7, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 70 },
         temperature: { value: 12, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/rain?size=medium',
         cloudLayers: [],
         textDescription: 'Heavy Rain',
       },
@@ -307,6 +315,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 50 },
         temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
         cloudLayers: [],
         textDescription: '',
       },
@@ -342,6 +351,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 50 },
         temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/ovc?size=medium',
         cloudLayers: [],
         textDescription: 'Cloudy',
       },
@@ -352,6 +362,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 6, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 60 },
         temperature: { value: 11, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
         cloudLayers: [],
         textDescription: 'Sunny',
       },
@@ -362,7 +373,8 @@ describe('NWSProvider', () => {
 
     const weatherData = await provider.getWeather(latInUS, lngInUS);
 
-    // Should use "Sunny" from station2 (processed first, has all required data)
+    // Should use station2 (processed first, has all required data)
+    // When textDescription is available, use it; otherwise use icon code
     expect(weatherData.conditions).toEqual({
       value: 'Clear',  // 'Sunny' gets standardized to 'Clear'
       unit: 'string',
@@ -384,6 +396,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 50 },
         temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
         cloudLayers: [],
         textDescription: '',
       },
@@ -394,6 +407,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 6, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 60 },
         temperature: { value: 11, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
         cloudLayers: [],
         textDescription: undefined as unknown as string,
       },
@@ -429,8 +443,8 @@ describe('NWSProvider', () => {
       dewPoint: { value: 10, unit: 'C' },
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
-      conditions: { 
-        value: 'Clear', 
+      conditions: {
+        value: 'Clear',
         unit: 'string',
         original: 'Clear'
       },
@@ -500,6 +514,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: null, unitCode: 'wmoUnit:degC' } as unknown as IObservationsLatest['properties']['dewpoint'],
         relativeHumidity: { value: null } as unknown as IObservationsLatest['properties']['relativeHumidity'],
         temperature: { value: null, unitCode: 'wmoUnit:degC' } as unknown as IObservationsLatest['properties']['temperature'],
+        icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
         textDescription: 'Clear',
         cloudLayers: [],
       },
