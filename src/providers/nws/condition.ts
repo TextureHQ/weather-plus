@@ -104,12 +104,14 @@ const iconCodeMap: Record<string, StandardWeatherCondition> = {
  * @returns Standardized weather condition string
  */
 export function standardizeCondition(condition: string): string {
-  if (condition in nwsConditionsMap) {
-    return nwsConditionsMap[condition];
+  const trimmed = condition.trim();
+
+  if (trimmed in nwsConditionsMap) {
+    return nwsConditionsMap[trimmed];
   }
 
-  if (condition.includes(' and ') || condition.includes('/')) {
-    const parts = condition.split(/ and |\//).map((p) => p.trim());
+  if (trimmed.includes(' and ') || trimmed.includes('/')) {
+    const parts = trimmed.split(/ and |\//).map((p) => p.trim());
 
     for (const part of parts) {
       if (part in nwsConditionsMap) {

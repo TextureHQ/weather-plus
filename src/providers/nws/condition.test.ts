@@ -26,6 +26,13 @@ describe('NWS Conditions', () => {
     expect(standardizeCondition('SomeUnknownCondition')).toEqual(StandardWeatherCondition.Unknown);
   });
 
+  it('should handle conditions with leading/trailing whitespace', () => {
+    expect(standardizeCondition('  Clear  ')).toEqual(StandardWeatherCondition.Clear);
+    expect(standardizeCondition('Light Rain ')).toEqual(StandardWeatherCondition.LightRain);
+    expect(standardizeCondition(' Heavy Rain')).toEqual(StandardWeatherCondition.HeavyRain);
+    expect(standardizeCondition('  Fog  ')).toEqual(StandardWeatherCondition.Fog);
+  });
+
   it('should standardize compound NWS conditions correctly', () => {
     expect(standardizeCondition('Light Rain and Fog')).toEqual(StandardWeatherCondition.LightRain);
     expect(standardizeCondition('Light Rain and Fog/Mist')).toEqual(StandardWeatherCondition.LightRain);
