@@ -218,3 +218,31 @@ function convertToWeatherData(
 
   return result;
 }
+
+/**
+ * Extracts the icon code from an NWS icon URL
+ * @param iconUrl The icon URL from NWS (e.g., "https://api.weather.gov/icons/land/night/ovc?size=medium")
+ * @returns The icon code (e.g., "ovc") or undefined if extraction fails
+ */
+export function extractIconCode(iconUrl: string | undefined | null): string | undefined {
+  if (!iconUrl) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(iconUrl);
+    const pathSegments = url.pathname.split('/').filter(Boolean);
+
+    if (pathSegments.length < 3) {
+      return undefined;
+    }
+
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    const iconCode = lastSegment.split(',')[0];
+
+    return iconCode || undefined;
+  } catch {
+    log(`Failed to extract icon code from URL: ${iconUrl}`);
+    return undefined;
+  }
+}

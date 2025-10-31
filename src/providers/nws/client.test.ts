@@ -645,3 +645,55 @@ describe('NWSProvider', () => {
     }
   });
 });
+
+describe('extractIconCode', () => {
+  it('should extract icon code from valid NWS icon URLs', () => {
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/skc?size=medium')).toBe('skc');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/ovc?size=medium')).toBe('ovc');
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/rain?size=medium')).toBe('rain');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/rain_showers')).toBe('rain_showers');
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/wind_skc?size=small')).toBe('wind_skc');
+    expect(extractIconCode('https://api.weather.gov/icons/water/day/tsra?size=large')).toBe('tsra');
+    expect(extractIconCode('https://api.weather.gov/icons/water/night/fog')).toBe('fog');
+  });
+
+  it('should extract icon code from URLs with comma-separated values', () => {
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/rain_showers,20?size=medium')).toBe('rain_showers');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/tsra_sct,30')).toBe('tsra_sct');
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/bkn,50?size=small')).toBe('bkn');
+  });
+
+  it('should return undefined for null input', () => {
+    expect(extractIconCode(null)).toBeUndefined();
+  });
+
+  it('should return undefined for undefined input', () => {
+    expect(extractIconCode(undefined)).toBeUndefined();
+  });
+
+  it('should return undefined for empty string', () => {
+    expect(extractIconCode('')).toBeUndefined();
+  });
+
+  it('should return undefined for malformed URLs', () => {
+    expect(extractIconCode('not a url')).toBeUndefined();
+    expect(extractIconCode('http://')).toBeUndefined();
+    expect(extractIconCode('://invalid')).toBeUndefined();
+  });
+
+  it('should return undefined for URLs with insufficient path segments', () => {
+    expect(extractIconCode('https://api.weather.gov')).toBeUndefined();
+    expect(extractIconCode('https://api.weather.gov/icons')).toBeUndefined();
+    expect(extractIconCode('https://api.weather.gov/icons/land')).toBeUndefined();
+  });
+
+  it('should handle URLs without query parameters', () => {
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/skc')).toBe('skc');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/rain')).toBe('rain');
+  });
+
+  it('should handle URLs with trailing slashes', () => {
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/skc/')).toBe('skc');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/ovc/?size=medium')).toBe('ovc');
+  });
+});
