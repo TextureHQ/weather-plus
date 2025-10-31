@@ -421,6 +421,38 @@ describe('NWSProvider', () => {
     expect(weatherData.conditions).toEqual({ value: 'Unknown', unit: 'string', original: undefined });
   });
 
+  it('should fall back to icon code when textDescription cannot be mapped', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station123' }],
+      });
+
+    const observation = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
+        cloudLayers: [],
+        textDescription: 'Some Weird Weather Condition That Is Not Mapped',
+      },
+    };
+
+    mock.onGet('station123/observations/latest').reply(200, observation as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    // Should fall back to icon code "skc" which maps to "Clear" instead of returning "Unknown"
+    expect(weatherData.conditions).toEqual({
+      value: 'Clear',
+      unit: 'string',
+      original: 'Some Weird Weather Condition That Is Not Mapped'
+    });
+  });
+
   // Add this test case
   it('should skip stations if fetching data from a station fails', async () => {
     mockObservationStationUrl();

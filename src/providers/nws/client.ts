@@ -12,6 +12,7 @@ import { InvalidProviderLocationError } from '../../errors'; // Import the error
 import { isLocationInUS } from '../../utils/locationUtils';
 import { standardizeCondition, standardizeIconCode } from './condition';
 import { getCloudinessFromCloudLayers } from './cloudiness';
+import { StandardWeatherCondition } from '../../weatherCondition';
 import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
 import { isTimeoutError } from '../../utils/providerUtils';
@@ -214,11 +215,20 @@ function convertToWeatherData(
   let parsedValue: string | undefined;
 
   if (properties.textDescription) {
-    parsedValue = standardizeCondition(properties.textDescription);
-  } else {
+    const textParsed = standardizeCondition(properties.textDescription);
+    if (textParsed !== StandardWeatherCondition.Unknown) {
+      parsedValue = textParsed;
+    }
+  }
+
+  // fallback to icon code
+  if (!parsedValue) {
     const iconCode = extractIconCode(properties.icon);
     if (iconCode) {
-      parsedValue = standardizeIconCode(iconCode);
+      const iconParsed = standardizeIconCode(iconCode);
+      if (iconParsed !== StandardWeatherCondition.Unknown) {
+        parsedValue = iconParsed;
+      }
     }
   }
 
