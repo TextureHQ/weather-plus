@@ -170,6 +170,243 @@ describe('NWSProvider', () => {
     expect(weatherData.cloudiness).toEqual({ value: 0, unit: 'percent' });
   });
 
+  it('should normalize empty string textDescription to Unknown (single station)', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station123' }],
+      });
+
+    const observation = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        cloudLayers: undefined as unknown as IObservationsLatest['properties']['cloudLayers'],
+        textDescription: '',
+      },
+    };
+
+    mock.onGet('station123/observations/latest').reply(200, observation as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    expect(weatherData.conditions).toEqual({ value: 'Unknown', unit: 'string', original: undefined });
+    expect(weatherData.cloudiness).toEqual({ value: 0, unit: 'percent' });
+  });
+
+  it('should normalize null textDescription to Unknown (single station)', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station123' }],
+      });
+
+    const observation = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        cloudLayers: undefined as unknown as IObservationsLatest['properties']['cloudLayers'],
+        textDescription: null as unknown as string,
+      },
+    };
+
+    mock.onGet('station123/observations/latest').reply(200, observation as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    expect(weatherData.conditions).toEqual({ value: 'Unknown', unit: 'string', original: undefined });
+    expect(weatherData.cloudiness).toEqual({ value: 0, unit: 'percent' });
+  });
+
+  it('should use first truthy textDescription from multiple stations', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        // Array order matters - stations.pop() takes from the end
+        // So station1 (empty string) will be processed FIRST, causing the bug
+        features: [{ id: 'station3' }, { id: 'station2' }, { id: 'station1' }],
+      });
+
+    const observationEmptyString = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        cloudLayers: [],
+        textDescription: '',
+      },
+    };
+
+    const observationNull = {
+      properties: {
+        dewpoint: { value: 6, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 60 },
+        temperature: { value: 11, unitCode: 'wmoUnit:degC' },
+        cloudLayers: [],
+        textDescription: null as unknown as string,
+      },
+    };
+
+    const observationValid = {
+      properties: {
+        dewpoint: { value: 7, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 70 },
+        temperature: { value: 12, unitCode: 'wmoUnit:degC' },
+        cloudLayers: [],
+        textDescription: 'Light Rain',
+      },
+    };
+
+    mock.onGet('station1/observations/latest').reply(200, observationEmptyString as unknown as IObservationsLatest);
+    mock.onGet('station2/observations/latest').reply(200, observationNull as unknown as IObservationsLatest);
+    mock.onGet('station3/observations/latest').reply(200, observationValid as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    // We WANT it to skip station1 (empty string) and use station3 ("Light Rain")
+    // With current buggy code, this test should FAIL (returns "Unknown" from station1)
+    // After fix, this test should PASS (returns "Light Rain" from station3)
+    expect(weatherData.conditions).toEqual({
+      value: 'Light Rain',
+      unit: 'string',
+      original: 'Light Rain'
+    });
+  });
+
+  it('should use first truthy textDescription when truthy comes before falsy', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        // station3 will be processed first (has "Heavy Rain")
+        // station2 will be processed second (has empty string)
+        features: [{ id: 'station2' }, { id: 'station3' }],
+      });
+
+    const observationValid = {
+      properties: {
+        dewpoint: { value: 7, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 70 },
+        temperature: { value: 12, unitCode: 'wmoUnit:degC' },
+        cloudLayers: [],
+        textDescription: 'Heavy Rain',
+      },
+    };
+
+    const observationEmptyString = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        cloudLayers: [],
+        textDescription: '',
+      },
+    };
+
+    mock.onGet('station3/observations/latest').reply(200, observationValid as unknown as IObservationsLatest);
+    mock.onGet('station2/observations/latest').reply(200, observationEmptyString as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    // Should use "Heavy Rain" from station3 (processed first)
+    // and not be affected by station2's empty string
+    expect(weatherData.conditions).toEqual({
+      value: 'Heavy Rain',
+      unit: 'string',
+      original: 'Heavy Rain'
+    });
+  });
+
+  it('should use first truthy when multiple stations have truthy values', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        // Both stations have truthy values
+        // station2 will be processed first (should use "Sunny")
+        features: [{ id: 'station1' }, { id: 'station2' }],
+      });
+
+    const observation1 = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        cloudLayers: [],
+        textDescription: 'Cloudy',
+      },
+    };
+
+    const observation2 = {
+      properties: {
+        dewpoint: { value: 6, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 60 },
+        temperature: { value: 11, unitCode: 'wmoUnit:degC' },
+        cloudLayers: [],
+        textDescription: 'Sunny',
+      },
+    };
+
+    mock.onGet('station1/observations/latest').reply(200, observation1 as unknown as IObservationsLatest);
+    mock.onGet('station2/observations/latest').reply(200, observation2 as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    // Should use "Sunny" from station2 (processed first, has all required data)
+    expect(weatherData.conditions).toEqual({
+      value: 'Clear',  // 'Sunny' gets standardized to 'Clear'
+      unit: 'string',
+      original: 'Sunny'
+    });
+  });
+
+  it('should return Unknown if all stations have falsy textDescription', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station1' }, { id: 'station2' }],
+      });
+
+    const observationEmptyString = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        cloudLayers: [],
+        textDescription: '',
+      },
+    };
+
+    const observationUndefined = {
+      properties: {
+        dewpoint: { value: 6, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 60 },
+        temperature: { value: 11, unitCode: 'wmoUnit:degC' },
+        cloudLayers: [],
+        textDescription: undefined as unknown as string,
+      },
+    };
+
+    mock.onGet('station1/observations/latest').reply(200, observationEmptyString as unknown as IObservationsLatest);
+    mock.onGet('station2/observations/latest').reply(200, observationUndefined as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    expect(weatherData.conditions).toEqual({ value: 'Unknown', unit: 'string', original: undefined });
+  });
+
   // Add this test case
   it('should skip stations if fetching data from a station fails', async () => {
     mockObservationStationUrl();
