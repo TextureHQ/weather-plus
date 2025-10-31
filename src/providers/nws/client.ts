@@ -10,8 +10,9 @@ import {
 import { IWeatherProvider } from '../IWeatherProvider';
 import { InvalidProviderLocationError } from '../../errors'; // Import the error class
 import { isLocationInUS } from '../../utils/locationUtils';
-import { standardizeCondition } from './condition';
+import { standardizeCondition, standardizeIconCode } from './condition';
 import { getCloudinessFromCloudLayers } from './cloudiness';
+import { StandardWeatherCondition } from '../../weatherCondition';
 import { ProviderCapability } from '../capabilities';
 import { defaultOutcomeReporter } from '../outcomeReporter';
 import { isTimeoutError } from '../../utils/providerUtils';
@@ -86,6 +87,14 @@ export class NWSProvider implements IWeatherProvider {
         if (value && typeof value[key]?.value !== 'undefined') {
           data[key] = value[key] as never;
         }
+      }
+
+      if (!data.conditions) {
+        data.conditions = {
+          value: 'Unknown',
+          unit: IWeatherUnits.string,
+          original: undefined,
+        } as never;
       }
 
       defaultOutcomeReporter.record('nws', { ok: true, latencyMs: Date.now() - start });
@@ -203,13 +212,33 @@ function convertToWeatherData(
     throw new Error('Invalid observation data');
   }
 
-  const description = properties.textDescription ?? 'Unknown';
+  let parsedValue: string | undefined;
 
-  result.conditions = {
-    value: standardizeCondition(description),
-    unit: IWeatherUnits.string,
-    original: properties.textDescription,
-  };
+  if (properties.textDescription) {
+    const textParsed = standardizeCondition(properties.textDescription);
+    if (textParsed !== StandardWeatherCondition.Unknown) {
+      parsedValue = textParsed;
+    }
+  }
+
+  // fallback to icon code
+  if (!parsedValue) {
+    const iconCode = extractIconCode(properties.icon);
+    if (iconCode) {
+      const iconParsed = standardizeIconCode(iconCode);
+      if (iconParsed !== StandardWeatherCondition.Unknown) {
+        parsedValue = iconParsed;
+      }
+    }
+  }
+
+  if (parsedValue) {
+    result.conditions = {
+      value: parsedValue,
+      unit: IWeatherUnits.string,
+      original: properties.textDescription,
+    };
+  }
 
   result.cloudiness = {
     value: getCloudinessFromCloudLayers(properties.cloudLayers ?? []),
@@ -217,4 +246,32 @@ function convertToWeatherData(
   };
 
   return result;
+}
+
+/**
+ * Extracts the icon code from an NWS icon URL
+ * @param iconUrl The icon URL from NWS (e.g., "https://api.weather.gov/icons/land/night/ovc?size=medium")
+ * @returns The icon code (e.g., "ovc") or undefined if extraction fails
+ */
+export function extractIconCode(iconUrl: string | undefined | null): string | undefined {
+  if (!iconUrl) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(iconUrl);
+    const pathSegments = url.pathname.split('/').filter(Boolean);
+
+    if (pathSegments.length < 3) {
+      return undefined;
+    }
+
+    const lastSegment = pathSegments[pathSegments.length - 1];
+    const iconCode = lastSegment.split(',')[0];
+
+    return iconCode || undefined;
+  } catch {
+    log(`Failed to extract icon code from URL: ${iconUrl}`);
+    return undefined;
+  }
 }

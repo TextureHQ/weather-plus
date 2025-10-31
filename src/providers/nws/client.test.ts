@@ -1,6 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { NWSProvider } from './client';
+import { NWSProvider, extractIconCode } from './client';
 import { InvalidProviderLocationError } from '../../errors';
 import * as conditionModule from './condition';
 import * as cloudinessModule from './cloudiness';
@@ -42,6 +42,7 @@ describe('NWSProvider', () => {
       dewpoint: { value: 10, unitCode: 'wmoUnit:degC' },
       relativeHumidity: { value: 80 },
       temperature: { value: 20, unitCode: 'wmoUnit:degC' },
+      icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
       textDescription: 'Clear',
       cloudLayers: [
         { base: { unitCode: 'wmoUnit:m', value: 1000 }, amount: 'CLR' }
@@ -72,8 +73,8 @@ describe('NWSProvider', () => {
       dewPoint: { value: 10, unit: 'C' },
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
-      conditions: { 
-        value: 'Clear', 
+      conditions: {
+        value: 'Clear',
         unit: 'string',
         original: 'Clear'
       },
@@ -157,6 +158,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
         relativeHumidity: { value: 50 },
         temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
         cloudLayers: undefined as unknown as IObservationsLatest['properties']['cloudLayers'],
         textDescription: undefined as unknown as string,
       },
@@ -168,6 +170,287 @@ describe('NWSProvider', () => {
 
     expect(weatherData.conditions).toEqual({ value: 'Unknown', unit: 'string', original: undefined });
     expect(weatherData.cloudiness).toEqual({ value: 0, unit: 'percent' });
+  });
+
+  it('should normalize empty string textDescription to Unknown (single station)', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station123' }],
+      });
+
+    const observation = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
+        cloudLayers: undefined as unknown as IObservationsLatest['properties']['cloudLayers'],
+        textDescription: '',
+      },
+    };
+
+    mock.onGet('station123/observations/latest').reply(200, observation as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    expect(weatherData.conditions).toEqual({ value: 'Unknown', unit: 'string', original: undefined });
+    expect(weatherData.cloudiness).toEqual({ value: 0, unit: 'percent' });
+  });
+
+  it('should normalize null textDescription to Unknown (single station)', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station123' }],
+      });
+
+    const observation = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
+        cloudLayers: undefined as unknown as IObservationsLatest['properties']['cloudLayers'],
+        textDescription: null as unknown as string,
+      },
+    };
+
+    mock.onGet('station123/observations/latest').reply(200, observation as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    expect(weatherData.conditions).toEqual({ value: 'Unknown', unit: 'string', original: undefined });
+    expect(weatherData.cloudiness).toEqual({ value: 0, unit: 'percent' });
+  });
+
+  it('should use first truthy textDescription from multiple stations', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        // Array order matters - stations.pop() takes from the end
+        // So station1 (empty string) will be processed FIRST, causing the bug
+        features: [{ id: 'station3' }, { id: 'station2' }, { id: 'station1' }],
+      });
+
+    const observationEmptyString = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
+        cloudLayers: [],
+        textDescription: '',
+      },
+    };
+
+    const observationNull = {
+      properties: {
+        dewpoint: { value: 6, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 60 },
+        temperature: { value: 11, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
+        cloudLayers: [],
+        textDescription: null as unknown as string,
+      },
+    };
+
+    const observationValid = {
+      properties: {
+        dewpoint: { value: 7, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 70 },
+        temperature: { value: 12, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/rain?size=medium',
+        cloudLayers: [],
+        textDescription: 'Light Rain',
+      },
+    };
+
+    mock.onGet('station1/observations/latest').reply(200, observationEmptyString as unknown as IObservationsLatest);
+    mock.onGet('station2/observations/latest').reply(200, observationNull as unknown as IObservationsLatest);
+    mock.onGet('station3/observations/latest').reply(200, observationValid as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    // We WANT it to skip station1 (empty string) and use station3 ("Light Rain")
+    // With current buggy code, this test should FAIL (returns "Unknown" from station1)
+    // After fix, this test should PASS (returns "Light Rain" from station3)
+    expect(weatherData.conditions).toEqual({
+      value: 'Light Rain',
+      unit: 'string',
+      original: 'Light Rain'
+    });
+  });
+
+  it('should use first truthy textDescription when truthy comes before falsy', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        // station3 will be processed first (has "Heavy Rain")
+        // station2 will be processed second (has empty string)
+        features: [{ id: 'station2' }, { id: 'station3' }],
+      });
+
+    const observationValid = {
+      properties: {
+        dewpoint: { value: 7, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 70 },
+        temperature: { value: 12, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/rain?size=medium',
+        cloudLayers: [],
+        textDescription: 'Heavy Rain',
+      },
+    };
+
+    const observationEmptyString = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
+        cloudLayers: [],
+        textDescription: '',
+      },
+    };
+
+    mock.onGet('station3/observations/latest').reply(200, observationValid as unknown as IObservationsLatest);
+    mock.onGet('station2/observations/latest').reply(200, observationEmptyString as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    // Should use "Heavy Rain" from station3 (processed first)
+    // and not be affected by station2's empty string
+    expect(weatherData.conditions).toEqual({
+      value: 'Heavy Rain',
+      unit: 'string',
+      original: 'Heavy Rain'
+    });
+  });
+
+  it('should use first truthy when multiple stations have truthy values', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        // Both stations have truthy values
+        // station2 will be processed first (should use "Sunny")
+        features: [{ id: 'station1' }, { id: 'station2' }],
+      });
+
+    const observation1 = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/ovc?size=medium',
+        cloudLayers: [],
+        textDescription: 'Cloudy',
+      },
+    };
+
+    const observation2 = {
+      properties: {
+        dewpoint: { value: 6, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 60 },
+        temperature: { value: 11, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
+        cloudLayers: [],
+        textDescription: 'Sunny',
+      },
+    };
+
+    mock.onGet('station1/observations/latest').reply(200, observation1 as unknown as IObservationsLatest);
+    mock.onGet('station2/observations/latest').reply(200, observation2 as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    // Should use station2 (processed first, has all required data)
+    // When textDescription is available, use it; otherwise use icon code
+    expect(weatherData.conditions).toEqual({
+      value: 'Clear',  // 'Sunny' gets standardized to 'Clear'
+      unit: 'string',
+      original: 'Sunny'
+    });
+  });
+
+  it('should return Unknown if all stations have falsy textDescription', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station1' }, { id: 'station2' }],
+      });
+
+    const observationEmptyString = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
+        cloudLayers: [],
+        textDescription: '',
+      },
+    };
+
+    const observationUndefined = {
+      properties: {
+        dewpoint: { value: 6, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 60 },
+        temperature: { value: 11, unitCode: 'wmoUnit:degC' },
+        icon: undefined as unknown as string,
+        cloudLayers: [],
+        textDescription: undefined as unknown as string,
+      },
+    };
+
+    mock.onGet('station1/observations/latest').reply(200, observationEmptyString as unknown as IObservationsLatest);
+    mock.onGet('station2/observations/latest').reply(200, observationUndefined as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    expect(weatherData.conditions).toEqual({ value: 'Unknown', unit: 'string', original: undefined });
+  });
+
+  it('should fall back to icon code when textDescription cannot be mapped', async () => {
+    mockObservationStationUrl();
+
+    mock
+      .onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations')
+      .reply(200, {
+        features: [{ id: 'station123' }],
+      });
+
+    const observation = {
+      properties: {
+        dewpoint: { value: 5, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 50 },
+        temperature: { value: 10, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
+        cloudLayers: [],
+        textDescription: 'Some Weird Weather Condition That Is Not Mapped',
+      },
+    };
+
+    mock.onGet('station123/observations/latest').reply(200, observation as unknown as IObservationsLatest);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    // Should fall back to icon code "skc" which maps to "Clear" instead of returning "Unknown"
+    expect(weatherData.conditions).toEqual({
+      value: 'Clear',
+      unit: 'string',
+      original: 'Some Weird Weather Condition That Is Not Mapped'
+    });
   });
 
   // Add this test case
@@ -192,8 +475,8 @@ describe('NWSProvider', () => {
       dewPoint: { value: 10, unit: 'C' },
       humidity: { value: 80, unit: 'percent' },
       temperature: { value: 20, unit: 'C' },
-      conditions: { 
-        value: 'Clear', 
+      conditions: {
+        value: 'Clear',
         unit: 'string',
         original: 'Clear'
       },
@@ -263,6 +546,7 @@ describe('NWSProvider', () => {
         dewpoint: { value: null, unitCode: 'wmoUnit:degC' } as unknown as IObservationsLatest['properties']['dewpoint'],
         relativeHumidity: { value: null } as unknown as IObservationsLatest['properties']['relativeHumidity'],
         temperature: { value: null, unitCode: 'wmoUnit:degC' } as unknown as IObservationsLatest['properties']['temperature'],
+        icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
         textDescription: 'Clear',
         cloudLayers: [],
       },
@@ -406,5 +690,57 @@ describe('NWSProvider', () => {
       axiosSpy.mockRestore();
       mock = new MockAdapter(axios);
     }
+  });
+});
+
+describe('extractIconCode', () => {
+  it('should extract icon code from valid NWS icon URLs', () => {
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/skc?size=medium')).toBe('skc');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/ovc?size=medium')).toBe('ovc');
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/rain?size=medium')).toBe('rain');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/rain_showers')).toBe('rain_showers');
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/wind_skc?size=small')).toBe('wind_skc');
+    expect(extractIconCode('https://api.weather.gov/icons/water/day/tsra?size=large')).toBe('tsra');
+    expect(extractIconCode('https://api.weather.gov/icons/water/night/fog')).toBe('fog');
+  });
+
+  it('should extract icon code from URLs with comma-separated values', () => {
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/rain_showers,20?size=medium')).toBe('rain_showers');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/tsra_sct,30')).toBe('tsra_sct');
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/bkn,50?size=small')).toBe('bkn');
+  });
+
+  it('should return undefined for null input', () => {
+    expect(extractIconCode(null)).toBeUndefined();
+  });
+
+  it('should return undefined for undefined input', () => {
+    expect(extractIconCode(undefined)).toBeUndefined();
+  });
+
+  it('should return undefined for empty string', () => {
+    expect(extractIconCode('')).toBeUndefined();
+  });
+
+  it('should return undefined for malformed URLs', () => {
+    expect(extractIconCode('not a url')).toBeUndefined();
+    expect(extractIconCode('http://')).toBeUndefined();
+    expect(extractIconCode('://invalid')).toBeUndefined();
+  });
+
+  it('should return undefined for URLs with insufficient path segments', () => {
+    expect(extractIconCode('https://api.weather.gov')).toBeUndefined();
+    expect(extractIconCode('https://api.weather.gov/icons')).toBeUndefined();
+    expect(extractIconCode('https://api.weather.gov/icons/land')).toBeUndefined();
+  });
+
+  it('should handle URLs without query parameters', () => {
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/skc')).toBe('skc');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/rain')).toBe('rain');
+  });
+
+  it('should handle URLs with trailing slashes', () => {
+    expect(extractIconCode('https://api.weather.gov/icons/land/day/skc/')).toBe('skc');
+    expect(extractIconCode('https://api.weather.gov/icons/land/night/ovc/?size=medium')).toBe('ovc');
   });
 });
