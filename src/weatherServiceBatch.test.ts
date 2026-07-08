@@ -79,6 +79,9 @@ jest.mock('./providers/nws/client', () => {
 const NYC = { lat: 40.7128, lng: -74.006 };
 const LA = { lat: 34.0522, lng: -118.2437 };
 const CHI = { lat: 41.8781, lng: -87.6298 };
+// A valid, well-formed coordinate outside the US (London) — NWS does not serve it,
+// so the provider loop must reject it with InvalidProviderLocationError.
+const LONDON = { lat: 51.5074, lng: -0.1278 };
 
 describe('WeatherService.getWeatherBatch', () => {
   let service: WeatherService;
@@ -258,6 +261,22 @@ describe('WeatherService.getWeatherBatch', () => {
     expect(() => new WeatherService({ providers: ['nws'], batchConcurrency: 1.5 })).toThrow(
       'Invalid batchConcurrency',
     );
+  });
+
+  it('surfaces a per-item error when the only provider does not serve the location (non-US + NWS)', async () => {
+    // London is a valid lat/lng but NWS is US-only, so the provider chain
+    // exhausts and the item gets an isolated error rather than weather data.
+    const results = await service.getWeatherBatch([NYC, LONDON, CHI]);
+
+    const london = results.find((r) => r.lat === LONDON.lat && r.lng === LONDON.lng);
+    expect(london?.weather).toBeUndefined();
+    expect(london?.error).toContain('does not support the provided location');
+    // The valid US coords still resolve, proving the failure is isolated.
+    expect(results.find((r) => r.lat === NYC.lat)?.weather?.provider).toBe('nws');
+    expect(results.find((r) => r.lat === CHI.lat)?.weather?.provider).toBe('nws');
+    // A location the provider refused is never written back to cache.
+    const londonGeohash = require('ngeohash').encode(LONDON.lat, LONDON.lng, 5);
+    expect(cacheStore.has(londonGeohash)).toBe(false);
   });
 
   it('serves an all-cache-hit batch with zero provider calls and no write-back', async () => {
