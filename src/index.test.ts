@@ -326,4 +326,19 @@ describe('WeatherPlus Library', () => {
     expect(error).toBeInstanceOf(Error);
     expect(error.message).toBe('Test error');
   });
+
+  it('should expose getWeatherBatch and align results to input order', async () => {
+    const weatherPlus = new WeatherPlus();
+    // Use invalid coordinates so the batch resolves without any provider I/O:
+    // this exercises the top-level WeatherPlus.getWeatherBatch delegation and
+    // the per-item error-isolation path.
+    const results = await weatherPlus.getWeatherBatch([
+      { lat: 999, lng: 0 },
+      { lat: 0, lng: 999 },
+    ]);
+
+    expect(results).toHaveLength(2);
+    expect(results[0]).toMatchObject({ lat: 999, lng: 0, error: 'Invalid latitude or longitude' });
+    expect(results[1]).toMatchObject({ lat: 0, lng: 999, error: 'Invalid latitude or longitude' });
+  });
 });
