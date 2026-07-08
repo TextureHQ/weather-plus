@@ -279,6 +279,23 @@ describe('WeatherService.getWeatherBatch', () => {
     expect(cacheStore.has(londonGeohash)).toBe(false);
   });
 
+  it('coerces a non-Error thrown value into a readable per-item message', async () => {
+    // Force the provider to throw a non-Error (a string), hitting the
+    // `(error as Error)?.message ?? ...` fallback in the batch worker.
+    const throwingService = new WeatherService({ providers: ['nws'] });
+    const provider = (
+      throwingService as unknown as {
+        providers: Array<{ getWeather: (lat: number, lng: number) => Promise<unknown> }>;
+      }
+    ).providers[0];
+    provider.getWeather = () => Promise.reject('boom-string');
+
+    const results = await throwingService.getWeatherBatch([NYC]);
+
+    expect(results[0].weather).toBeUndefined();
+    expect(results[0].error).toBe('Unable to retrieve weather data');
+  });
+
   it('serves an all-cache-hit batch with zero provider calls and no write-back', async () => {
     await service.getWeatherBatch([NYC, LA]); // warm
     providerState.calls = 0;

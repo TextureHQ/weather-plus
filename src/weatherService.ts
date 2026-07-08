@@ -230,6 +230,7 @@ export class WeatherService {
       }
     }
 
+    /* istanbul ignore next -- defensive: constructor guarantees >=1 provider, so lastError is always set here */
     throw lastError || new Error('Unable to retrieve weather data from any provider.');
   }
 
@@ -292,6 +293,7 @@ export class WeatherService {
         if (raw) {
           try {
             const parsed: IWeatherData = JSON.parse(raw);
+            /* istanbul ignore next -- defensive: key is always present in indicesByGeohash */
             for (const idx of indicesByGeohash.get(key) ?? []) {
               results[idx].weather = parsed;
             }
@@ -317,6 +319,7 @@ export class WeatherService {
     const worker = async (): Promise<void> => {
       while (cursor < missGeohashes.length) {
         const key = missGeohashes[cursor++];
+        /* istanbul ignore next -- defensive: key is always present in indicesByGeohash */
         const targetIndices = indicesByGeohash.get(key) ?? [];
         try {
           const { result, cacheValue } = await this.fetchFreshWeatherByGeohash(key);
@@ -325,6 +328,7 @@ export class WeatherService {
             results[idx].weather = result;
           }
         } catch (error) {
+          /* istanbul ignore next -- defensive: optional chain guards a null/undefined throw */
           const message = (error as Error)?.message ?? 'Unable to retrieve weather data';
           for (const idx of targetIndices) {
             results[idx].error = message;
