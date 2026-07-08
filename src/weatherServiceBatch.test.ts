@@ -214,6 +214,52 @@ describe('WeatherService.getWeatherBatch', () => {
     expect(providerState.peakConcurrency).toBeGreaterThan(0);
   });
 
+  it('treats a corrupt cache entry as a miss and refetches', async () => {
+    const geohashKey = require('ngeohash').encode(NYC.lat, NYC.lng, 5);
+    cacheStore.set(geohashKey, '{ not valid json');
+
+    const results = await service.getWeatherBatch([NYC]);
+
+    expect(providerState.calls).toBe(1); // refetched despite a cache entry existing
+    expect(results[0].weather?.provider).toBe('nws');
+    expect(results[0].error).toBeUndefined();
+  });
+
+  it('returns early (no round trips) when every coordinate is invalid', async () => {
+    const results = await service.getWeatherBatch([
+      { lat: 999, lng: 0 },
+      { lat: 0, lng: 999 },
+    ]);
+
+    expect(cacheCounters.mget).toBe(0);
+    expect(providerState.calls).toBe(0);
+    expect(results.every((r) => r.error === 'Invalid latitude or longitude')).toBe(true);
+  });
+
+  it('honors a global batchConcurrency client option', async () => {
+    providerState.delayMs = 20;
+    const capped = new WeatherService({ providers: ['nws'], batchConcurrency: 2 });
+    const coords = [
+      { lat: 40.7128, lng: -74.006 },
+      { lat: 34.0522, lng: -118.2437 },
+      { lat: 41.8781, lng: -87.6298 },
+      { lat: 29.7604, lng: -95.3698 },
+    ];
+
+    await capped.getWeatherBatch(coords);
+
+    expect(providerState.peakConcurrency).toBeLessThanOrEqual(2);
+  });
+
+  it('rejects an invalid batchConcurrency option at construction', () => {
+    expect(() => new WeatherService({ providers: ['nws'], batchConcurrency: 0 })).toThrow(
+      'Invalid batchConcurrency',
+    );
+    expect(() => new WeatherService({ providers: ['nws'], batchConcurrency: 1.5 })).toThrow(
+      'Invalid batchConcurrency',
+    );
+  });
+
   it('serves an all-cache-hit batch with zero provider calls and no write-back', async () => {
     await service.getWeatherBatch([NYC, LA]); // warm
     providerState.calls = 0;
