@@ -226,4 +226,90 @@ describe('Cache', () => {
         expect(parsed.provider).toBe('nws'); // Verify provider name
     });
   });
+
+  describe('Batch operations', () => {
+    describe('mget (Redis)', () => {
+      it('returns [] without touching Redis for an empty key list', async () => {
+        const result = await cache.mget([]);
+        expect(result).toEqual([]);
+        expect(mockRedisClient.mGet).toBeUndefined();
+      });
+
+      it('issues a single MGET and preserves order', async () => {
+        mockRedisClient.mGet = jest.fn().mockResolvedValue(['a', null, 'c']);
+        cache = new Cache(mockRedisClient as unknown as RedisClientType);
+
+        const result = await cache.mget(['k1', 'k2', 'k3']);
+
+        expect(result).toEqual(['a', null, 'c']);
+        expect(mockRedisClient.mGet).toHaveBeenCalledTimes(1);
+        expect(mockRedisClient.mGet).toHaveBeenCalledWith(['k1', 'k2', 'k3']);
+      });
+
+      it('normalizes undefined values to null', async () => {
+        mockRedisClient.mGet = jest.fn().mockResolvedValue(['a', undefined]);
+        cache = new Cache(mockRedisClient as unknown as RedisClientType);
+
+        const result = await cache.mget(['k1', 'k2']);
+
+        expect(result).toEqual(['a', null]);
+      });
+    });
+
+    describe('mset (Redis)', () => {
+      it('does nothing for an empty entry list', async () => {
+        mockRedisClient.multi = jest.fn();
+        cache = new Cache(mockRedisClient as unknown as RedisClientType);
+
+        await cache.mset([]);
+
+        expect(mockRedisClient.multi).not.toHaveBeenCalled();
+      });
+
+      it('pipelines SET ... EX preserving per-key TTL and default fallback', async () => {
+        const setSpy = jest.fn().mockReturnThis();
+        const execSpy = jest.fn().mockResolvedValue([]);
+        mockRedisClient.multi = jest.fn().mockReturnValue({ set: setSpy, exec: execSpy });
+        cache = new Cache(mockRedisClient as unknown as RedisClientType, 300);
+
+        await cache.mset([
+          { key: 'k1', value: 'v1', ttl: 600 },
+          { key: 'k2', value: 'v2' },
+        ]);
+
+        expect(mockRedisClient.multi).toHaveBeenCalledTimes(1);
+        expect(setSpy).toHaveBeenNthCalledWith(1, 'k1', 'v1', { EX: 600 });
+        expect(setSpy).toHaveBeenNthCalledWith(2, 'k2', 'v2', { EX: 300 });
+        expect(execSpy).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('memory fallback', () => {
+      beforeEach(() => {
+        cache = new Cache();
+      });
+
+      it('mget reads back mset values in order with misses as null', async () => {
+        await cache.mset([
+          { key: 'k1', value: 'v1' },
+          { key: 'k3', value: 'v3' },
+        ]);
+
+        const result = await cache.mget(['k1', 'k2', 'k3']);
+        expect(result).toEqual(['v1', null, 'v3']);
+      });
+
+      it('mget honors TTL expiry', async () => {
+        jest.useFakeTimers();
+        await cache.mset([{ key: 'k1', value: 'v1', ttl: 100 }]);
+
+        jest.advanceTimersByTime(99 * 1000);
+        expect(await cache.mget(['k1'])).toEqual(['v1']);
+
+        jest.advanceTimersByTime(2 * 1000);
+        expect(await cache.mget(['k1'])).toEqual([null]);
+        jest.useRealTimers();
+      });
+    });
+  });
 });

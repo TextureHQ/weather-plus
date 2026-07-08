@@ -224,6 +224,58 @@ const weather = await weatherPlus.getWeather(51.5074, -0.1278, { bypassCache: tr
 
 This will not entirely bypass the cache, it bypasses it for the read request and then the returned data is cached again for future use.
 
+### Batch Requests
+
+When you need weather for many coordinates at once (e.g. a cron that refreshes a
+fleet of sites), use `getWeatherBatch` instead of calling `getWeather` in a loop.
+It collapses the per-coordinate work into a single Redis `MGET` for all cache
+lookups, fans out provider calls **only** for cache misses with a bounded
+concurrency, and pipelines the write-back in one round trip. Coordinates that
+fall in the same geohash bucket are de-duplicated so each unique location is
+fetched at most once.
+
+```ts
+const results = await weatherPlus.getWeatherBatch([
+  { lat: 40.7128, lng: -74.006 },  // New York
+  { lat: 34.0522, lng: -118.2437 }, // Los Angeles
+  { lat: 41.8781, lng: -87.6298 },  // Chicago
+]);
+
+// Results are aligned to the input order. Each item has EITHER `weather` OR
+// `error` set, so a single bad coordinate never fails the whole batch.
+for (const r of results) {
+  if (r.error) {
+    console.warn(`Failed for ${r.lat},${r.lng}: ${r.error}`);
+  } else {
+    console.log(`${r.lat},${r.lng}:`, r.weather?.temperature);
+  }
+}
+```
+
+The result shape:
+
+```ts
+interface IWeatherBatchResult {
+  lat: number;
+  lng: number;
+  weather?: IWeatherData; // present on success
+  error?: string;         // present on failure (invalid coord or provider error)
+}
+```
+
+`getWeatherBatch` accepts the same `bypassCache` option as `getWeather`, plus a
+per-call `concurrency` override:
+
+```ts
+const results = await weatherPlus.getWeatherBatch(coords, {
+  bypassCache: false,
+  concurrency: 20, // cap concurrent provider calls for cache misses
+});
+```
+
+The default concurrency cap for the miss fan-out is `15`, and can also be set
+globally on the client via the `batchConcurrency` constructor option.
+
 ### Request Timeout
 
 You can configure the timeout for HTTP requests to weather providers. The default timeout is 10 seconds (10000 milliseconds).
