@@ -29,15 +29,18 @@ describe('WeatherbitProvider', () => {
     const mockResponse = {
       data: [
         {
-          temp: 21.3,
-          rh: 56,
-          dewpt: 11.2,
-          clouds: 40,
+          dewpt: 0.88,
+          rh: 96,
+          temp: 1.88,
+          clouds: 100,
           weather: {
-            code: 1100,
-            description: 'Partly cloudy',
+            code: 804,
+            description: 'Overcast clouds',
           },
-        },
+          wind_spd: 4.5,
+          wind_dir: 180,
+          gust: 7.2,
+          },
       ],
     };
 
@@ -54,11 +57,14 @@ describe('WeatherbitProvider', () => {
     const data = await provider.getWeather(lat, lng);
 
     expect(data).toEqual({
-      temperature: { value: 21.3, unit: 'C' },
-      humidity: { value: 56, unit: 'percent' },
-      dewPoint: { value: 11.2, unit: 'C' },
-      cloudiness: { value: 40, unit: 'percent' },
-      conditions: { value: 'Partly Cloudy', unit: 'string', original: 'Partly cloudy' },
+      temperature: { value: 1.88, unit: 'C' },
+      humidity: { value: 96, unit: 'percent' },
+      dewPoint: { value: 0.88, unit: 'C' },
+      cloudiness: { value: 100, unit: 'percent' },
+      conditions: { value: 'Unknown', unit: 'string', original: 'Overcast clouds' },
+      windSpeed: { value: 4.5, unit: 'm/s' },
+      windGust: { value: 7.2, unit: 'm/s' },
+      windDirection: { value: 180, unit: 'degrees' },
     });
   });
 

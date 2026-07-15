@@ -28,7 +28,10 @@ describe('OpenWeatherProvider', () => {
         temp: 20,
         clouds: 25,
         sunrise: 1743158735,
-        sunset: 1743203762,
+        sunset: 1743202975,
+        wind_speed: 15,
+        wind_gust: 22,
+        wind_deg: 180,
         weather: [
           {
             id: 800,
@@ -71,9 +74,21 @@ describe('OpenWeatherProvider', () => {
         unit: 'iso8601'
       },
       sunset: {
-        value: '2025-03-28T23:16:02.000Z',
+        value: '2025-03-28T23:02:55.000Z',
         unit: 'iso8601'
       },
+      windSpeed: {
+        value: 15,
+        unit: 'm/s'
+      },
+      windGust: {
+        value: 22,
+        unit: 'm/s'
+      },
+      windDirection: {
+        value: 180,
+        unit: 'degrees'
+      }
     });
   });
 

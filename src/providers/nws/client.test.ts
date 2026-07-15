@@ -44,6 +44,9 @@ describe('NWSProvider', () => {
       temperature: { value: 20, unitCode: 'wmoUnit:degC' },
       icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
       textDescription: 'Clear',
+      windSpeed: { value: 15 },
+      windGust: { value: 20 },
+      windDirection: { value: 180 },
       cloudLayers: [
         { base: { unitCode: 'wmoUnit:m', value: 1000 }, amount: 'CLR' }
       ],
@@ -80,8 +83,11 @@ describe('NWSProvider', () => {
       },
       cloudiness: {
         value: 0,
-        unit: 'percent'
+        unit: 'percent',
       },
+      windSpeed: { value: 15, unit: 'm/s' },
+      windGust: { value: 20, unit: 'm/s' },
+      windDirection: { value: 180, unit: 'degrees' },
     });
   });
 
@@ -482,8 +488,11 @@ describe('NWSProvider', () => {
       },
       cloudiness: {
         value: 0,
-        unit: 'percent'
+        unit: 'percent',
       },
+      windSpeed: { value: 15, unit: 'm/s' },
+      windGust: { value: 20, unit: 'm/s' },
+      windDirection: { value: 180, unit: 'degrees' },
     });
   });
 
