@@ -245,6 +245,30 @@ function convertToWeatherData(
     unit: IWeatherUnits.percent,
   };
 
+  const windSpeedValue = properties.windSpeed?.value;
+  if (typeof windSpeedValue === 'number') {
+    result.windSpeed = {
+      value: windSpeedValue,
+      unit: IWeatherUnits.mps,
+    };
+  }
+
+  const windGustValue = properties.windGust?.value;
+  if (typeof windGustValue === 'number') {
+    result.windGust = {
+      value: windGustValue,
+      unit: IWeatherUnits.mps,
+    };
+  }
+
+  const windDirectionValue = properties.windDirection?.value;
+  if (typeof windDirectionValue === 'number') {
+    result.windDirection = {
+      value: windDirectionValue,
+      unit: IWeatherUnits.degrees,
+    };
+  }
+
   return result;
 }
 

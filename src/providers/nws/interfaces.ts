@@ -262,6 +262,18 @@ export interface IObservationsLatest {
       value: number | null;
       unitCode: string;
     };
+    windSpeed?: {
+      value: number | null;
+      unitCode: string;
+    };
+    windGust?: {
+      value: number | null;
+      unitCode: string;
+    };
+    windDirection?: {
+      value: number | null;
+      unitCode: string;
+    };
     icon: string;
     textDescription: string;
     // Include other fields as necessary

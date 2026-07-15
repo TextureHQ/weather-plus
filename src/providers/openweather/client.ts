@@ -69,7 +69,7 @@ export class OpenWeatherProvider implements IWeatherProvider {
 function convertToWeatherData(data: IOpenWeatherResponse): Partial<IWeatherProviderWeatherData> {
   const weatherData = data.current.weather[0];
   
-  return {
+  const result: Partial<IWeatherProviderWeatherData> = {
     dewPoint: {
       value: data.current.dew_point,
       unit: IWeatherUnits.C,
@@ -100,4 +100,27 @@ function convertToWeatherData(data: IOpenWeatherResponse): Partial<IWeatherProvi
       unit: IWeatherUnits.iso8601,
     },
   };
+
+  if (typeof data.current.wind_speed === 'number') {
+    result.windSpeed = {
+      value: data.current.wind_speed,
+      unit: IWeatherUnits.mps,
+    };
+  }
+
+  if (typeof data.current.wind_gust === 'number') {
+    result.windGust = {
+      value: data.current.wind_gust,
+      unit: IWeatherUnits.mps,
+    };
+  }
+
+  if (typeof data.current.wind_deg === 'number') {
+    result.windDirection = {
+      value: data.current.wind_deg,
+      unit: IWeatherUnits.degrees,
+    };
+  }
+
+  return result;
 }
