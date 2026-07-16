@@ -269,6 +269,23 @@ function convertToWeatherData(
     };
   }
 
+  const precipRateValue = properties.precipitationLastHour?.value;
+  if (typeof precipRateValue === 'number') {
+    // NWS precipitation relies on mm since their wmoUnit expects metric base types generally
+    result.precipitationRate = {
+      value: precipRateValue,
+      unit: IWeatherUnits.mmh, // we map 1h accumulator to mmh rate natively
+    };
+  }
+
+  const popValue = properties.probabilityOfPrecipitation?.value;
+  if (typeof popValue === 'number') {
+    result.precipitationProbability = {
+      value: popValue,
+      unit: IWeatherUnits.percent,
+    };
+  }
+
   return result;
 }
 

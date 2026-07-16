@@ -7,6 +7,8 @@ export interface IWeatherbitCurrentResponse {
     wind_spd?: number; // Wind speed in m/s
     wind_dir?: number; // Wind direction in degrees
     gust?: number; // Wind gust in m/s
+    precip?: number; // Liquid equivalent precipitation rate (mm/hr)
+    pop?: number; // Probability of precipitation (%)
     weather?: {
       code?: number;
       description?: string;

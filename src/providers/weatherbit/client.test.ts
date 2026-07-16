@@ -40,6 +40,8 @@ describe('WeatherbitProvider', () => {
           wind_spd: 4.5,
           wind_dir: 180,
           gust: 7.2,
+          precip: 2.5,
+          pop: 80,
           },
       ],
     };
@@ -65,7 +67,33 @@ describe('WeatherbitProvider', () => {
       windSpeed: { value: 4.5, unit: 'm/s' },
       windGust: { value: 7.2, unit: 'm/s' },
       windDirection: { value: 180, unit: 'degrees' },
+      precipitationRate: { value: 2.5, unit: 'mm/h' },
+      precipitationProbability: { value: 80, unit: 'percent' },
     });
+  });
+
+  it('should extract precipitation metrics when provided', async () => {
+    const mockResponse = {
+      data: [
+        {
+          dewpt: 0.88,
+          rh: 96,
+          temp: 1.88,
+          weather: {
+            code: 804,
+          },
+          precip: 2.5,
+          pop: 80,
+        },
+      ],
+    };
+
+    mock.onGet('https://api.weatherbit.io/v2.0/current').reply(200, mockResponse);
+
+    const data = await provider.getWeather(lat, lng);
+
+    expect(data.precipitationRate).toEqual({ value: 2.5, unit: 'mm/h' });
+    expect(data.precipitationProbability).toEqual({ value: 80, unit: 'percent' });
   });
 
   it('records failure metadata when Weatherbit responds with an error', async () => {

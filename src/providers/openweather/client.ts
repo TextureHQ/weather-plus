@@ -122,5 +122,36 @@ function convertToWeatherData(data: IOpenWeatherResponse): Partial<IWeatherProvi
     };
   }
 
+  // OpenWeather returns precipitation values conditionally
+  // current.rain.1h and current.snow.1h are mm/h
+  if (data.current.rain?.['1h'] !== undefined) {
+    result.precipitationRate = {
+      value: data.current.rain['1h'],
+      unit: IWeatherUnits.mmh,
+    };
+  } else if (data.current.snow?.['1h'] !== undefined) {
+    result.precipitationRate = {
+      value: data.current.snow['1h'],
+      unit: IWeatherUnits.mmh,
+    };
+  } else {
+    // If no rain or snow block is present, it's 0 mm/h
+    result.precipitationRate = {
+      value: 0,
+      unit: IWeatherUnits.mmh,
+    };
+  }
+
+  // OpenWeather only provides POP on MINUTELY/HOURLY/DAILY forecasts, not current
+  // In the real-time endpoint, we can't reliably populate precipitationProbability
+  // without digging into the first element of hourly/minutely, which we only do
+  // if hourly[] exists.
+  if (data.hourly && data.hourly.length > 0 && typeof data.hourly[0].pop === 'number') {
+    result.precipitationProbability = {
+      value: data.hourly[0].pop * 100, // API returns 0 to 1, convert to %
+      unit: IWeatherUnits.percent,
+    };
+  }
+
   return result;
 }
