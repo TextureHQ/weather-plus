@@ -66,7 +66,7 @@ function convertToWeatherData(payload: IWeatherbitCurrentResponse): Partial<IWea
     throw new Error('Invalid weather data');
   }
 
-  const { temp, rh, dewpt, clouds, weather } = current;
+  const { temp, rh, dewpt, clouds, weather, wind_spd, wind_dir, gust } = current;
 
   if (
     typeof temp !== 'number' &&
@@ -103,6 +103,27 @@ function convertToWeatherData(payload: IWeatherbitCurrentResponse): Partial<IWea
     result.cloudiness = {
       value: clouds,
       unit: IWeatherUnits.percent,
+    };
+  }
+
+  if (typeof wind_spd === 'number') {
+    result.windSpeed = {
+      value: wind_spd,
+      unit: IWeatherUnits.mps,
+    };
+  }
+
+  if (typeof wind_dir === 'number') {
+    result.windDirection = {
+      value: wind_dir,
+      unit: IWeatherUnits.degrees,
+    };
+  }
+
+  if (typeof gust === 'number') {
+    result.windGust = {
+      value: gust,
+      unit: IWeatherUnits.mps,
     };
   }
 

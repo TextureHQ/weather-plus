@@ -35,6 +35,9 @@ describe('TomorrowProvider', () => {
           humidity: 96,
           temperature: 1.88,
           weatherCode: 1001,
+          windSpeed: 4.5,
+          windGust: 7.2,
+          windDirection: 180,
         },
       },
       location: {
@@ -60,6 +63,9 @@ describe('TomorrowProvider', () => {
       dewPoint: { value: 0.88, unit: 'C' },
       cloudiness: { value: 100, unit: 'percent' },
       conditions: { value: 'Cloudy', unit: 'string', original: 'Cloudy' },
+      windSpeed: { value: 4.5, unit: 'm/s' },
+      windGust: { value: 7.2, unit: 'm/s' },
+      windDirection: { value: 180, unit: 'degrees' },
     });
   });
 

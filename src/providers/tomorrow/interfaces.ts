@@ -7,6 +7,9 @@ export interface ITomorrowRealtimeResponse {
       dewPoint?: number;
       cloudCover?: number;
       weatherCode?: number;
+      windSpeed?: number;
+      windGust?: number;
+      windDirection?: number;
     };
   };
   location?: {

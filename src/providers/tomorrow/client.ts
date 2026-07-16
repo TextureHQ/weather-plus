@@ -65,7 +65,7 @@ function convertToWeatherData(payload: ITomorrowRealtimeResponse): Partial<IWeat
     throw new Error('Invalid weather data');
   }
 
-  const { temperature, humidity, dewPoint, cloudCover, weatherCode } = values;
+  const { temperature, humidity, dewPoint, cloudCover, weatherCode, windSpeed, windGust, windDirection } = values;
 
   if (
     typeof temperature !== 'number' &&
@@ -102,6 +102,27 @@ function convertToWeatherData(payload: ITomorrowRealtimeResponse): Partial<IWeat
     result.cloudiness = {
       value: cloudCover,
       unit: IWeatherUnits.percent,
+    };
+  }
+
+  if (typeof windSpeed === 'number') {
+    result.windSpeed = {
+      value: windSpeed,
+      unit: IWeatherUnits.mps,
+    };
+  }
+
+  if (typeof windGust === 'number') {
+    result.windGust = {
+      value: windGust,
+      unit: IWeatherUnits.mps,
+    };
+  }
+
+  if (typeof windDirection === 'number') {
+    result.windDirection = {
+      value: windDirection,
+      unit: IWeatherUnits.degrees,
     };
   }
 
