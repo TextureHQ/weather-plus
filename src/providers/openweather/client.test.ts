@@ -32,6 +32,7 @@ describe('OpenWeatherProvider', () => {
         wind_speed: 15,
         wind_gust: 22,
         wind_deg: 180,
+        visibility: 10000,
         rain: { '1h': 2.5 },
         weather: [
           {
@@ -93,6 +94,10 @@ describe('OpenWeatherProvider', () => {
       precipitationRate: {
         value: 2.5,
         unit: 'mm/h'
+      },
+      visibility: {
+        value: 10000,
+        unit: 'meters'
       }
     });
   });

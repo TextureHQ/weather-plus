@@ -49,6 +49,7 @@ describe('NWSProvider', () => {
       windDirection: { value: 180 },
       precipitationLastHour: { value: 10, unitCode: 'wmoUnit:mm' },
       probabilityOfPrecipitation: { value: 40, unitCode: 'wmoUnit:percent' },
+      visibility: { value: 10000, unitCode: 'wmoUnit:m' },
       cloudLayers: [
         { base: { unitCode: 'wmoUnit:m', value: 1000 }, amount: 'CLR' }
       ],
@@ -92,6 +93,7 @@ describe('NWSProvider', () => {
       windDirection: { value: 180, unit: 'degrees' },
       precipitationRate: { value: 10, unit: 'mm/h' },
       precipitationProbability: { value: 40, unit: 'percent' },
+      visibility: { value: 10000, unit: 'meters' },
     });
   });
 
@@ -110,6 +112,7 @@ describe('NWSProvider', () => {
         textDescription: 'Clear',
         precipitationLastHour: { value: 12.5, unitCode: 'wmoUnit:mm' },
         probabilityOfPrecipitation: { value: 85, unitCode: 'wmoUnit:percent' },
+        visibility: { value: 16093, unitCode: 'wmoUnit:m' },
       }
     };
     mock.onGet('stationPrecip/observations/latest').reply(200, precipData);
@@ -123,6 +126,10 @@ describe('NWSProvider', () => {
     expect(weatherData.precipitationProbability).toEqual({
       value: 85,
       unit: 'percent'
+    });
+    expect(weatherData.visibility).toEqual({
+      value: 16093,
+      unit: 'meters'
     });
   });
 
@@ -530,6 +537,7 @@ describe('NWSProvider', () => {
       windDirection: { value: 180, unit: 'degrees' },
       precipitationRate: { value: 10, unit: 'mm/h' },
       precipitationProbability: { value: 40, unit: 'percent' },
+      visibility: { value: 10000, unit: 'meters' },
     });
   });
 

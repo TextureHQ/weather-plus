@@ -274,6 +274,10 @@ export interface IObservationsLatest {
       value: number | null;
       unitCode: string;
     };
+    visibility?: {
+      value: number | null;
+      unitCode: string;
+    };
     precipitationLastHour?: {
       value: number | null;
       unitCode: string;

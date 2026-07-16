@@ -42,6 +42,7 @@ describe('WeatherbitProvider', () => {
           gust: 7.2,
           precip: 2.5,
           pop: 80,
+          vis: 10,
           },
       ],
     };
@@ -69,6 +70,7 @@ describe('WeatherbitProvider', () => {
       windDirection: { value: 180, unit: 'degrees' },
       precipitationRate: { value: 2.5, unit: 'mm/h' },
       precipitationProbability: { value: 80, unit: 'percent' },
+      visibility: { value: 10000, unit: 'meters' },
     });
   });
 
@@ -84,6 +86,7 @@ describe('WeatherbitProvider', () => {
           },
           precip: 2.5,
           pop: 80,
+          vis: 10,
         },
       ],
     };
@@ -94,6 +97,7 @@ describe('WeatherbitProvider', () => {
 
     expect(data.precipitationRate).toEqual({ value: 2.5, unit: 'mm/h' });
     expect(data.precipitationProbability).toEqual({ value: 80, unit: 'percent' });
+    expect(data.visibility).toEqual({ value: 10000, unit: 'meters' });
   });
 
   it('records failure metadata when Weatherbit responds with an error', async () => {
