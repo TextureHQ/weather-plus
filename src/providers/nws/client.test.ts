@@ -47,6 +47,8 @@ describe('NWSProvider', () => {
       windSpeed: { value: 15 },
       windGust: { value: 20 },
       windDirection: { value: 180 },
+      precipitationLastHour: { value: 10, unitCode: 'wmoUnit:mm' },
+      probabilityOfPrecipitation: { value: 40, unitCode: 'wmoUnit:percent' },
       cloudLayers: [
         { base: { unitCode: 'wmoUnit:m', value: 1000 }, amount: 'CLR' }
       ],
@@ -88,6 +90,39 @@ describe('NWSProvider', () => {
       windSpeed: { value: 15, unit: 'm/s' },
       windGust: { value: 20, unit: 'm/s' },
       windDirection: { value: 180, unit: 'degrees' },
+      precipitationRate: { value: 10, unit: 'mm/h' },
+      precipitationProbability: { value: 40, unit: 'percent' },
+    });
+  });
+
+  it('should extract precipitation rate and probability of precipitation', async () => {
+    mockObservationStationUrl();
+    mock.onGet('https://api.weather.gov/gridpoints/XYZ/123,456/stations').reply(200, {
+      features: [{ id: 'stationPrecip' }]
+    });
+
+    const precipData = {
+      properties: {
+        dewpoint: { value: 10, unitCode: 'wmoUnit:degC' },
+        relativeHumidity: { value: 80 },
+        temperature: { value: 20, unitCode: 'wmoUnit:degC' },
+        icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
+        textDescription: 'Clear',
+        precipitationLastHour: { value: 12.5, unitCode: 'wmoUnit:mm' },
+        probabilityOfPrecipitation: { value: 85, unitCode: 'wmoUnit:percent' },
+      }
+    };
+    mock.onGet('stationPrecip/observations/latest').reply(200, precipData);
+
+    const weatherData = await provider.getWeather(latInUS, lngInUS);
+
+    expect(weatherData.precipitationRate).toEqual({
+      value: 12.5,
+      unit: 'mm/h'
+    });
+    expect(weatherData.precipitationProbability).toEqual({
+      value: 85,
+      unit: 'percent'
     });
   });
 
@@ -493,6 +528,8 @@ describe('NWSProvider', () => {
       windSpeed: { value: 15, unit: 'm/s' },
       windGust: { value: 20, unit: 'm/s' },
       windDirection: { value: 180, unit: 'degrees' },
+      precipitationRate: { value: 10, unit: 'mm/h' },
+      precipitationProbability: { value: 40, unit: 'percent' },
     });
   });
 

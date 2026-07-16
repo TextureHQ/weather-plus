@@ -32,6 +32,7 @@ describe('OpenWeatherProvider', () => {
         wind_speed: 15,
         wind_gust: 22,
         wind_deg: 180,
+        rain: { '1h': 2.5 },
         weather: [
           {
             id: 800,
@@ -88,7 +89,104 @@ describe('OpenWeatherProvider', () => {
       windDirection: {
         value: 180,
         unit: 'degrees'
+      },
+      precipitationRate: {
+        value: 2.5,
+        unit: 'mm/h'
       }
+    });
+  });
+
+  it('should extract snow precipitation rate when rain is undefined', async () => {
+    const mockResponse = {
+      current: {
+        dew_point: 10,
+        humidity: 80,
+        temp: 20,
+        clouds: 25,
+        sunrise: 1743158735,
+        sunset: 1743202975,
+        snow: { '1h': 4.2 },
+        weather: [
+          {
+            id: 800,
+            main: 'Clear',
+            description: 'clear sky',
+            icon: '01d',
+          },
+        ],
+      },
+    };
+
+    mock.onGet('https://api.openweathermap.org/data/3.0/onecall').reply(200, mockResponse);
+    const weatherData = await provider.getWeather(lat, lng);
+    
+    expect(weatherData.precipitationRate).toEqual({
+      value: 4.2,
+      unit: 'mm/h'
+    });
+  });
+
+  it('should set precipitation rate to 0 when neither rain nor snow is present', async () => {
+    const mockResponse = {
+      current: {
+        dew_point: 10,
+        humidity: 80,
+        temp: 20,
+        clouds: 25,
+        sunrise: 1743158735,
+        sunset: 1743202975,
+        weather: [
+          {
+            id: 800,
+            main: 'Clear',
+            description: 'clear sky',
+            icon: '01d',
+          },
+        ],
+      },
+    };
+
+    mock.onGet('https://api.openweathermap.org/data/3.0/onecall').reply(200, mockResponse);
+    const weatherData = await provider.getWeather(lat, lng);
+    
+    expect(weatherData.precipitationRate).toEqual({
+      value: 0,
+      unit: 'mm/h'
+    });
+  });
+
+  it('should extract POP from hourly forecast when available', async () => {
+    const mockResponse = {
+      current: {
+        dew_point: 10,
+        humidity: 80,
+        temp: 20,
+        clouds: 25,
+        sunrise: 1743158735,
+        sunset: 1743202975,
+        weather: [
+          {
+            id: 800,
+            main: 'Clear',
+            description: 'clear sky',
+            icon: '01d',
+          },
+        ],
+      },
+      hourly: [
+        {
+          pop: 0.65
+        }
+      ]
+    };
+
+    mock.onGet('https://api.openweathermap.org/data/3.0/onecall').reply(200, mockResponse);
+    const weatherData = await provider.getWeather(lat, lng);
+    
+    expect(weatherData.precipitationProbability).toEqual({
+      value: 65,
+      unit: 'percent'
     });
   });
 

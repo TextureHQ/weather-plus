@@ -18,6 +18,8 @@ export interface IOpenWeatherResponse {
     wind_speed: number;
     wind_deg: number;
     wind_gust?: number;
+    rain?: { '1h'?: number };
+    snow?: { '1h'?: number };
     weather: {
       id: number;
       main: string;
@@ -25,5 +27,8 @@ export interface IOpenWeatherResponse {
       icon: string;
     }[];
   };
+  hourly?: {
+    pop?: number;
+  }[];
   // Include additional fields if required
 }

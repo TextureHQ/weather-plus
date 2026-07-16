@@ -38,6 +38,8 @@ describe('TomorrowProvider', () => {
           windSpeed: 4.5,
           windGust: 7.2,
           windDirection: 180,
+          precipitationIntensity: 1.5,
+          precipitationProbability: 60,
         },
       },
       location: {
@@ -66,7 +68,37 @@ describe('TomorrowProvider', () => {
       windSpeed: { value: 4.5, unit: 'm/s' },
       windGust: { value: 7.2, unit: 'm/s' },
       windDirection: { value: 180, unit: 'degrees' },
+      precipitationRate: { value: 1.5, unit: 'mm/h' },
+      precipitationProbability: { value: 60, unit: 'percent' },
     });
+  });
+
+  it('should extract precipitation metrics when provided', async () => {
+    const mockResponse = {
+      data: {
+        time: '2023-01-26T07:48:00Z',
+        values: {
+          cloudCover: 100,
+          dewPoint: 0.88,
+          humidity: 96,
+          temperature: 1.88,
+          weatherCode: 1001,
+          precipitationIntensity: 1.5,
+          precipitationProbability: 60,
+        },
+      },
+      location: {
+        lat,
+        lon: lng,
+      },
+    };
+
+    mock.onGet('https://api.tomorrow.io/v4/weather/realtime').reply(200, mockResponse);
+
+    const data = await provider.getWeather(lat, lng);
+
+    expect(data.precipitationRate).toEqual({ value: 1.5, unit: 'mm/h' });
+    expect(data.precipitationProbability).toEqual({ value: 60, unit: 'percent' });
   });
 
   it('normalizes unknown or missing weather codes into descriptive strings', async () => {
