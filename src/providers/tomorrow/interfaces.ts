@@ -13,6 +13,9 @@ export interface ITomorrowRealtimeResponse {
       precipitationIntensity?: number;
       precipitationProbability?: number;
       visibility?: number;
+      solarGHI?: number;
+      solarDNI?: number;
+      uvIndex?: number;
     };
   };
   location?: {

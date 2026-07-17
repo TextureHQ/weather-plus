@@ -129,6 +129,13 @@ function convertToWeatherData(data: IOpenWeatherResponse): Partial<IWeatherProvi
     };
   }
 
+  if (typeof data.current.uvi === 'number') {
+    result.uvIndex = {
+      value: data.current.uvi,
+      unit: IWeatherUnits.index,
+    };
+  }
+
   // OpenWeather returns precipitation values conditionally
   // current.rain.1h and current.snow.1h are mm/h
   if (data.current.rain?.['1h'] !== undefined) {

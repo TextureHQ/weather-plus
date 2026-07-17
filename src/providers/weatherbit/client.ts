@@ -66,7 +66,7 @@ function convertToWeatherData(payload: IWeatherbitCurrentResponse): Partial<IWea
     throw new Error('Invalid weather data');
   }
 
-  const { temp, rh, dewpt, clouds, weather, wind_spd, wind_dir, gust, precip, pop, vis } = current;
+  const { temp, rh, dewpt, clouds, weather, wind_spd, wind_dir, gust, precip, pop, vis, uv, solar_rad } = current;
 
   if (
     typeof temp !== 'number' &&
@@ -146,6 +146,21 @@ function convertToWeatherData(payload: IWeatherbitCurrentResponse): Partial<IWea
       // Weatherbit provides visibility in KM, mapping natively to meters
       value: vis * 1000,
       unit: IWeatherUnits.meters,
+    };
+  }
+
+  if (typeof solar_rad === 'number') {
+    result.solarGHI = {
+      // We map Weatherbit's estimated solar_rad implicitly to GHI as the best proxy
+      value: solar_rad,
+      unit: IWeatherUnits.wm2,
+    };
+  }
+
+  if (typeof uv === 'number') {
+    result.uvIndex = {
+      value: uv,
+      unit: IWeatherUnits.index,
     };
   }
 

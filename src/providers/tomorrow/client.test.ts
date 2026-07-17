@@ -41,6 +41,9 @@ describe('TomorrowProvider', () => {
           precipitationIntensity: 1.5,
           precipitationProbability: 60,
           visibility: 10,
+          solarGHI: 800,
+          solarDNI: 900,
+          uvIndex: 8,
         },
       },
       location: {
@@ -72,6 +75,9 @@ describe('TomorrowProvider', () => {
       precipitationRate: { value: 1.5, unit: 'mm/h' },
       precipitationProbability: { value: 60, unit: 'percent' },
       visibility: { value: 10000, unit: 'meters' },
+      solarGHI: { value: 800, unit: 'W/m2' },
+      solarDNI: { value: 900, unit: 'W/m2' },
+      uvIndex: { value: 8, unit: 'index' },
     });
   });
 
@@ -88,6 +94,9 @@ describe('TomorrowProvider', () => {
           precipitationIntensity: 1.5,
           precipitationProbability: 60,
           visibility: 10,
+          solarGHI: 800,
+          solarDNI: 900,
+          uvIndex: 8,
         },
       },
       location: {
@@ -103,6 +112,9 @@ describe('TomorrowProvider', () => {
     expect(data.precipitationRate).toEqual({ value: 1.5, unit: 'mm/h' });
     expect(data.precipitationProbability).toEqual({ value: 60, unit: 'percent' });
     expect(data.visibility).toEqual({ value: 10000, unit: 'meters' });
+    expect(data.solarGHI).toEqual({ value: 800, unit: 'W/m2' });
+    expect(data.solarDNI).toEqual({ value: 900, unit: 'W/m2' });
+    expect(data.uvIndex).toEqual({ value: 8, unit: 'index' });
   });
 
   it('normalizes unknown or missing weather codes into descriptive strings', async () => {
