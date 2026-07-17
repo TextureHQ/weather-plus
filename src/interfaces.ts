@@ -8,6 +8,7 @@ export enum IWeatherUnits {
     mph = 'mph',
     degrees = 'degrees',
     mmh = 'mm/h',
+    meters = 'meters',
 }
 
 export enum IWeatherKey {
@@ -21,6 +22,7 @@ export enum IWeatherKey {
     windDirection = 'windDirection',
     precipitationRate = 'precipitationRate',
     precipitationProbability = 'precipitationProbability',
+    visibility = 'visibility',
     // Not available for NWS, but is available for OpenWeather
     // We could utilize this API: https://sunrise-sunset.org/api
     // To supply sunrise and sunset times for NWS. It's a free API, would need to add attribution.
@@ -39,6 +41,7 @@ export type WeatherProviderPropertyMap = {
     [IWeatherKey.windDirection]: IWindDirection;
     [IWeatherKey.precipitationRate]: IPrecipitationRate;
     [IWeatherKey.precipitationProbability]: IPrecipitationProbability;
+    [IWeatherKey.visibility]: IVisibility;
     [IWeatherKey.sunrise]: ISunriseSunset;
     [IWeatherKey.sunset]: ISunriseSunset;
 };
@@ -68,4 +71,5 @@ export type IWindGust = IBaseWeatherProperty<number, IWeatherUnits.mps | IWeathe
 export type IWindDirection = IBaseWeatherProperty<number, IWeatherUnits.degrees>;
 export type IPrecipitationRate = IBaseWeatherProperty<number, IWeatherUnits.mmh>;
 export type IPrecipitationProbability = IBaseWeatherProperty<number, IWeatherUnits.percent>;
+export type IVisibility = IBaseWeatherProperty<number, IWeatherUnits.meters>;
 export type ISunriseSunset = IBaseWeatherProperty<string, IWeatherUnits.iso8601>;

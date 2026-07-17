@@ -12,6 +12,7 @@ export interface ITomorrowRealtimeResponse {
       windDirection?: number;
       precipitationIntensity?: number;
       precipitationProbability?: number;
+      visibility?: number;
     };
   };
   location?: {

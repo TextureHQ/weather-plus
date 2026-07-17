@@ -40,6 +40,7 @@ describe('TomorrowProvider', () => {
           windDirection: 180,
           precipitationIntensity: 1.5,
           precipitationProbability: 60,
+          visibility: 10,
         },
       },
       location: {
@@ -70,6 +71,7 @@ describe('TomorrowProvider', () => {
       windDirection: { value: 180, unit: 'degrees' },
       precipitationRate: { value: 1.5, unit: 'mm/h' },
       precipitationProbability: { value: 60, unit: 'percent' },
+      visibility: { value: 10000, unit: 'meters' },
     });
   });
 
@@ -85,6 +87,7 @@ describe('TomorrowProvider', () => {
           weatherCode: 1001,
           precipitationIntensity: 1.5,
           precipitationProbability: 60,
+          visibility: 10,
         },
       },
       location: {
@@ -99,6 +102,7 @@ describe('TomorrowProvider', () => {
 
     expect(data.precipitationRate).toEqual({ value: 1.5, unit: 'mm/h' });
     expect(data.precipitationProbability).toEqual({ value: 60, unit: 'percent' });
+    expect(data.visibility).toEqual({ value: 10000, unit: 'meters' });
   });
 
   it('normalizes unknown or missing weather codes into descriptive strings', async () => {

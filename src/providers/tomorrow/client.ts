@@ -140,6 +140,14 @@ function convertToWeatherData(payload: ITomorrowRealtimeResponse): Partial<IWeat
     };
   }
 
+  if (typeof values.visibility === 'number') {
+    // Tomorrow visibility is returned in kilometers
+    result.visibility = {
+      value: values.visibility * 1000,
+      unit: IWeatherUnits.meters,
+    };
+  }
+
   const standardizedCondition = standardizeTomorrowCondition(weatherCode ?? -1);
   result.conditions = {
     value: standardizedCondition,

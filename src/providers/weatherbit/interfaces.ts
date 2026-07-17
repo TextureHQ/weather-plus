@@ -9,6 +9,7 @@ export interface IWeatherbitCurrentResponse {
     gust?: number; // Wind gust in m/s
     precip?: number; // Liquid equivalent precipitation rate (mm/hr)
     pop?: number; // Probability of precipitation (%)
+    vis?: number; // Visibility in KM
     weather?: {
       code?: number;
       description?: string;

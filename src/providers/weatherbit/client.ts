@@ -66,7 +66,7 @@ function convertToWeatherData(payload: IWeatherbitCurrentResponse): Partial<IWea
     throw new Error('Invalid weather data');
   }
 
-  const { temp, rh, dewpt, clouds, weather, wind_spd, wind_dir, gust, precip, pop } = current;
+  const { temp, rh, dewpt, clouds, weather, wind_spd, wind_dir, gust, precip, pop, vis } = current;
 
   if (
     typeof temp !== 'number' &&
@@ -138,6 +138,14 @@ function convertToWeatherData(payload: IWeatherbitCurrentResponse): Partial<IWea
     result.precipitationProbability = {
       value: pop,
       unit: IWeatherUnits.percent,
+    };
+  }
+
+  if (typeof vis === 'number') {
+    result.visibility = {
+      // Weatherbit provides visibility in KM, mapping natively to meters
+      value: vis * 1000,
+      unit: IWeatherUnits.meters,
     };
   }
 

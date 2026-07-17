@@ -286,6 +286,14 @@ function convertToWeatherData(
     };
   }
 
+  const visibilityValue = properties.visibility?.value;
+  if (typeof visibilityValue === 'number') {
+    result.visibility = {
+      value: visibilityValue,
+      unit: IWeatherUnits.meters,
+    };
+  }
+
   return result;
 }
 
