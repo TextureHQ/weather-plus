@@ -43,6 +43,8 @@ describe('WeatherbitProvider', () => {
           precip: 2.5,
           pop: 80,
           vis: 10,
+          uv: 8.5,
+          solar_rad: 850,
           },
       ],
     };
@@ -71,6 +73,8 @@ describe('WeatherbitProvider', () => {
       precipitationRate: { value: 2.5, unit: 'mm/h' },
       precipitationProbability: { value: 80, unit: 'percent' },
       visibility: { value: 10000, unit: 'meters' },
+      uvIndex: { value: 8.5, unit: 'index' },
+      solarGHI: { value: 850, unit: 'W/m2' },
     });
   });
 
@@ -87,6 +91,8 @@ describe('WeatherbitProvider', () => {
           precip: 2.5,
           pop: 80,
           vis: 10,
+          uv: 8.5,
+          solar_rad: 850,
         },
       ],
     };
@@ -98,6 +104,8 @@ describe('WeatherbitProvider', () => {
     expect(data.precipitationRate).toEqual({ value: 2.5, unit: 'mm/h' });
     expect(data.precipitationProbability).toEqual({ value: 80, unit: 'percent' });
     expect(data.visibility).toEqual({ value: 10000, unit: 'meters' });
+    expect(data.uvIndex).toEqual({ value: 8.5, unit: 'index' });
+    expect(data.solarGHI).toEqual({ value: 850, unit: 'W/m2' });
   });
 
   it('records failure metadata when Weatherbit responds with an error', async () => {

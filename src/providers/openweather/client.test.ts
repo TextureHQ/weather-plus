@@ -33,6 +33,7 @@ describe('OpenWeatherProvider', () => {
         wind_gust: 22,
         wind_deg: 180,
         visibility: 10000,
+        uvi: 8.5,
         rain: { '1h': 2.5 },
         weather: [
           {
@@ -98,6 +99,10 @@ describe('OpenWeatherProvider', () => {
       visibility: {
         value: 10000,
         unit: 'meters'
+      },
+      uvIndex: {
+        value: 8.5,
+        unit: 'index'
       }
     });
   });

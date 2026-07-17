@@ -65,7 +65,7 @@ function convertToWeatherData(payload: ITomorrowRealtimeResponse): Partial<IWeat
     throw new Error('Invalid weather data');
   }
 
-  const { temperature, humidity, dewPoint, cloudCover, weatherCode, windSpeed, windGust, windDirection, precipitationIntensity, precipitationProbability } = values;
+  const { temperature, humidity, dewPoint, cloudCover, weatherCode, windSpeed, windGust, windDirection, precipitationIntensity, precipitationProbability, visibility, solarGHI, solarDNI, uvIndex } = values;
 
   if (
     typeof temperature !== 'number' &&
@@ -140,11 +140,32 @@ function convertToWeatherData(payload: ITomorrowRealtimeResponse): Partial<IWeat
     };
   }
 
-  if (typeof values.visibility === 'number') {
+  if (typeof visibility === 'number') {
     // Tomorrow visibility is returned in kilometers
     result.visibility = {
-      value: values.visibility * 1000,
+      value: visibility * 1000,
       unit: IWeatherUnits.meters,
+    };
+  }
+
+  if (typeof solarGHI === 'number') {
+    result.solarGHI = {
+      value: solarGHI,
+      unit: IWeatherUnits.wm2,
+    };
+  }
+
+  if (typeof solarDNI === 'number') {
+    result.solarDNI = {
+      value: solarDNI,
+      unit: IWeatherUnits.wm2,
+    };
+  }
+
+  if (typeof uvIndex === 'number') {
+    result.uvIndex = {
+      value: uvIndex,
+      unit: IWeatherUnits.index,
     };
   }
 

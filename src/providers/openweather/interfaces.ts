@@ -12,7 +12,7 @@ export interface IOpenWeatherResponse {
     pressure: number;
     humidity: number;
     dew_point: number;
-    uvi: number;
+    uvi?: number;
     clouds: number;
     visibility: number;
     wind_speed: number;
